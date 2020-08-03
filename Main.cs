@@ -20,6 +20,12 @@ namespace VGAudio.Win32
         public string OpenedFileExtension = null;
         public string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
 
+        // A button that requires an extra click to close the file first before opening a new one
+        public bool OpenCloseWinformsButton = true;
+
+        // Close button closes the file on the first click instead of closing the app
+        public bool CloseButtonClosesFile = true;
+
         public Main()
         {
             InitializeComponent();
@@ -30,17 +36,21 @@ namespace VGAudio.Win32
 
         private void OpenFileForm(object sender, EventArgs e)
         {
-            OpenFile();
-            /*
-            if (OpenedFile == null)
+            if (OpenCloseWinformsButton)
             {
-                OpenFile();
+                if (OpenedFile == null)
+                {
+                    OpenFile();
+                }
+                else
+                {
+                    CloseFile();
+                }
             }
             else
             {
-                CloseFile();
+                OpenFile();
             }
-            */
         }
 
         private void OpenFile()
@@ -188,7 +198,10 @@ namespace VGAudio.Win32
             if (loaded)
             {
                 LoopTheFile("", new EventArgs());
-                //btn_open.Text = "Close File";
+                if (OpenCloseWinformsButton)
+                {
+                    btn_open.Text = "Close File";
+                }
             }
             else
             {
@@ -199,7 +212,10 @@ namespace VGAudio.Win32
                 num_loopEnd.Visible = false;
 
                 txt_metadata.Visible = false;
-                //btn_open.Text = "Open File";
+                if (OpenCloseWinformsButton)
+                {
+                    btn_open.Text = "Open File";
+                }
             }
         }
 
@@ -392,10 +408,13 @@ namespace VGAudio.Win32
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (OpenedFile != null)
+            if (CloseButtonClosesFile)
             {
-                e.Cancel = true;
-                CloseFile();
+                if (OpenedFile != null)
+                {
+                    e.Cancel = true;
+                    CloseFile();
+                }
             }
         }
 
