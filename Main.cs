@@ -280,7 +280,7 @@ namespace VGAudio.Win32
                 }
                 chk_loop.Checked = false;
             }
-            UpdateStatus("Verifying file...");
+            UpdateStatus("Verifying the file...");
 
             // Select the save location
             SaveFileDialog saveFileDialog = new SaveFileDialog
@@ -302,7 +302,7 @@ namespace VGAudio.Win32
                 if (FormMethods.MassPathCheck(VGAudioCli, importFile))
                 {
                     // Do stuff
-                    UpdateStatus("Converting file...");
+                    UpdateStatus("Converting the file...");
                     try
                     {
                         ProcessStartInfo procInfo = new ProcessStartInfo
@@ -323,7 +323,7 @@ namespace VGAudio.Win32
 
                             if (loopStart > loopEnd)
                             {
-                                DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed Loop End value.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                                DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed the Loop End value.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                                 if (dialogResult != DialogResult.Yes)
                                 {
                                     UpdateStatus();
@@ -364,6 +364,7 @@ namespace VGAudio.Win32
                     }
                 }
             }
+            UpdateStatus();
             return;
         }
 
@@ -373,12 +374,12 @@ namespace VGAudio.Win32
             {
                 if (OpenedFileExtension == null)
                 {
-                    slb_status.Text = "Closed file: " + Path.GetFileName(OpenedFile);
+                    slb_status.Text = "Closed the file: " + Path.GetFileName(OpenedFile);
                     await Task.Delay(2000);
                 }
                 else
                 {
-                    slb_status.Text = "Opened file: " + Path.GetFileName(OpenedFile);
+                    slb_status.Text = "Opened the file: " + Path.GetFileName(OpenedFile);
                     return;
                 }
             }
