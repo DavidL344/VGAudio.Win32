@@ -135,8 +135,6 @@ namespace VGAudio.Win32
 
                         if (int.TryParse(mLoopStartVar, out int mLoopStart) && int.TryParse(mLoopEndVar, out int mLoopEnd))
                         {
-                            //txt_metadata.Text = "Loop information:\r\nLoop Start: " + mLoopStart + " samples\r\nLoop End: " + mLoopEnd + " samples" + metadata;
-
                             num_loopStart.Value = mLoopStart; // Sets the loop start at the current loop start
                             num_loopStart.Maximum = mLoopEnd - 1; // Makes sure the user can only input lower number than the loop's end
                             num_loopStart.Minimum = 0; // The loop start value cannot be lower than the beginning of the file
@@ -150,7 +148,6 @@ namespace VGAudio.Win32
                         }
                         else
                         {
-                            //txt_metadata.Text = "No loop information found." + metadata;
                             num_loopStart.Value = 0;
                             num_loopStart.Minimum = 0;
 
@@ -177,13 +174,6 @@ namespace VGAudio.Win32
                     }
                     return true;
                 }
-            }
-            else
-            {
-                /*
-                OpenedFile = null;
-                OpenedFileExtension = null;
-                */
             }
             return false;
         }
@@ -246,7 +236,6 @@ namespace VGAudio.Win32
         private void FileExport(object sender, EventArgs e)
         {
             // TODO: BRSTM - advanced settings + audio format
-            // TODO: export dialog - select destination of the file
             UpdateStatus("Verifying the file...");
             var importFile = OpenedFile;
             var importExtension = OpenedFileExtension;
@@ -297,8 +286,6 @@ namespace VGAudio.Win32
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                //textBox1.Text = saveFileDialog.FileName;
-                
                 if (FormMethods.MassPathCheck(VGAudioCli, importFile))
                 {
                     // Do stuff
@@ -333,7 +320,6 @@ namespace VGAudio.Win32
                             }
                             procInfo.Arguments = procInfo.Arguments + " -l " + loopStart + "-" + loopEnd;
                         }
-                        //MessageBox.Show(procInfo.Arguments);
 
                         var proc = Process.Start(procInfo);
                         proc.WaitForExit();
@@ -398,8 +384,6 @@ namespace VGAudio.Win32
             MaximumSize = Size;
 
             MaximizeBox = false;
-            //MinimizeBox = false;
-            //ControlBox = false;
         }
 
         private void TestFeature()
@@ -418,18 +402,5 @@ namespace VGAudio.Win32
                 }
             }
         }
-
-        /*
-        private const int CP_NOCLOSE_BUTTON = 0x200;
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams myCp = base.CreateParams;
-                myCp.ClassStyle = myCp.ClassStyle | CP_NOCLOSE_BUTTON;
-                return myCp;
-            }
-        }
-        */
     }
 }
