@@ -11,7 +11,6 @@ using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using VGAudio.Win32.Properties;
 
 namespace VGAudio.Win32
 {
@@ -98,8 +97,7 @@ namespace VGAudio.Win32
                     return false;
                 }
                 
-
-                if (MassPathCheck(VGAudioCli, OpenedFile))
+                if (FormMethods.MassPathCheck(VGAudioCli, OpenedFile))
                 {
                     ProcessStartInfo procInfo = new ProcessStartInfo
                     {
@@ -116,12 +114,12 @@ namespace VGAudio.Win32
                     if (proc.ExitCode == 0)
                     {
                         var metadata = proc.StandardOutput.ReadToEnd();
-                        var mLoopStartVar = getBetween(metadata, "Loop start: ", " samples");
-                        var mLoopEndVar = getBetween(metadata, "Loop end: ", " samples");
+                        var mLoopStartVar = FormMethods.GetBetween(metadata, "Loop start: ", " samples");
+                        var mLoopEndVar = FormMethods.GetBetween(metadata, "Loop end: ", " samples");
 
-                        var mEncodingFormat = getBetween(metadata, "Encoding format: ", "\r\n");
-                        var mSampleRate = getBetween(metadata, "Sample rate: ", "\r\n");
-                        var mChannelCount = getBetween(metadata, "Channel count: ", "\r\n");
+                        var mEncodingFormat = FormMethods.GetBetween(metadata, "Encoding format: ", "\r\n");
+                        var mSampleRate = FormMethods.GetBetween(metadata, "Sample rate: ", "\r\n");
+                        var mChannelCount = FormMethods.GetBetween(metadata, "Channel count: ", "\r\n");
 
                         txt_metadata.Text = "Encoding Format: " + mEncodingFormat + "\r\nSample Rate: " + mSampleRate + "\r\nChannel Count: " + mChannelCount;
 
@@ -146,7 +144,7 @@ namespace VGAudio.Win32
                             num_loopStart.Value = 0;
                             num_loopStart.Minimum = 0;
 
-                            var mSampleCountVar = getBetween(metadata, "Sample count: ", " (");
+                            var mSampleCountVar = FormMethods.GetBetween(metadata, "Sample count: ", " (");
                             if (int.TryParse(mSampleCountVar, out int mSampleCount))
                             {
                                 num_loopEnd.Maximum = mSampleCount;
@@ -285,7 +283,7 @@ namespace VGAudio.Win32
             {
                 //textBox1.Text = saveFileDialog.FileName;
                 
-                if (MassPathCheck(VGAudioCli, importFile))
+                if (FormMethods.MassPathCheck(VGAudioCli, importFile))
                 {
                     // Do stuff
                     UpdateStatus("Converting file...");
@@ -353,7 +351,7 @@ namespace VGAudio.Win32
             return;
         }
 
-        private async void UpdateStatus(string message = "Ready")
+        public async void UpdateStatus(string message = "Ready")
         {
             if (message == "Ready" && OpenedFile != null)
             {
@@ -369,48 +367,6 @@ namespace VGAudio.Win32
                 }
             }
             slb_status.Text = message;
-        }
-
-        // https://stackoverflow.com/a/10709874
-        public static string getBetween(string strSource, string strStart, string strEnd)
-        {
-            if (strSource.Contains(strStart) && strSource.Contains(strEnd))
-            {
-                int Start, End;
-                Start = strSource.IndexOf(strStart, 0) + strStart.Length;
-                End = strSource.IndexOf(strEnd, Start);
-                return strSource.Substring(Start, End - Start);
-            }
-            return "";
-        }
-
-        private bool MassPathCheck(string VGAudioCli, string inputFile)
-        {
-            if (!File.Exists(inputFile))
-            {
-                MessageBox.Show("The selected file no longer exists!", "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                UpdateStatus();
-                return false;
-            }
-
-            if (!File.Exists(VGAudioCli))
-            {
-                try
-                {
-                    using (FileStream fsDst = new FileStream(VGAudioCli, FileMode.CreateNew, FileAccess.Write))
-                    {
-                        byte[] bytes = Resources.GetVGAudioCli();
-                        fsDst.Write(bytes, 0, bytes.Length);
-                    }
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show("Unable to verify integrity: " + e.Message, "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    UpdateStatus();
-                    return false;
-                }
-            }
-            return true;
         }
 
         private void NumLoopOnUpdate(object sender, EventArgs e)
