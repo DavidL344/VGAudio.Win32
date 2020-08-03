@@ -1,0 +1,239 @@
+﻿namespace VGAudio.Win32
+{
+    partial class Main
+    {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
+        private System.ComponentModel.IContainer components = null;
+
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+
+        #region Windows Form Designer generated code
+
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
+        private void InitializeComponent()
+        {
+            this.statusStrip = new System.Windows.Forms.StatusStrip();
+            this.slb_status = new System.Windows.Forms.ToolStripStatusLabel();
+            this.btn_open = new System.Windows.Forms.Button();
+            this.chk_loop = new System.Windows.Forms.CheckBox();
+            this.num_loopStart = new System.Windows.Forms.NumericUpDown();
+            this.num_loopEnd = new System.Windows.Forms.NumericUpDown();
+            this.lbl_loopStart = new System.Windows.Forms.Label();
+            this.lbl_loopEnd = new System.Windows.Forms.Label();
+            this.lbl_exportAs = new System.Windows.Forms.Label();
+            this.lst_exportExtensions = new System.Windows.Forms.ComboBox();
+            this.btn_export = new System.Windows.Forms.Button();
+            this.txt_metadata = new System.Windows.Forms.TextBox();
+            this.statusStrip.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // statusStrip
+            // 
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(40, 40);
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.slb_status});
+            this.statusStrip.Location = new System.Drawing.Point(0, 396);
+            this.statusStrip.Name = "statusStrip";
+            this.statusStrip.Size = new System.Drawing.Size(800, 54);
+            this.statusStrip.TabIndex = 2;
+            this.statusStrip.Text = "statusStrip";
+            // 
+            // slb_status
+            // 
+            this.slb_status.Name = "slb_status";
+            this.slb_status.Size = new System.Drawing.Size(146, 41);
+            this.slb_status.Text = "Loading...";
+            // 
+            // btn_open
+            // 
+            this.btn_open.Location = new System.Drawing.Point(299, 12);
+            this.btn_open.Name = "btn_open";
+            this.btn_open.Size = new System.Drawing.Size(172, 54);
+            this.btn_open.TabIndex = 0;
+            this.btn_open.Text = "Open File";
+            this.btn_open.UseVisualStyleBackColor = true;
+            this.btn_open.Click += new System.EventHandler(this.OpenFileForm);
+            // 
+            // chk_loop
+            // 
+            this.chk_loop.AutoSize = true;
+            this.chk_loop.Location = new System.Drawing.Point(276, 157);
+            this.chk_loop.Name = "chk_loop";
+            this.chk_loop.Size = new System.Drawing.Size(209, 36);
+            this.chk_loop.TabIndex = 1;
+            this.chk_loop.Text = "Loop the file";
+            this.chk_loop.UseVisualStyleBackColor = true;
+            this.chk_loop.Visible = false;
+            this.chk_loop.CheckedChanged += new System.EventHandler(this.LoopTheFile);
+            // 
+            // num_loopStart
+            // 
+            this.num_loopStart.Location = new System.Drawing.Point(324, 211);
+            this.num_loopStart.Maximum = new decimal(new int[] {
+            -1486618625,
+            232830643,
+            0,
+            0});
+            this.num_loopStart.Name = "num_loopStart";
+            this.num_loopStart.Size = new System.Drawing.Size(281, 38);
+            this.num_loopStart.TabIndex = 3;
+            this.num_loopStart.Visible = false;
+            this.num_loopStart.ValueChanged += new System.EventHandler(this.NumLoopOnUpdate);
+            // 
+            // num_loopEnd
+            // 
+            this.num_loopEnd.Location = new System.Drawing.Point(324, 263);
+            this.num_loopEnd.Maximum = new decimal(new int[] {
+            -1486618625,
+            232830643,
+            0,
+            0});
+            this.num_loopEnd.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.num_loopEnd.Name = "num_loopEnd";
+            this.num_loopEnd.Size = new System.Drawing.Size(281, 38);
+            this.num_loopEnd.TabIndex = 4;
+            this.num_loopEnd.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.num_loopEnd.Visible = false;
+            this.num_loopEnd.ValueChanged += new System.EventHandler(this.NumLoopOnUpdate);
+            // 
+            // lbl_loopStart
+            // 
+            this.lbl_loopStart.AutoSize = true;
+            this.lbl_loopStart.Location = new System.Drawing.Point(164, 211);
+            this.lbl_loopStart.Name = "lbl_loopStart";
+            this.lbl_loopStart.Size = new System.Drawing.Size(154, 32);
+            this.lbl_loopStart.TabIndex = 5;
+            this.lbl_loopStart.Text = "Loop Start:";
+            this.lbl_loopStart.Visible = false;
+            // 
+            // lbl_loopEnd
+            // 
+            this.lbl_loopEnd.AutoSize = true;
+            this.lbl_loopEnd.Location = new System.Drawing.Point(173, 263);
+            this.lbl_loopEnd.Name = "lbl_loopEnd";
+            this.lbl_loopEnd.Size = new System.Drawing.Size(145, 32);
+            this.lbl_loopEnd.TabIndex = 6;
+            this.lbl_loopEnd.Text = "Loop End:";
+            this.lbl_loopEnd.Visible = false;
+            // 
+            // lbl_exportAs
+            // 
+            this.lbl_exportAs.AutoSize = true;
+            this.lbl_exportAs.Location = new System.Drawing.Point(227, 92);
+            this.lbl_exportAs.Name = "lbl_exportAs";
+            this.lbl_exportAs.Size = new System.Drawing.Size(145, 32);
+            this.lbl_exportAs.TabIndex = 7;
+            this.lbl_exportAs.Text = "Export As:";
+            this.lbl_exportAs.Visible = false;
+            // 
+            // lst_exportExtensions
+            // 
+            this.lst_exportExtensions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.lst_exportExtensions.FormattingEnabled = true;
+            this.lst_exportExtensions.Items.AddRange(new object[] {
+            "WAV",
+            "DSP",
+            "IDSP",
+            "BRSTM",
+            "BCSTM",
+            "BFSTM",
+            "HPS",
+            "ADX",
+            "HCA"});
+            this.lst_exportExtensions.Location = new System.Drawing.Point(389, 89);
+            this.lst_exportExtensions.Name = "lst_exportExtensions";
+            this.lst_exportExtensions.Size = new System.Drawing.Size(161, 39);
+            this.lst_exportExtensions.TabIndex = 8;
+            this.lst_exportExtensions.Visible = false;
+            // 
+            // btn_export
+            // 
+            this.btn_export.Location = new System.Drawing.Point(299, 329);
+            this.btn_export.Name = "btn_export";
+            this.btn_export.Size = new System.Drawing.Size(172, 54);
+            this.btn_export.TabIndex = 9;
+            this.btn_export.Text = "Export";
+            this.btn_export.UseVisualStyleBackColor = true;
+            this.btn_export.Visible = false;
+            this.btn_export.Click += new System.EventHandler(this.FileExport);
+            // 
+            // txt_metadata
+            // 
+            this.txt_metadata.Location = new System.Drawing.Point(170, 199);
+            this.txt_metadata.Multiline = true;
+            this.txt_metadata.Name = "txt_metadata";
+            this.txt_metadata.ReadOnly = true;
+            this.txt_metadata.Size = new System.Drawing.Size(446, 108);
+            this.txt_metadata.TabIndex = 0;
+            this.txt_metadata.Visible = false;
+            // 
+            // Main
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btn_export);
+            this.Controls.Add(this.lst_exportExtensions);
+            this.Controls.Add(this.lbl_exportAs);
+            this.Controls.Add(this.statusStrip);
+            this.Controls.Add(this.chk_loop);
+            this.Controls.Add(this.btn_open);
+            this.Controls.Add(this.lbl_loopEnd);
+            this.Controls.Add(this.lbl_loopStart);
+            this.Controls.Add(this.num_loopEnd);
+            this.Controls.Add(this.num_loopStart);
+            this.Controls.Add(this.txt_metadata);
+            this.Name = "Main";
+            this.Text = "VGAudio";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).EndInit();
+            this.ResumeLayout(false);
+            this.PerformLayout();
+
+        }
+
+        #endregion
+        private System.Windows.Forms.StatusStrip statusStrip;
+        private System.Windows.Forms.ToolStripStatusLabel slb_status;
+        private System.Windows.Forms.Button btn_open;
+        private System.Windows.Forms.CheckBox chk_loop;
+        private System.Windows.Forms.NumericUpDown num_loopStart;
+        private System.Windows.Forms.NumericUpDown num_loopEnd;
+        private System.Windows.Forms.Label lbl_loopStart;
+        private System.Windows.Forms.Label lbl_loopEnd;
+        private System.Windows.Forms.Label lbl_exportAs;
+        private System.Windows.Forms.ComboBox lst_exportExtensions;
+        private System.Windows.Forms.Button btn_export;
+        private System.Windows.Forms.TextBox txt_metadata;
+    }
+}
+
