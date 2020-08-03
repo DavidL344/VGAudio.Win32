@@ -27,7 +27,7 @@ namespace VGAudio.Win32
                 {
                     using (FileStream fsDst = new FileStream(VGAudioCli, FileMode.CreateNew, FileAccess.Write))
                     {
-                        byte[] bytes = Resources.GetVGAudioCli();
+                        byte[] bytes = Resources.VGAudioCli;
                         fsDst.Write(bytes, 0, bytes.Length);
                     }
                 }
