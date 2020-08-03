@@ -238,7 +238,7 @@ namespace VGAudio.Win32
             // TODO: BRSTM - advanced settings + audio format
             UpdateStatus("Verifying the file...");
             var importFile = OpenedFile;
-            var importExtension = OpenedFileExtension;
+            var importExtension = OpenedFileExtension.Remove(0, 1);
 
             if (lst_exportExtensions.SelectedItem == null)
             {
@@ -250,8 +250,7 @@ namespace VGAudio.Win32
 
             if (importExtension == exportExtension)
             {
-                // TODO: implement the functionality
-                DialogResult dialogResult = MessageBox.Show("The file you're trying to export has the same extension as the original file. The created file will have '_exported' suffix attached to it.\r\nContinue?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                DialogResult dialogResult = MessageBox.Show("The file you're trying to export has the same extension as the original file.\r\nContinue?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                 if (dialogResult != DialogResult.Yes)
                 {
                     UpdateStatus();
