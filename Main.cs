@@ -11,7 +11,6 @@ using System.Resources;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using VGAudio.Win32.Properties;
 
 namespace VGAudio.Win32
 {
@@ -20,6 +19,12 @@ namespace VGAudio.Win32
         public string OpenedFile = null;
         public string OpenedFileExtension = null;
         public string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
+
+        // A button that requires an extra click to close the file first before opening a new one
+        public bool OpenCloseWinformsButton = true;
+
+        // Close button closes the file on the first click instead of closing the app
+        public bool CloseButtonClosesFile = true;
 
         public Main()
         {
@@ -31,17 +36,21 @@ namespace VGAudio.Win32
 
         private void OpenFileForm(object sender, EventArgs e)
         {
-            OpenFile();
-            /*
-            if (OpenedFile == null)
+            if (OpenCloseWinformsButton)
             {
-                OpenFile();
+                if (OpenedFile == null)
+                {
+                    OpenFile();
+                }
+                else
+                {
+                    CloseFile();
+                }
             }
             else
             {
-                CloseFile();
+                OpenFile();
             }
-            */
         }
 
         private void OpenFile()
@@ -98,8 +107,7 @@ namespace VGAudio.Win32
                     return false;
                 }
                 
-
-                if (MassPathCheck(VGAudioCli, OpenedFile))
+                if (FormMethods.MassPathCheck(VGAudioCli, OpenedFile))
                 {
                     ProcessStartInfo procInfo = new ProcessStartInfo
                     {
@@ -116,19 +124,17 @@ namespace VGAudio.Win32
                     if (proc.ExitCode == 0)
                     {
                         var metadata = proc.StandardOutput.ReadToEnd();
-                        var mLoopStartVar = getBetween(metadata, "Loop start: ", " samples");
-                        var mLoopEndVar = getBetween(metadata, "Loop end: ", " samples");
+                        var mLoopStartVar = FormMethods.GetBetween(metadata, "Loop start: ", " samples");
+                        var mLoopEndVar = FormMethods.GetBetween(metadata, "Loop end: ", " samples");
 
-                        var mEncodingFormat = getBetween(metadata, "Encoding format: ", "\r\n");
-                        var mSampleRate = getBetween(metadata, "Sample rate: ", "\r\n");
-                        var mChannelCount = getBetween(metadata, "Channel count: ", "\r\n");
+                        var mEncodingFormat = FormMethods.GetBetween(metadata, "Encoding format: ", "\r\n");
+                        var mSampleRate = FormMethods.GetBetween(metadata, "Sample rate: ", "\r\n");
+                        var mChannelCount = FormMethods.GetBetween(metadata, "Channel count: ", "\r\n");
 
-                        txt_metadata.Text = "Encoding Format: " + mEncodingFormat + "\r\nSample Rate: " + mSampleRate + "\r\nChannel Count: " + mChannelCount;
+                        txt_metadata.Text = mEncodingFormat + "\r\nSample Rate: " + mSampleRate + "\r\nChannel Count: " + mChannelCount;
 
                         if (int.TryParse(mLoopStartVar, out int mLoopStart) && int.TryParse(mLoopEndVar, out int mLoopEnd))
                         {
-                            //txt_metadata.Text = "Loop information:\r\nLoop Start: " + mLoopStart + " samples\r\nLoop End: " + mLoopEnd + " samples" + metadata;
-
                             num_loopStart.Value = mLoopStart; // Sets the loop start at the current loop start
                             num_loopStart.Maximum = mLoopEnd - 1; // Makes sure the user can only input lower number than the loop's end
                             num_loopStart.Minimum = 0; // The loop start value cannot be lower than the beginning of the file
@@ -142,11 +148,10 @@ namespace VGAudio.Win32
                         }
                         else
                         {
-                            //txt_metadata.Text = "No loop information found." + metadata;
                             num_loopStart.Value = 0;
                             num_loopStart.Minimum = 0;
 
-                            var mSampleCountVar = getBetween(metadata, "Sample count: ", " (");
+                            var mSampleCountVar = FormMethods.GetBetween(metadata, "Sample count: ", " (");
                             if (int.TryParse(mSampleCountVar, out int mSampleCount))
                             {
                                 num_loopEnd.Maximum = mSampleCount;
@@ -170,13 +175,6 @@ namespace VGAudio.Win32
                     return true;
                 }
             }
-            else
-            {
-                /*
-                OpenedFile = null;
-                OpenedFileExtension = null;
-                */
-            }
             return false;
         }
 
@@ -190,7 +188,10 @@ namespace VGAudio.Win32
             if (loaded)
             {
                 LoopTheFile("", new EventArgs());
-                //btn_open.Text = "Close File";
+                if (OpenCloseWinformsButton)
+                {
+                    btn_open.Text = "Close File";
+                }
             }
             else
             {
@@ -201,7 +202,10 @@ namespace VGAudio.Win32
                 num_loopEnd.Visible = false;
 
                 txt_metadata.Visible = false;
-                //btn_open.Text = "Open File";
+                if (OpenCloseWinformsButton)
+                {
+                    btn_open.Text = "Open File";
+                }
             }
         }
 
@@ -232,10 +236,9 @@ namespace VGAudio.Win32
         private void FileExport(object sender, EventArgs e)
         {
             // TODO: BRSTM - advanced settings + audio format
-            // TODO: export dialog - select destination of the file
             UpdateStatus("Verifying the file...");
             var importFile = OpenedFile;
-            var importExtension = OpenedFileExtension;
+            var importExtension = OpenedFileExtension.Remove(0, 1);
 
             if (lst_exportExtensions.SelectedItem == null)
             {
@@ -247,8 +250,7 @@ namespace VGAudio.Win32
 
             if (importExtension == exportExtension)
             {
-                // TODO: implement the functionality
-                DialogResult dialogResult = MessageBox.Show("The file you're trying to export has the same extension as the original file. The created file will have '_exported' suffix attached to it.\r\nContinue?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                DialogResult dialogResult = MessageBox.Show("The file you're trying to export has the same extension as the original file.\r\nContinue?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                 if (dialogResult != DialogResult.Yes)
                 {
                     UpdateStatus();
@@ -266,7 +268,7 @@ namespace VGAudio.Win32
                 }
                 chk_loop.Checked = false;
             }
-            UpdateStatus("Verifying file...");
+            UpdateStatus("Verifying the file...");
 
             // Select the save location
             SaveFileDialog saveFileDialog = new SaveFileDialog
@@ -283,12 +285,10 @@ namespace VGAudio.Win32
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                //textBox1.Text = saveFileDialog.FileName;
-                
-                if (MassPathCheck(VGAudioCli, importFile))
+                if (FormMethods.MassPathCheck(VGAudioCli, importFile))
                 {
                     // Do stuff
-                    UpdateStatus("Converting file...");
+                    UpdateStatus("Converting the file...");
                     try
                     {
                         ProcessStartInfo procInfo = new ProcessStartInfo
@@ -309,7 +309,7 @@ namespace VGAudio.Win32
 
                             if (loopStart > loopEnd)
                             {
-                                DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed Loop End value.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                                DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed the Loop End value.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                                 if (dialogResult != DialogResult.Yes)
                                 {
                                     UpdateStatus();
@@ -319,7 +319,6 @@ namespace VGAudio.Win32
                             }
                             procInfo.Arguments = procInfo.Arguments + " -l " + loopStart + "-" + loopEnd;
                         }
-                        //MessageBox.Show(procInfo.Arguments);
 
                         var proc = Process.Start(procInfo);
                         proc.WaitForExit();
@@ -350,67 +349,34 @@ namespace VGAudio.Win32
                     }
                 }
             }
+            UpdateStatus();
             return;
         }
 
-        private async void UpdateStatus(string message = "Ready")
+        public async void UpdateStatus(string message = "Ready")
         {
             if (message == "Ready" && OpenedFile != null)
             {
                 if (OpenedFileExtension == null)
                 {
-                    slb_status.Text = "Closed file: " + Path.GetFileName(OpenedFile);
+                    slb_status.Text = "Closed the file: " + Path.GetFileName(OpenedFile);
                     await Task.Delay(2000);
+
+                    // Another file might've been opened in the meantime when the previous file was closed
+                    // Was another file opened during the Task.Delay?
+                    if (OpenedFileExtension != null)
+                    {
+                        slb_status.Text = "Opened the file: " + Path.GetFileName(OpenedFile);
+                        return;
+                    }
                 }
                 else
                 {
-                    slb_status.Text = "Opened file: " + Path.GetFileName(OpenedFile);
+                    slb_status.Text = "Opened the file: " + Path.GetFileName(OpenedFile);
                     return;
                 }
             }
             slb_status.Text = message;
-        }
-
-        // https://stackoverflow.com/a/10709874
-        public static string getBetween(string strSource, string strStart, string strEnd)
-        {
-            if (strSource.Contains(strStart) && strSource.Contains(strEnd))
-            {
-                int Start, End;
-                Start = strSource.IndexOf(strStart, 0) + strStart.Length;
-                End = strSource.IndexOf(strEnd, Start);
-                return strSource.Substring(Start, End - Start);
-            }
-            return "";
-        }
-
-        private bool MassPathCheck(string VGAudioCli, string inputFile)
-        {
-            if (!File.Exists(inputFile))
-            {
-                MessageBox.Show("The selected file no longer exists!", "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                UpdateStatus();
-                return false;
-            }
-
-            if (!File.Exists(VGAudioCli))
-            {
-                try
-                {
-                    using (FileStream fsDst = new FileStream(VGAudioCli, FileMode.CreateNew, FileAccess.Write))
-                    {
-                        byte[] bytes = Resources.GetVGAudioCli();
-                        fsDst.Write(bytes, 0, bytes.Length);
-                    }
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show("Unable to verify integrity: " + e.Message, "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    UpdateStatus();
-                    return false;
-                }
-            }
-            return true;
         }
 
         private void NumLoopOnUpdate(object sender, EventArgs e)
@@ -425,8 +391,6 @@ namespace VGAudio.Win32
             MaximumSize = Size;
 
             MaximizeBox = false;
-            //MinimizeBox = false;
-            //ControlBox = false;
         }
 
         private void TestFeature()
@@ -436,24 +400,14 @@ namespace VGAudio.Win32
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (OpenedFile != null)
+            if (CloseButtonClosesFile)
             {
-                e.Cancel = true;
-                CloseFile();
+                if (OpenedFile != null)
+                {
+                    e.Cancel = true;
+                    CloseFile();
+                }
             }
         }
-
-        /*
-        private const int CP_NOCLOSE_BUTTON = 0x200;
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams myCp = base.CreateParams;
-                myCp.ClassStyle = myCp.ClassStyle | CP_NOCLOSE_BUTTON;
-                return myCp;
-            }
-        }
-        */
     }
 }
