@@ -131,7 +131,7 @@ namespace VGAudio.Win32
                         var mSampleRate = FormMethods.GetBetween(metadata, "Sample rate: ", "\r\n");
                         var mChannelCount = FormMethods.GetBetween(metadata, "Channel count: ", "\r\n");
 
-                        txt_metadata.Text = "Encoding Format: " + mEncodingFormat + "\r\nSample Rate: " + mSampleRate + "\r\nChannel Count: " + mChannelCount;
+                        txt_metadata.Text = mEncodingFormat + "\r\nSample Rate: " + mSampleRate + "\r\nChannel Count: " + mChannelCount;
 
                         if (int.TryParse(mLoopStartVar, out int mLoopStart) && int.TryParse(mLoopEndVar, out int mLoopEnd))
                         {
