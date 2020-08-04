@@ -368,7 +368,17 @@ namespace VGAudio.Win32
                     return;
                 }
             }
-            slb_status.Text = message;
+
+            // Another file might've been opened in the meantime when the previous file was closed
+            // Was another file opened during the Task.Delay?
+            if (OpenedFileExtension != null)
+            {
+                slb_status.Text = "Opened the file: " + Path.GetFileName(OpenedFile);
+            }
+            else
+            {
+                slb_status.Text = message;
+            }
         }
 
         private void NumLoopOnUpdate(object sender, EventArgs e)
