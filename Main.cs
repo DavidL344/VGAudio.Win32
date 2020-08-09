@@ -109,6 +109,10 @@ namespace VGAudio.Win32
                 var FileExtensionWithDot = Path.GetExtension(OpenedFileRemake["FilePath"]);
                 OpenedFileRemake.Add("FileExtension", FileExtensionWithDot.Substring(1));
 
+                // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
+                OpenedFileRemake.Add("FileNameShort", FormMethods.Truncate(OpenedFileRemake["FileName"]));
+                OpenedFileRemake["FileNameShort"] += "... (." + OpenedFileRemake["FileExtension"] + ")";
+
                 if (!extsArray.Contains(OpenedFileRemake["FileExtension"]))
                 {
                     MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -400,20 +404,27 @@ namespace VGAudio.Win32
                 case "Ready":
                     if (OpenedFileRemake.ContainsKey("FileName"))
                     {
-                        slb_status.Text = "Opened the file: " + OpenedFileRemake["FileName"];
+                        if (File.Exists(OpenedFileRemake["FilePath"]))
+                        {
+                            slb_status.Text = "Opened the file: " + OpenedFileRemake["FileNameShort"];
+                        }
+                        else
+                        {
+                            slb_status.Text = "Please check the path of \"" + OpenedFileRemake["FileNameShort"] + "\"";
+                        }
                         return;
                     }
                     slb_status.Text = message;
                     break;
                 case "Close":
-                    slb_status.Text = "Closed the file: " + OpenedFileRemake["FileName"];
+                    slb_status.Text = "Closed the file: " + OpenedFileRemake["FileNameShort"];
                     await Task.Delay(2000);
 
                     // Another file might've been opened in the meantime when the previous file was closed
                     // Was another file opened during the Task.Delay?
                     if (OpenedFileRemake.ContainsKey("FileExtension"))
                     {
-                        slb_status.Text = "Opened the file: " + OpenedFileRemake["FileName"];
+                        slb_status.Text = "Opened the file: " + OpenedFileRemake["FileNameShort"];
                         return;
                     }
                     slb_status.Text = "Ready";

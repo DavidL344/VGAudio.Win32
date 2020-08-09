@@ -58,5 +58,12 @@ namespace VGAudio.Win32
             }
             return "";
         }
+
+        // https://stackoverflow.com/a/2776689
+        public static string Truncate(string value, int maxLength = 22)
+        {
+            if (string.IsNullOrEmpty(value)) return value;
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        }
     }
 }
