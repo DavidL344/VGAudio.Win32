@@ -72,6 +72,36 @@ namespace VGAudio.Win32
             }
         }
 
+        private void DragDropFile(object sender, DragEventArgs e)
+        {
+            string[] fileList = (string[])e.Data.GetData(DataFormats.FileDrop, false);
+
+            if (fileList == null)
+            {
+                MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            else
+            {
+                if (fileList.Length == 1)
+                {
+                    var file = fileList[0];
+                    if (FileDialogProcess(file))
+                    {
+                        FileLoaded();
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Only one file is supported at a time.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void DragDropEffects(object sender, DragEventArgs e)
+        {
+            e.Effect = System.Windows.Forms.DragDropEffects.Move;
+        }
+
         private void CloseFile()
         {
             FileLoaded(false);
@@ -99,122 +129,128 @@ namespace VGAudio.Win32
 
             if (openFile.ShowDialog() == DialogResult.OK)
             {
-                // Clear dictionary if not empty
-                if (OpenedFileRemake.Count != 0) OpenedFileRemake.Clear();
-                if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
+                return FileDialogProcess(openFile.FileName);
+            }
+            return false;
+        }
 
-                // Load file information
-                OpenedFileRemake.Add("FileName", Path.GetFileName(openFile.FileName));
-                OpenedFileRemake.Add("FilePath", openFile.FileName);
-                OpenedFileRemake.Add("FilePathEscaped", "\"" + OpenedFileRemake["FilePath"] + "\"");
-                OpenedFileRemake.Add("FileNoExtension", Path.GetFileNameWithoutExtension(OpenedFileRemake["FilePath"]));
+        private bool FileDialogProcess(string filePath)
+        {
+            // Clear dictionary if not empty
+            if (OpenedFileRemake.Count != 0) OpenedFileRemake.Clear();
+            if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
 
-                // Load file extension without the '.' at the beginning
-                var FileExtensionWithDot = Path.GetExtension(OpenedFileRemake["FilePath"]);
-                OpenedFileRemake.Add("FileExtension", FileExtensionWithDot.Substring(1));
+            // Load file information
+            OpenedFileRemake.Add("FileName", Path.GetFileName(filePath));
+            OpenedFileRemake.Add("FilePath", filePath);
+            OpenedFileRemake.Add("FilePathEscaped", "\"" + OpenedFileRemake["FilePath"] + "\"");
+            OpenedFileRemake.Add("FileNoExtension", Path.GetFileNameWithoutExtension(OpenedFileRemake["FilePath"]));
 
-                // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
-                OpenedFileRemake.Add("FileNameShort", FormMethods.Truncate(OpenedFileRemake["FileName"]));
-                if (OpenedFileRemake["FileName"] != OpenedFileRemake["FileNameShort"])
+            // Load file extension without the '.' at the beginning
+            var FileExtensionWithDot = Path.GetExtension(OpenedFileRemake["FilePath"]);
+            OpenedFileRemake.Add("FileExtension", FileExtensionWithDot.Substring(1));
+
+            // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
+            OpenedFileRemake.Add("FileNameShort", FormMethods.Truncate(OpenedFileRemake["FileName"]));
+            if (OpenedFileRemake["FileName"] != OpenedFileRemake["FileNameShort"])
+            {
+                OpenedFileRemake["FileNameShort"] += "... (." + OpenedFileRemake["FileExtension"] + ")";
+            }
+
+            if (!extsArray.Contains(OpenedFileRemake["FileExtension"]))
+            {
+                MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //CloseFile();
+                return false;
+            }
+
+            if (FormMethods.MassPathCheck(VGAudioCli, OpenedFileRemake["FilePath"]))
+            {
+                ProcessStartInfo procInfo = new ProcessStartInfo
                 {
-                    OpenedFileRemake["FileNameShort"] += "... (." + OpenedFileRemake["FileExtension"] + ")";
-                }
+                    FileName = VGAudioCli,
+                    WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
+                    Arguments = "-m " + "\"" + OpenedFileRemake["FilePath"] + "\"", // TODO: escape?
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+                var proc = Process.Start(procInfo);
+                proc.WaitForExit();
+                if (proc.ExitCode == 0)
+                {
+                    var metadata = proc.StandardOutput.ReadToEnd();
 
-                if (!extsArray.Contains(OpenedFileRemake["FileExtension"]))
-                {
-                    MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    CloseFile();
-                    return false;
-                }
-                
-                if (FormMethods.MassPathCheck(VGAudioCli, OpenedFileRemake["FilePath"]))
-                {
-                    ProcessStartInfo procInfo = new ProcessStartInfo
+                    // Vars that are later converted to int
+                    var mLoopStartVar = FormMethods.GetBetween(metadata, "Loop start: ", " samples");
+                    var mLoopEndVar = FormMethods.GetBetween(metadata, "Loop end: ", " samples");
+
+                    OpenedFileRemake.Add("EncodingFormat", FormMethods.GetBetween(metadata, "Encoding format: ", "\r\n"));
+                    OpenedFileRemake.Add("SampleRate", FormMethods.GetBetween(metadata, "Sample rate: ", "\r\n"));
+                    OpenedFileRemake.Add("ChannelCount", FormMethods.GetBetween(metadata, "Channel count: ", "\r\n"));
+
+                    txt_metadata.Text = OpenedFileRemake["EncodingFormat"] + "\r\nSample Rate: " + OpenedFileRemake["SampleRate"] + "\r\nChannel Count: " + OpenedFileRemake["ChannelCount"];
+
+                    if (int.TryParse(mLoopStartVar, out int mLoopStart) && int.TryParse(mLoopEndVar, out int mLoopEnd))
                     {
-                        FileName = VGAudioCli,
-                        WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
-                        Arguments = "-m " + "\"" + OpenedFileRemake["FilePath"] + "\"", // TODO: escape?
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true,
-                        WindowStyle = ProcessWindowStyle.Hidden
-                    };
-                    var proc = Process.Start(procInfo);
-                    proc.WaitForExit();
-                    if (proc.ExitCode == 0)
+                        OpenedFileLoop.Add("Start", mLoopStart); // Sets the loop start at the current loop start
+                        OpenedFileLoop.Add("End", mLoopEnd); // Sets the loop end at the current loop end
+
+                        OpenedFileLoop.Add("StartMax", OpenedFileLoop["End"] - 1); // Makes sure the user can only input lower number than the loop's end
+                        OpenedFileLoop.Add("StartMin", 0); // The loop start value cannot be lower than the beginning of the file
+
+                        OpenedFileLoop.Add("EndMax", mLoopEnd); // Makes sure the user doesn't input more samples than the file has
+                        OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1); // Loop end has to be a bigger number than loop start
+
+                        num_loopStart.Value = OpenedFileLoop["Start"];
+                        num_loopStart.Maximum = OpenedFileLoop["StartMax"];
+                        num_loopStart.Minimum = OpenedFileLoop["StartMin"];
+
+                        num_loopEnd.Value = OpenedFileLoop["End"];
+                        num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
+                        num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
+
+                        chk_loop.Text = "Loop the file";
+                        chk_loop.Checked = true;
+                    }
+                    else
                     {
-                        var metadata = proc.StandardOutput.ReadToEnd();
+                        // TODO: where is StartMax?
+                        OpenedFileLoop.Add("Start", 0);
+                        OpenedFileLoop.Add("StartMin", 0);
 
-                        // Vars that are later converted to int
-                        var mLoopStartVar = FormMethods.GetBetween(metadata, "Loop start: ", " samples");
-                        var mLoopEndVar = FormMethods.GetBetween(metadata, "Loop end: ", " samples");
-
-                        OpenedFileRemake.Add("EncodingFormat", FormMethods.GetBetween(metadata, "Encoding format: ", "\r\n"));
-                        OpenedFileRemake.Add("SampleRate", FormMethods.GetBetween(metadata, "Sample rate: ", "\r\n"));
-                        OpenedFileRemake.Add("ChannelCount", FormMethods.GetBetween(metadata, "Channel count: ", "\r\n"));
-
-                        txt_metadata.Text = OpenedFileRemake["EncodingFormat"] + "\r\nSample Rate: " + OpenedFileRemake["SampleRate"] + "\r\nChannel Count: " + OpenedFileRemake["ChannelCount"];
-
-                        if (int.TryParse(mLoopStartVar, out int mLoopStart) && int.TryParse(mLoopEndVar, out int mLoopEnd))
+                        var mSampleCountVar = FormMethods.GetBetween(metadata, "Sample count: ", " (");
+                        if (int.TryParse(mSampleCountVar, out int mSampleCount))
                         {
-                            OpenedFileLoop.Add("Start", mLoopStart); // Sets the loop start at the current loop start
-                            OpenedFileLoop.Add("End", mLoopEnd); // Sets the loop end at the current loop end
+                            // If there's no loop, the new loop end is end of the file by default
+                            OpenedFileLoop.Add("EndMax", mSampleCount);
+                            OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1);
+                            OpenedFileLoop.Add("End", OpenedFileLoop["EndMax"]);
 
-                            OpenedFileLoop.Add("StartMax", OpenedFileLoop["End"] - 1); // Makes sure the user can only input lower number than the loop's end
-                            OpenedFileLoop.Add("StartMin", 0); // The loop start value cannot be lower than the beginning of the file
-
-                            OpenedFileLoop.Add("EndMax", mLoopEnd); // Makes sure the user doesn't input more samples than the file has
-                            OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1); // Loop end has to be a bigger number than loop start
-
-                            num_loopStart.Value = OpenedFileLoop["Start"];
-                            num_loopStart.Maximum = OpenedFileLoop["StartMax"];
-                            num_loopStart.Minimum = OpenedFileLoop["StartMin"];
-
-                            num_loopEnd.Value = OpenedFileLoop["End"];
                             num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
                             num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-
-                            chk_loop.Text = "Loop the file";
-                            chk_loop.Checked = true;
+                            num_loopEnd.Value = OpenedFileLoop["End"];
                         }
                         else
                         {
-                            // TODO: where is StartMax?
-                            OpenedFileLoop.Add("Start", 0);
-                            OpenedFileLoop.Add("StartMin", 0);
+                            // Should never occur - hopefully
+                            OpenedFileLoop.Add("EndMax", OpenedFileLoop["Start"] + 9999999); // May break the program if number of samples is higher than the file has
+                            OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1);
+                            OpenedFileLoop.Add("End", OpenedFileLoop["Start"] + 1);
 
-                            var mSampleCountVar = FormMethods.GetBetween(metadata, "Sample count: ", " (");
-                            if (int.TryParse(mSampleCountVar, out int mSampleCount))
-                            {
-                                // If there's no loop, the new loop end is end of the file by default
-                                OpenedFileLoop.Add("EndMax", mSampleCount);
-                                OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1);
-                                OpenedFileLoop.Add("End", OpenedFileLoop["EndMax"]);
-
-                                num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
-                                num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-                                num_loopEnd.Value = OpenedFileLoop["End"];
-                            }
-                            else
-                            {
-                                // Should never occur - hopefully
-                                OpenedFileLoop.Add("EndMax", OpenedFileLoop["Start"] + 9999999); // May break the program if number of samples is higher than the file has
-                                OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1);
-                                OpenedFileLoop.Add("End", OpenedFileLoop["Start"] + 1);
-
-                                num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
-                                num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-                                num_loopEnd.Value = OpenedFileLoop["End"];
-                            }
-                            num_loopStart.Maximum = num_loopEnd.Maximum - 1;
-
-                            chk_loop.Text = "Create a loop";
-                            chk_loop.Checked = false;
+                            num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
+                            num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
+                            num_loopEnd.Value = OpenedFileLoop["End"];
                         }
-                        UpdateStatus();
+                        num_loopStart.Maximum = num_loopEnd.Maximum - 1;
+
+                        chk_loop.Text = "Create a loop";
+                        chk_loop.Checked = false;
                     }
-                    return true;
+                    UpdateStatus();
                 }
+                return true;
             }
             return false;
         }

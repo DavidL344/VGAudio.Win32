@@ -207,6 +207,7 @@
             // 
             // Main
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
@@ -225,6 +226,8 @@
             this.Name = "Main";
             this.Text = "VGAudio";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DragDropFile);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DragDropEffects);
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).EndInit();
