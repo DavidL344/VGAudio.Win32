@@ -111,7 +111,10 @@ namespace VGAudio.Win32
 
                 // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
                 OpenedFileRemake.Add("FileNameShort", FormMethods.Truncate(OpenedFileRemake["FileName"]));
-                OpenedFileRemake["FileNameShort"] += "... (." + OpenedFileRemake["FileExtension"] + ")";
+                if (OpenedFileRemake["FileName"] != OpenedFileRemake["FileNameShort"])
+                {
+                    OpenedFileRemake["FileNameShort"] += "... (." + OpenedFileRemake["FileExtension"] + ")";
+                }
 
                 if (!extsArray.Contains(OpenedFileRemake["FileExtension"]))
                 {
