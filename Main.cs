@@ -112,11 +112,6 @@ namespace VGAudio.Win32
 
         private bool FileDialog()
         {
-            if (!OpenedFileRemake.ContainsKey("FilePath"))
-            {
-                lst_exportExtensions.SelectedIndex = 1;
-            }
-
             OpenFileDialog openFile = new OpenFileDialog
             {
                 Title = "Open file",
@@ -136,6 +131,12 @@ namespace VGAudio.Win32
 
         private bool FileDialogProcess(string filePath)
         {
+            // Select the second export extension (DSP)
+            if (!OpenedFileRemake.ContainsKey("FilePath"))
+            {
+                lst_exportExtensions.SelectedIndex = 1;
+            }
+
             // Clear dictionary if not empty
             if (OpenedFileRemake.Count != 0) OpenedFileRemake.Clear();
             if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
@@ -160,7 +161,6 @@ namespace VGAudio.Win32
             if (!extsArray.Contains(OpenedFileRemake["FileExtension"]))
             {
                 MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //CloseFile();
                 return false;
             }
 
