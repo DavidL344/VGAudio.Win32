@@ -180,15 +180,15 @@ namespace VGAudio.Win32
                 proc.WaitForExit();
                 if (proc.ExitCode == 0)
                 {
-                    var metadata = proc.StandardOutput.ReadToEnd();
+                    OpenedFileRemake.Add("Metadata", proc.StandardOutput.ReadToEnd());
 
                     // Vars that are later converted to int
-                    var mLoopStartVar = FormMethods.GetBetween(metadata, "Loop start: ", " samples");
-                    var mLoopEndVar = FormMethods.GetBetween(metadata, "Loop end: ", " samples");
+                    var mLoopStartVar = FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Loop start: ", " samples");
+                    var mLoopEndVar = FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Loop end: ", " samples");
 
-                    OpenedFileRemake.Add("EncodingFormat", FormMethods.GetBetween(metadata, "Encoding format: ", "\r\n"));
-                    OpenedFileRemake.Add("SampleRate", FormMethods.GetBetween(metadata, "Sample rate: ", "\r\n"));
-                    OpenedFileRemake.Add("ChannelCount", FormMethods.GetBetween(metadata, "Channel count: ", "\r\n"));
+                    OpenedFileRemake.Add("EncodingFormat", FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Encoding format: ", "\r\n"));
+                    OpenedFileRemake.Add("SampleRate", FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Sample rate: ", "\r\n"));
+                    OpenedFileRemake.Add("ChannelCount", FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Channel count: ", "\r\n"));
 
                     txt_metadata.Text = OpenedFileRemake["EncodingFormat"] + "\r\nSample Rate: " + OpenedFileRemake["SampleRate"] + "\r\nChannel Count: " + OpenedFileRemake["ChannelCount"];
 
@@ -220,7 +220,7 @@ namespace VGAudio.Win32
                         OpenedFileLoop.Add("Start", 0);
                         OpenedFileLoop.Add("StartMin", 0);
 
-                        var mSampleCountVar = FormMethods.GetBetween(metadata, "Sample count: ", " (");
+                        var mSampleCountVar = FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Sample count: ", " (");
                         if (int.TryParse(mSampleCountVar, out int mSampleCount))
                         {
                             // If there's no loop, the new loop end is end of the file by default
@@ -432,9 +432,52 @@ namespace VGAudio.Win32
 
         private void FileDump(object sender, EventArgs e)
         {
+            // Dump export information?
+            DialogResult result = MessageBox.Show("Include export information set in the app?", Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
+            bool dumpExportInfo;
+            switch (result)
+            {
+                case DialogResult.Yes:
+                    dumpExportInfo = true;
+                    break;
+                case DialogResult.No:
+                    dumpExportInfo = false;
+                    break;
+                default:
+                    return;
+            }
+
             UpdateStatus("Dumping info...");
             var path = OpenedFileRemake["FilePath"] + ".dump";
-            string[] lines = { "dw", "de" }; // TODO: actually dump stuff
+
+            var exportExtension = lst_exportExtensions.SelectedItem.ToString().ToLower();
+            var convertCommand = "VGAudioCli.exe -i " + OpenedFileRemake["FilePathEscaped"] + " -o " + "output." + exportExtension;
+
+            List<string> lineList = new List<string>
+            {
+                FormMethods.GetAppInfo("name") + " (" + FormMethods.GetAppInfo("version") + ")",
+                "Dumped Info (" + OpenedFileRemake["FileName"] + ")\r\n",
+                OpenedFileRemake["Metadata"]
+            };
+
+            if (dumpExportInfo)
+            {
+                lineList.Add("----------\r\n");
+                lineList.Add("Custom Export Info:");
+                lineList.Add("Target file: " + exportExtension);
+                if (chk_loop.Checked)
+                {
+                    if (exportExtension != "wav")
+                    {
+                        lineList.Add("Loop start: " + num_loopStart.Value);
+                        lineList.Add("Loop end: " + num_loopEnd.Value);
+                        convertCommand += " -l " + num_loopStart.Value + "-" + num_loopEnd.Value;
+                    }
+                }
+                lineList.Add("\r\nConversion command (defined from the UI):\r\n" + convertCommand);
+            }
+
+            string[] lines = lineList.ToArray();
             File.WriteAllLines(path, lines);
             UpdateStatus();
             MessageBox.Show("Info dumped to " + path + "!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);

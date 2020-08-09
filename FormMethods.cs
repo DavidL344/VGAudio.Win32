@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -64,6 +66,23 @@ namespace VGAudio.Win32
         {
             if (string.IsNullOrEmpty(value)) return value;
             return value.Length <= maxLength ? value : value.Substring(0, maxLength);
+        }
+
+        public static string GetAppInfo(string type = "name")
+        {
+            switch (type)
+            {
+                case "name":
+                    // https://stackoverflow.com/a/4266261
+                    return Assembly.GetExecutingAssembly().GetName().Name;
+                case "version":
+                    // https://stackoverflow.com/a/909583
+                    Assembly assembly = Assembly.GetExecutingAssembly();
+                    FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+                    return fvi.FileVersion;
+                default:
+                    return "";
+            }
         }
     }
 }
