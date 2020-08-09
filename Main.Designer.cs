@@ -40,6 +40,7 @@
             this.lst_exportExtensions = new System.Windows.Forms.ComboBox();
             this.btn_export = new System.Windows.Forms.Button();
             this.txt_metadata = new System.Windows.Forms.TextBox();
+            this.btn_dump = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
@@ -174,7 +175,7 @@
             // 
             // btn_export
             // 
-            this.btn_export.Location = new System.Drawing.Point(299, 329);
+            this.btn_export.Location = new System.Drawing.Point(200, 322);
             this.btn_export.Name = "btn_export";
             this.btn_export.Size = new System.Drawing.Size(172, 54);
             this.btn_export.TabIndex = 9;
@@ -193,11 +194,23 @@
             this.txt_metadata.TabIndex = 0;
             this.txt_metadata.Visible = false;
             // 
+            // btn_dump
+            // 
+            this.btn_dump.Location = new System.Drawing.Point(389, 322);
+            this.btn_dump.Name = "btn_dump";
+            this.btn_dump.Size = new System.Drawing.Size(172, 54);
+            this.btn_dump.TabIndex = 10;
+            this.btn_dump.Text = "Dump Info";
+            this.btn_dump.UseVisualStyleBackColor = true;
+            this.btn_dump.Visible = false;
+            this.btn_dump.Click += new System.EventHandler(this.FileDump);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btn_dump);
             this.Controls.Add(this.btn_export);
             this.Controls.Add(this.lst_exportExtensions);
             this.Controls.Add(this.lbl_exportAs);
@@ -234,6 +247,7 @@
         private System.Windows.Forms.ComboBox lst_exportExtensions;
         private System.Windows.Forms.Button btn_export;
         private System.Windows.Forms.TextBox txt_metadata;
+        private System.Windows.Forms.Button btn_dump;
     }
 }
 
