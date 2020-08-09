@@ -99,6 +99,10 @@ namespace VGAudio.Win32
 
             if (openFile.ShowDialog() == DialogResult.OK)
             {
+                // Clear dictionary if not empty
+                if (OpenedFileRemake.Count != 0) OpenedFileRemake.Clear();
+                if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
+
                 // Load file information
                 OpenedFileRemake.Add("FileName", Path.GetFileName(openFile.FileName));
                 OpenedFileRemake.Add("FilePath", openFile.FileName);
