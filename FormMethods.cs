@@ -17,7 +17,12 @@ namespace VGAudio.Win32
             if (!File.Exists(inputFile))
             {
                 MessageBox.Show("The selected file no longer exists!", "Error | " + AppForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                AppForm.UpdateStatus();
+                // Closing the file throws an error, because OpenedFileRemake is a part of another class and is called from here
+                // Leaving CloseFile() as a private method for now
+                // AppForm.CloseFile();
+
+                // Status is overridden by another call of UpdateStatus directly in Main
+                // AppForm.UpdateStatus("Force closed the file: " + inputFile);
                 return false;
             }
 

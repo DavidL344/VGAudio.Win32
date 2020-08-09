@@ -16,10 +16,6 @@ namespace VGAudio.Win32
 {
     public partial class Main : Form
     {
-        // TODO: convert vars to a single dictionary
-        //public string OpenedFile = null;
-        //public string OpenedFileExtension = null;
-
         public string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
         
         public Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
@@ -79,10 +75,7 @@ namespace VGAudio.Win32
         private void CloseFile()
         {
             FileLoaded(false);
-            //OpenedFileExtension = null;
-            UpdateStatus("Close"); // OLD: Comes before clearing OpenedFile and after clearing OpenedFileExtension intentionally
-            //OpenedFile = null;
-
+            UpdateStatus("Close");
             OpenedFileRemake.Clear();
             OpenedFileLoop.Clear();
         }
@@ -115,18 +108,6 @@ namespace VGAudio.Win32
                 // Load file extension without the '.' at the beginning
                 var FileExtensionWithDot = Path.GetExtension(OpenedFileRemake["FilePath"]);
                 OpenedFileRemake.Add("FileExtension", FileExtensionWithDot.Substring(1));
-
-
-                // TODO: testing only
-                /*
-                var test = OpenedFileRemake["FilePath"];
-                MessageBox.Show(test);
-                System.Threading.Thread.Sleep(1000);
-                System.Environment.Exit(0);
-                */
-
-                //OpenedFile = OpenedFileRemake["FilePath"];
-                //OpenedFileExtension = OpenedFileRemake["FileExtension"];
 
                 if (!extsArray.Contains(OpenedFileRemake["FileExtension"]))
                 {
@@ -288,8 +269,6 @@ namespace VGAudio.Win32
         {
             // TODO: BRSTM - advanced settings + audio format
             UpdateStatus("Verifying the file...");
-            var importFile = OpenedFileRemake["FilePath"]; //OpenedFile
-            var importExtension = OpenedFileRemake["FileExtension"]; //OpenedFileExtension.Remove(0, 1)
 
             if (lst_exportExtensions.SelectedItem == null)
             {
@@ -416,16 +395,7 @@ namespace VGAudio.Win32
 
         public async void UpdateStatus(string message = "Ready")
         {
-            /*
-            foreach (KeyValuePair<string, string> kvp in OpenedFileRemake)
-            {
-                //textBox3.Text += ("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
-                //Console.WriteLine("Key = {0}, Value = {1}", kvp.Key, kvp.Value);
-                MessageBox.Show("Key = " + kvp.Key + "\r\nValue = " + kvp.Value);
-            }
-            */
-
-            switch(message)
+            switch (message)
             {
                 case "Ready":
                     if (OpenedFileRemake.ContainsKey("FileName"))
@@ -472,16 +442,6 @@ namespace VGAudio.Win32
             MaximizeBox = false;
 
             // Init OpenedFile
-            /* Changed!
-            OpenedFileRemake.Add("File", null);
-            OpenedFileRemake.Add("FileNoExtension", null);
-            OpenedFileRemake.Add("FileExtension", null);
-            OpenedFileRemake.Add("LoopStart", null);
-            OpenedFileRemake.Add("LoopEnd", null);
-            OpenedFileRemake.Add("EncodingFormat", null);
-            OpenedFileRemake.Add("SampleRate", null);
-            OpenedFileRemake.Add("ChannelCount", null);
-            */
             OpenedFileRemake.Clear();
             OpenedFileLoop.Clear();
         }
