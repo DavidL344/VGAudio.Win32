@@ -203,20 +203,11 @@ namespace VGAudio.Win32
                         OpenedFileLoop.Add("EndMax", mLoopEnd); // Makes sure the user doesn't input more samples than the file has
                         OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1); // Loop end has to be a bigger number than loop start
 
-                        num_loopStart.Value = OpenedFileLoop["Start"];
-                        num_loopStart.Maximum = OpenedFileLoop["StartMax"];
-                        num_loopStart.Minimum = OpenedFileLoop["StartMin"];
-
-                        num_loopEnd.Value = OpenedFileLoop["End"];
-                        num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
-                        num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-
                         chk_loop.Text = "Loop the file";
                         chk_loop.Checked = true;
                     }
                     else
                     {
-                        // TODO: where is StartMax?
                         OpenedFileLoop.Add("Start", 0);
                         OpenedFileLoop.Add("StartMin", 0);
 
@@ -227,30 +218,30 @@ namespace VGAudio.Win32
                             OpenedFileLoop.Add("EndMax", mSampleCount);
                             OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1);
                             OpenedFileLoop.Add("End", OpenedFileLoop["EndMax"]);
+                            OpenedFileLoop.Add("StartMax", OpenedFileLoop["EndMax"] - 1);
 
-                            num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
-                            num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-                            num_loopEnd.Value = OpenedFileLoop["End"];
+                            chk_loop.Text = "Create a loop";
+                            chk_loop.Checked = false;
                         }
                         else
                         {
                             // Should never occur - hopefully
-                            OpenedFileLoop.Add("EndMax", OpenedFileLoop["Start"] + 9999999); // May break the program if number of samples is higher than the file has
-                            OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1);
-                            OpenedFileLoop.Add("End", OpenedFileLoop["Start"] + 1);
-
-                            num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
-                            num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-                            num_loopEnd.Value = OpenedFileLoop["End"];
+                            MessageBox.Show("File contains invalid header data!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            CloseFile();
+                            return false;
                         }
-                        num_loopStart.Maximum = num_loopEnd.Maximum - 1;
-
-                        chk_loop.Text = "Create a loop";
-                        chk_loop.Checked = false;
                     }
+                    num_loopStart.Maximum = OpenedFileLoop["StartMax"];
+                    num_loopStart.Minimum = OpenedFileLoop["StartMin"];
+                    num_loopStart.Value = OpenedFileLoop["Start"];
+
+                    num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
+                    num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
+                    num_loopEnd.Value = OpenedFileLoop["End"];
+
                     UpdateStatus();
+                    return true;
                 }
-                return true;
             }
             return false;
         }
@@ -524,8 +515,8 @@ namespace VGAudio.Win32
         private void NumLoopOnUpdate(object sender, EventArgs e)
         {
             OpenedFileLoop["StartMin"] = 0;
-            OpenedFileLoop["StartMax"] = (int)num_loopEnd.Value - 1;
-            OpenedFileLoop["EndMin"] = (int)num_loopStart.Value + 1;
+            OpenedFileLoop["StartMax"] = OpenedFileLoop["End"] - 1;
+            OpenedFileLoop["EndMin"] = OpenedFileLoop["Start"] + 1;
 
             num_loopStart.Minimum = OpenedFileLoop["StartMin"];
             num_loopStart.Maximum = OpenedFileLoop["StartMax"];
