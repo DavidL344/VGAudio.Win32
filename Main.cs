@@ -152,13 +152,9 @@ namespace VGAudio.Win32
             OpenedFileRemake.Add("FileExtension", FileExtensionWithDot.Substring(1));
 
             // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
-            OpenedFileRemake.Add("FileNameShort", FormMethods.Truncate(OpenedFileRemake["FileName"]));
-            if (OpenedFileRemake["FileName"] != OpenedFileRemake["FileNameShort"])
-            {
-                OpenedFileRemake["FileNameShort"] += "... (." + OpenedFileRemake["FileExtension"] + ")";
-            }
+            OpenedFileRemake.Add("FileNameShort", FormMethods.TruncateFileName(OpenedFileRemake["FileName"], OpenedFileRemake["FileExtension"]));
 
-            if (!extsArray.Contains(OpenedFileRemake["FileExtension"]))
+            if (!extsArray.Contains(OpenedFileRemake["FileExtension"].ToLower()))
             {
                 MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
@@ -194,8 +190,11 @@ namespace VGAudio.Win32
 
                     if (int.TryParse(mLoopStartVar, out int mLoopStart) && int.TryParse(mLoopEndVar, out int mLoopEnd))
                     {
-                        OpenedFileLoop.Add("Start", mLoopStart); // Sets the loop start at the current loop start
-                        OpenedFileLoop.Add("End", mLoopEnd); // Sets the loop end at the current loop end
+                        OpenedFileLoop.Add("StartLoaded", mLoopStart); // Save the loop start 
+                        OpenedFileLoop.Add("EndLoaded", mLoopEnd); // Save the loop end
+
+                        OpenedFileLoop.Add("Start", OpenedFileLoop["StartLoaded"]); // Sets the loop start at the current loop start
+                        OpenedFileLoop.Add("End", OpenedFileLoop["EndLoaded"]); // Sets the loop end at the current loop end
 
                         OpenedFileLoop.Add("StartMax", OpenedFileLoop["End"] - 1); // Makes sure the user can only input lower number than the loop's end
                         OpenedFileLoop.Add("StartMin", 0); // The loop start value cannot be lower than the beginning of the file
@@ -340,7 +339,7 @@ namespace VGAudio.Win32
                 }
                 else
                 {
-                    if (OpenedFileLoop.ContainsKey("Start") && OpenedFileLoop.ContainsKey("End"))
+                    if (OpenedFileLoop.ContainsKey("StartLoaded") && OpenedFileLoop.ContainsKey("EndLoaded"))
                     {
                         DialogResult dialogResult = MessageBox.Show("The imported file has loop information, which cannot be saved into the wave file and will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                         if (dialogResult != DialogResult.Yes)
@@ -501,7 +500,8 @@ namespace VGAudio.Win32
                         }
                         else
                         {
-                            slb_status.Text = "Please check the path of \"" + OpenedFileRemake["FileNameShort"] + "\"";
+                            var invalidFileNameShort = FormMethods.TruncateFileName(OpenedFileRemake["FileName"], OpenedFileRemake["FileExtension"], 20);
+                            slb_status.Text = "Please check the path of \"" + invalidFileNameShort + "\"";
                         }
                         return;
                     }
