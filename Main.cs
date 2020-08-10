@@ -203,7 +203,7 @@ namespace VGAudio.Win32
                         OpenedFileLoop.Add("EndMax", mLoopEnd); // Makes sure the user doesn't input more samples than the file has
                         OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1); // Loop end has to be a bigger number than loop start
 
-                        chk_loop.Text = "Loop the file";
+                        chk_loop.Text = "Change the loop";
                         chk_loop.Checked = true;
                     }
                     else
@@ -326,17 +326,31 @@ namespace VGAudio.Win32
                 }
             }
 
-            if (chk_loop.Checked && exportExtension == "wav")
+            if (exportExtension == "wav")
             {
-                DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved into the wave file and will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-                if (dialogResult != DialogResult.Yes)
+                if (chk_loop.Checked)
                 {
-                    UpdateStatus();
-                    return;
+                    DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved into the wave file and will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    if (dialogResult != DialogResult.Yes)
+                    {
+                        UpdateStatus();
+                        return;
+                    }
+                    chk_loop.Checked = false;
                 }
-                chk_loop.Checked = false;
+                else
+                {
+                    if (OpenedFileLoop.ContainsKey("Start") && OpenedFileLoop.ContainsKey("End"))
+                    {
+                        DialogResult dialogResult = MessageBox.Show("The imported file has loop information, which cannot be saved into the wave file and will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                        if (dialogResult != DialogResult.Yes)
+                        {
+                            UpdateStatus();
+                            return;
+                        }
+                    }
+                }
             }
-            UpdateStatus("Verifying the file...");
 
             // Select the save location
             SaveFileDialog saveFileDialog = new SaveFileDialog
