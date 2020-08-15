@@ -74,20 +74,16 @@ namespace VGAudio.Win32
             var newFileName = fileNameWithExtension;
             var fileExtInfo = "... (." + fileExtension + ")";
             int trimLength = maxLength - fileExtInfo.Length;
-            //MessageBox.Show("" + trimLength);
 
             if (fileNameWithExtension.Length > maxLength)
             {
                 if (fileNameWithExtension.Length > trimLength)
                 {
                     var truncate = Truncate(fileNameWithExtension, trimLength);
-                    //MessageBox.Show(truncate);
-
                     if (fileNameWithExtension != truncate)
                     {
                         newFileName = truncate + fileExtInfo;
                     }
-
                 }
                 else
                 {
@@ -95,8 +91,6 @@ namespace VGAudio.Win32
                     MessageBox.Show("Internal Error: The trim length is bigger than the file length itself!", AppForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
-
-            //MessageBox.Show(newFileName + " " + newFileName.Length);
             return newFileName;
         }
 

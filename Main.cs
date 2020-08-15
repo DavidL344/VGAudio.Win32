@@ -304,7 +304,7 @@ namespace VGAudio.Win32
 
         private void FileExport(object sender, EventArgs e)
         {
-            // TODO: BRSTM - advanced settings + audio format
+            // TODO: advanced settings (BRSTM, BCSTM) + audio format (BRSTM)
             UpdateStatus("Verifying the file...");
 
             if (lst_exportExtensions.SelectedItem == null)
