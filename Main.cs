@@ -356,6 +356,7 @@ namespace VGAudio.Win32
             {
                 InitialDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
                 Title = "Export " + OpenedFileRemake["FileNoExtension"] + "." + exportExtension,
+                FileName = OpenedFileRemake["FileNoExtension"] + "." + exportExtension,
                 CheckFileExists = false,
                 CheckPathExists = true,
                 DefaultExt = exportExtension,
