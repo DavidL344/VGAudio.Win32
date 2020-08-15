@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,7 +12,7 @@ using VGAudio.Win32.Properties;
 
 namespace VGAudio.Win32
 {
-    class FormMethods
+    static class FormMethods
     {
         private static readonly Main AppForm = new Main();
         public static bool MassPathCheck(string VGAudioCli, string inputFile)
@@ -113,6 +114,27 @@ namespace VGAudio.Win32
                     return fvi.FileVersion;
                 default:
                     return "";
+            }
+        }
+
+        // https://stackoverflow.com/a/15937460
+        [DllImport("user32")]
+        public static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+
+        [DllImport("user32")]
+        public static extern bool EnableMenuItem(IntPtr hMenu, uint itemId, uint uEnable);
+
+        public static void EnableCloseButton(this Form form, bool enabled = true)
+        {
+            if (enabled)
+            {
+                // The zero parameter means to enable. 0xF060 is SC_CLOSE.
+                EnableMenuItem(GetSystemMenu(form.Handle, false), 0xF060, 0);
+            }
+            else
+            {
+                // The 1 parameter means to gray out. 0xF060 is SC_CLOSE.
+                EnableMenuItem(GetSystemMenu(form.Handle, false), 0xF060, 1);
             }
         }
     }

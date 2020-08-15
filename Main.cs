@@ -370,6 +370,7 @@ namespace VGAudio.Win32
                 {
                     // Do stuff
                     UpdateStatus("Converting the file...");
+                    FormMethods.EnableCloseButton(this, false);
                     try
                     {
                         ProcessStartInfo procInfo = new ProcessStartInfo
@@ -452,6 +453,7 @@ namespace VGAudio.Win32
             }
 
             UpdateStatus("Dumping info...");
+            FormMethods.EnableCloseButton(this, false);
             var path = OpenedFileRemake["FilePath"] + ".dump";
 
             var exportExtension = lst_exportExtensions.SelectedItem.ToString().ToLower();
@@ -489,6 +491,7 @@ namespace VGAudio.Win32
 
         public async void UpdateStatus(string message = "Ready")
         {
+            FormMethods.EnableCloseButton(this);
             switch (message)
             {
                 case "Ready":
