@@ -30,6 +30,9 @@ namespace VGAudio.Win32
         // Close button closes the file on the first click instead of closing the app
         public bool CloseButtonClosesFile = true;
 
+        // Prefill export file name and extension
+        public bool PrefillExportFileName = true;
+
         public Main()
         {
             InitializeComponent();
@@ -356,7 +359,6 @@ namespace VGAudio.Win32
             {
                 InitialDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
                 Title = "Export " + OpenedFileRemake["FileNoExtension"] + "." + exportExtension,
-                FileName = OpenedFileRemake["FileNoExtension"] + "." + exportExtension,
                 CheckFileExists = false,
                 CheckPathExists = true,
                 DefaultExt = exportExtension,
@@ -364,6 +366,11 @@ namespace VGAudio.Win32
                 FilterIndex = 1,
                 RestoreDirectory = true
             };
+
+            if (PrefillExportFileName)
+            {
+                saveFileDialog.FileName = OpenedFileRemake["FileNoExtension"] + "." + exportExtension;
+            }
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
