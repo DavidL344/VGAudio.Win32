@@ -166,7 +166,7 @@ namespace VGAudio.Win32
                 {
                     FileName = VGAudioCli,
                     WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
-                    Arguments = "-m " + "\"" + OpenedFileRemake["FilePath"] + "\"", // TODO: escape?
+                    Arguments = "-m " + OpenedFileRemake["FilePathEscaped"],
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
