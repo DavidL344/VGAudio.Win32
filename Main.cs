@@ -20,18 +20,10 @@ namespace VGAudio.Win32
         
         public Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
+        public Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
         public readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public readonly string extsFilter = "All Supported Audio Streams|*.wav;*.dsp;*.idsp;*.brstm;*.bcstm;*.bfstm;*.hps;*.adx;*.hca;*.genh;*.at9|"
                                             + "WAV|*.wav|DSP|*.dsp|IDSP|*.idsp|BRSTM|*.brstm|BCSTM|*.bcstm|BFSTM|*.bfstm|HPS|*.hps|ADX|*.adx|HCA|*.hca|GENH|*.genh|AT9|*.at9";
-
-        // A button that requires an extra click to close the file first before opening a new one
-        public bool OpenCloseWinformsButton = true;
-
-        // Close button closes the file on the first click instead of closing the app
-        public bool CloseButtonClosesFile = true;
-
-        // Prefill export file name and extension
-        public bool PrefillExportFileName = true;
 
         public Main()
         {
@@ -43,7 +35,7 @@ namespace VGAudio.Win32
 
         private void OpenFileForm(object sender, EventArgs e)
         {
-            if (OpenCloseWinformsButton)
+            if (FeatureConfig["OpenCloseWinformsButton"])
             {
                 if (!OpenedFileRemake.ContainsKey("FileName"))
                 {
@@ -259,7 +251,7 @@ namespace VGAudio.Win32
             if (loaded)
             {
                 LoopTheFile("", new EventArgs());
-                if (OpenCloseWinformsButton)
+                if (FeatureConfig["OpenCloseWinformsButton"])
                 {
                     btn_open.Text = "Close File";
                 }
@@ -273,7 +265,7 @@ namespace VGAudio.Win32
                 num_loopEnd.Visible = false;
 
                 txt_metadata.Visible = false;
-                if (OpenCloseWinformsButton)
+                if (FeatureConfig["OpenCloseWinformsButton"])
                 {
                     btn_open.Text = "Open File";
                 }
@@ -367,7 +359,7 @@ namespace VGAudio.Win32
                 RestoreDirectory = true
             };
 
-            if (PrefillExportFileName)
+            if (FeatureConfig["PrefillExportFileName"])
             {
                 saveFileDialog.FileName = OpenedFileRemake["FileNoExtension"] + "." + exportExtension;
             }
@@ -557,7 +549,17 @@ namespace VGAudio.Win32
             // Init OpenedFile
             OpenedFileRemake.Clear();
             OpenedFileLoop.Clear();
-        }
+
+            // Feature Config
+            // A button that requires an extra click to close the file first before opening a new one
+            FeatureConfig.Add("OpenCloseWinformsButton", true);
+
+            // Close button closes the file on the first click instead of closing the app
+            FeatureConfig.Add("CloseButtonClosesFile", true);
+
+            // Prefill export file name and extension
+            FeatureConfig.Add("PrefillExportFileName", true);
+    }
 
         private void TestFeature()
         {
@@ -566,7 +568,7 @@ namespace VGAudio.Win32
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (CloseButtonClosesFile)
+            if (FeatureConfig["CloseButtonClosesFile"])
             {
                 if (OpenedFileRemake.ContainsKey("FilePath"))
                 {
