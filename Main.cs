@@ -415,13 +415,19 @@ namespace VGAudio.Win32
                             }
                             else
                             {
-                                MessageBox.Show(standardConsoleOutput, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                // Should never occur
+                                MessageBox.Show(standardConsoleOutput, "Conversion Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
                         else
                         {
-                            // Should never occur
-                            MessageBox.Show(standardConsoleOutput, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            // Error occurs when the user replaces an existing file
+                            // with invalid export extension through the dialog box
+                            string[] errorString = standardConsoleOutput.Split(
+                                new[] { "\r\n", "\r", "\n" },
+                                StringSplitOptions.None
+                            );
+                            MessageBox.Show(errorString[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     catch (Exception ex)
