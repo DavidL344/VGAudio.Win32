@@ -15,8 +15,10 @@ namespace VGAudio.Win32
     static class FormMethods
     {
         private static readonly Main AppForm = new Main();
+        private static FileStream FileStreamLock;
         public static bool MassPathCheck(string VGAudioCli, string inputFile)
         {
+            // Try to unlock the file to check if it exists
             if (!File.Exists(inputFile))
             {
                 MessageBox.Show("The selected file no longer exists!", "Error | " + AppForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -130,6 +132,64 @@ namespace VGAudio.Win32
                 // The 1 parameter means to gray out. 0xF060 is SC_CLOSE.
                 EnableMenuItem(GetSystemMenu(form.Handle, false), 0xF060, 1);
             }
+        }
+        
+        public static bool FileLock(string file = null)
+        {
+            if (AppForm.FeatureConfig.ContainsKey("LockOpenedFile") && AppForm.FeatureConfig["LockOpenedFile"])
+            {
+                if (file != null)
+                {
+                    if (File.Exists(file))
+                    {
+                        if (!IsFileLocked(file))
+                        {
+                            if (FileStreamLock != null)
+                            {
+                                FileLock(null);
+                            }
+
+                            // https://stackoverflow.com/a/3279183
+                            FileStreamLock = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    // https://stackoverflow.com/a/872328
+                    FileStreamLock?.Close();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // https://stackoverflow.com/a/937558
+        public static bool IsFileLocked(string file)
+        {
+            try
+            {
+                using (FileStream stream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                // The file is unavailable because it is:
+                // - still being written to
+                // - being processed by another thread
+                // - does not exist (has already been processed)
+                return true;
+            }
+
+            // The file is not locked
+            return false;
         }
     }
 }

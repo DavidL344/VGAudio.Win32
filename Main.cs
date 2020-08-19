@@ -21,6 +21,7 @@ namespace VGAudio.Win32
         public Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
         public Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
+        //public Dictionary<string, string> PreviousOpenedFile = new Dictionary<string, string>();
         public readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public readonly string extsFilter = "All Supported Audio Streams|*.wav;*.dsp;*.idsp;*.brstm;*.bcstm;*.bfstm;*.hps;*.adx;*.hca;*.genh;*.at9|"
                                             + "WAV|*.wav|DSP|*.dsp|IDSP|*.idsp|BRSTM|*.brstm|BCSTM|*.bcstm|BFSTM|*.bfstm|HPS|*.hps|ADX|*.adx|HCA|*.hca|GENH|*.genh|AT9|*.at9";
@@ -74,6 +75,10 @@ namespace VGAudio.Win32
             if (fileList == null)
             {
                 MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (!OpenedFileRemake.ContainsKey("FileName"))
+                {
+                    CloseFile();
+                }
             }
             else
             {
@@ -132,8 +137,52 @@ namespace VGAudio.Win32
                 lst_exportExtensions.SelectedIndex = 1;
             }
 
-            // Clear dictionary if not empty
-            if (OpenedFileRemake.Count != 0) OpenedFileRemake.Clear();
+            // Get the file extension without the '.' early for the file extension verification
+            var FileExtensionWithDot = Path.GetExtension(filePath);
+            var FileExtensionWithoutDot = FileExtensionWithDot.Substring(1);
+
+            // Check if the file extension is valid
+            if (!extsArray.Contains(FileExtensionWithoutDot.ToLower()))
+            {
+                MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            if (FormMethods.IsFileLocked(filePath))
+            {
+                if (OpenedFileRemake.ContainsKey("FilePath"))
+                {
+                    // Check if the locked file is in use by the app
+                    if (filePath == OpenedFileRemake["FilePath"])
+                    {
+                        if (FeatureConfig.ContainsKey("LockOpenedFile") && FeatureConfig["LockOpenedFile"])
+                        {
+                            MessageBox.Show("The selected file is already loaded.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("The selected file is already in use by another process.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("The selected file is already in use by another process.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                return false;
+            }
+
+            // Clear the dictionaries if not empty
+            if (OpenedFileRemake.Count != 0)
+            {
+                // Remember the previous file path and metadata for checking if the locked file is in use by the app - replaced
+                // TODO (IDEA): remember everything - PreviousOpenedFile = OpenedFileRemake (could load previously closed file)
+                // TODO (IDEA): if loading previously closed file, save the current one (OpenedFileRemake) to NextOpenedFile
+                // if (OpenedFileRemake.ContainsKey("FilePath")) PreviousOpenedFile["FilePath"] = OpenedFileRemake["FilePath"];
+                // if (OpenedFileRemake.ContainsKey("Metadata")) PreviousOpenedFile["Metadata"] = OpenedFileRemake["Metadata"];
+                OpenedFileRemake.Clear();
+            }
             if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
 
             // Load file information
@@ -143,17 +192,10 @@ namespace VGAudio.Win32
             OpenedFileRemake.Add("FileNoExtension", Path.GetFileNameWithoutExtension(OpenedFileRemake["FilePath"]));
 
             // Load file extension without the '.' at the beginning
-            var FileExtensionWithDot = Path.GetExtension(OpenedFileRemake["FilePath"]);
-            OpenedFileRemake.Add("FileExtension", FileExtensionWithDot.Substring(1));
+            OpenedFileRemake.Add("FileExtension", FileExtensionWithoutDot);
 
             // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
             OpenedFileRemake.Add("FileNameShort", FormMethods.TruncateFileName(OpenedFileRemake["FileName"], OpenedFileRemake["FileExtension"]));
-
-            if (!extsArray.Contains(OpenedFileRemake["FileExtension"].ToLower()))
-            {
-                MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return false;
-            }
 
             if (FormMethods.MassPathCheck(VGAudioCli, OpenedFileRemake["FilePath"]))
             {
@@ -233,10 +275,26 @@ namespace VGAudio.Win32
                     num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
                     num_loopEnd.Value = OpenedFileLoop["End"];
 
-                    UpdateStatus();
-                    return true;
+                    // Check again if the file is accessible
+                    // It could've been locked or deleted by something else in the meantime
+                    if (!FormMethods.IsFileLocked(OpenedFileRemake["FilePath"]))
+                    {
+                        FormMethods.FileLock(OpenedFileRemake["FilePath"]);
+                        UpdateStatus();
+                        return true;
+                    }
+                    else
+                    {
+                        MessageBox.Show("The selected file is inaccessible!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    // Should never happen - hopefully
+                    MessageBox.Show("Unable to read the file!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            UpdateStatus();
             return false;
         }
 
@@ -265,6 +323,8 @@ namespace VGAudio.Win32
                 num_loopEnd.Visible = false;
 
                 txt_metadata.Visible = false;
+
+                FormMethods.FileLock(null);
                 if (FeatureConfig["OpenCloseWinformsButton"])
                 {
                     btn_open.Text = "Open File";
@@ -301,6 +361,9 @@ namespace VGAudio.Win32
         {
             // TODO: advanced settings (BRSTM, BCSTM) + audio format (BRSTM)
             UpdateStatus("Verifying the file...");
+
+            // If the file was missing or inaccessible, but suddenly is, relock it again
+            FormMethods.FileLock(OpenedFileRemake["FilePath"]);
 
             if (lst_exportExtensions.SelectedItem == null)
             {
@@ -402,8 +465,10 @@ namespace VGAudio.Win32
                             procInfo.Arguments = procInfo.Arguments + " -l " + loopStart + "-" + loopEnd;
                         }
 
-                        var proc = Process.Start(procInfo);
+                        FormMethods.FileLock(null); // Unlock the file
+                        var proc = Process.Start(procInfo); // Process the file
                         proc.WaitForExit();
+                        FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file
                         UpdateStatus();
                         var standardConsoleOutput = proc.StandardOutput.ReadToEnd();
                         if (proc.ExitCode == 0)
@@ -427,11 +492,14 @@ namespace VGAudio.Win32
                                 new[] { "\r\n", "\r", "\n" },
                                 StringSplitOptions.None
                             );
+
+                            // Returns the error message without the usage of VGAudioCli
                             MessageBox.Show(errorString[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     catch (Exception ex)
                     {
+                        FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file after an unsuccessful attempt to convert it
                         UpdateStatus();
                         MessageBox.Show(ex.Message, "Fatal Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
@@ -509,6 +577,7 @@ namespace VGAudio.Win32
                         }
                         else
                         {
+                            // Makes sure the file name isn't too long
                             var invalidFileNameShort = FormMethods.TruncateFileName(OpenedFileRemake["FileName"], OpenedFileRemake["FileExtension"], 20);
                             slb_status.Text = "Please check the path of \"" + invalidFileNameShort + "\"";
                         }
@@ -517,8 +586,13 @@ namespace VGAudio.Win32
                     slb_status.Text = message;
                     break;
                 case "Close":
-                    slb_status.Text = "Closed the file: " + OpenedFileRemake["FileNameShort"];
-                    await Task.Delay(2000);
+                    // The key won't be set if user tries to drag and drop
+                    // an invalid file while no other file is opened
+                    if (OpenedFileRemake.ContainsKey("FileNameShort"))
+                    {
+                        slb_status.Text = "Closed the file: " + OpenedFileRemake["FileNameShort"];
+                        await Task.Delay(2000);
+                    }
 
                     // Another file might've been opened in the meantime when the previous file was closed
                     // Was another file opened during the Task.Delay?
@@ -565,7 +639,10 @@ namespace VGAudio.Win32
 
             // Prefill export file name and extension
             FeatureConfig.Add("PrefillExportFileName", true);
-    }
+
+            // Lock the opened file so that it can't be moved or deleted
+            FeatureConfig.Add("LockOpenedFile", true);
+        }
 
         private void TestFeature()
         {
@@ -581,6 +658,10 @@ namespace VGAudio.Win32
                     e.Cancel = true;
                     CloseFile();
                 }
+            }
+            else
+            {
+                FormMethods.FileLock(null);
             }
         }
     }

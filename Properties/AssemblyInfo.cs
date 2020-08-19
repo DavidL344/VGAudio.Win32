@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("An unofficial Win32 frontend for VGAudio")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DavidL344")]
-[assembly: AssemblyProduct("VGAudio.Win32")]
+[assembly: AssemblyProduct("VGAudio")]
 [assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
