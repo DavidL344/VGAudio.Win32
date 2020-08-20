@@ -20,7 +20,7 @@ namespace VGAudio.Win32
             this.lbl_productName.Text = String.Format("{0} {1}", AssemblyProduct, AssemblyVersion);
             this.lbl_productAuthor.Text = String.Format("Created by {0}", AssemblyCompany);
             this.lbl_ogProjectAuthor.Text = String.Format("Original project by Alex Barney");
-            this.lbl_cliVersion.Text = String.Format("Running on VGAudioCli {0}", GetCliVersion());
+            this.lbl_cliVersion.Text = String.Format("Running on {0}", GetCliProperties());
             this.txt_license.Text = ReadLicense();
         }
 
@@ -43,31 +43,20 @@ namespace VGAudio.Win32
                 VGAudioLicense = reader.ReadToEnd();
             }
 
-            string[] githubRepo = { "https://github.com/DavidL344/VGAudio.Win32", "https://github.com/Thealexbarney/VGAudio" };
-            return String.Format("License (VGAudio.Win32):\r\n{0}\r\nGitHub Repo (VGAudio.Win32):\r\n{1}\r\n\r\nLicense (VGAudio):\r\n{2}\r\nGitHub Repo (VGAudio):\r\n{3}",
-                                 Win32License, githubRepo[0], VGAudioLicense, githubRepo[1]);
+            string[] githubRepo = { "https://github.com/Thealexbarney/VGAudio", "https://github.com/DavidL344/VGAudio.Win32" };
+            return String.Format("License (VGAudio.Win32):\r\n{0}\r\nLicense (VGAudio):\r\n{1}\r\nGitHub Repos:\r\n{2}\r\n{3}",
+                                 Win32License, VGAudioLicense, githubRepo[0], githubRepo[1]);
         }
 
-        private string GetCliVersion()
+        private string GetCliProperties()
         {
             if (FormMethods.MassPathCheck(Main.VGAudioCli))
             {
-                ProcessStartInfo procInfo = new ProcessStartInfo
-                {
-                    FileName = Main.VGAudioCli,
-                    WorkingDirectory = Path.GetDirectoryName(Main.VGAudioCli),
-                    Arguments = "--version ",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                };
-                var proc = Process.Start(procInfo);
-                proc.WaitForExit();
-                if (proc.ExitCode == 1)
-                {
-                    return FormMethods.GetBetween(proc.StandardOutput.ReadToEnd(), "VGAudio v", "\r\n");
-                }
+                // https://stackoverflow.com/a/11350038
+                var cliProperties = FileVersionInfo.GetVersionInfo(Main.VGAudioCli);
+                string cliName = cliProperties.ProductName;
+                string cliVersion = cliProperties.FileVersion;
+                return string.Format("{0} {1}", cliName, cliVersion);
             }
             return "(Unknown)";
         }
