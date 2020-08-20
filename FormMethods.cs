@@ -191,5 +191,16 @@ namespace VGAudio.Win32
             // The file is not locked
             return false;
         }
+
+        // https://stackoverflow.com/a/5048766
+        public static void ActionListener(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F1)
+            {
+                AboutBox aboutBox = new AboutBox();
+                aboutBox.ShowDialog();
+                e.SuppressKeyPress = true; // Stops other controls on the form receiving event.
+            }
+        }
     }
 }

@@ -630,6 +630,10 @@ namespace VGAudio.Win32
             OpenedFileRemake.Clear();
             OpenedFileLoop.Clear();
 
+            // Listen to pressed keys
+            this.KeyPreview = true;
+            this.KeyDown += new KeyEventHandler(FormMethods.ActionListener);
+
             // Feature Config
             // A button that requires an extra click to close the file first before opening a new one
             FeatureConfig.Add("OpenCloseWinformsButton", true);
