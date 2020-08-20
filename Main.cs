@@ -16,7 +16,7 @@ namespace VGAudio.Win32
 {
     public partial class Main : Form
     {
-        public string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
+        public static string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
         
         public Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();

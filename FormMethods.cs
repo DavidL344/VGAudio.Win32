@@ -16,19 +16,22 @@ namespace VGAudio.Win32
     {
         private static readonly Main AppForm = new Main();
         private static FileStream FileStreamLock;
-        public static bool MassPathCheck(string VGAudioCli, string inputFile)
+        public static bool MassPathCheck(string VGAudioCli, string inputFile = null)
         {
-            // Try to unlock the file to check if it exists
-            if (!File.Exists(inputFile))
+            if (inputFile != null)
             {
-                MessageBox.Show("The selected file no longer exists!", "Error | " + AppForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                // Closing the file throws an error, because OpenedFileRemake is a part of another class and is called from here
-                // Leaving CloseFile() as a private method for now
-                // AppForm.CloseFile();
+                // Try to unlock the file to check if it exists
+                if (!File.Exists(inputFile))
+                {
+                    MessageBox.Show("The selected file no longer exists!", "Error | " + AppForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Closing the file throws an error, because OpenedFileRemake is a part of another class and is called from here
+                    // Leaving CloseFile() as a private method for now
+                    // AppForm.CloseFile();
 
-                // Status is overridden by another call of UpdateStatus directly in Main
-                // AppForm.UpdateStatus("Force closed the file: " + inputFile);
-                return false;
+                    // Status is overridden by another call of UpdateStatus directly in Main
+                    // AppForm.UpdateStatus("Force closed the file: " + inputFile);
+                    return false;
+                }
             }
 
             if (!File.Exists(VGAudioCli))
