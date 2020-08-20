@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -15,11 +17,57 @@ namespace VGAudio.Win32
         {
             InitializeComponent();
             this.Text = String.Format("About {0}", AssemblyTitle);
-            this.labelProductName.Text = AssemblyProduct;
-            this.labelVersion.Text = String.Format("Version {0}", AssemblyVersion);
-            this.labelCopyright.Text = AssemblyCopyright;
-            this.labelCompanyName.Text = AssemblyCompany;
-            this.textBoxDescription.Text = AssemblyDescription;
+            this.lbl_productName.Text = String.Format("{0} {1}", AssemblyProduct, AssemblyVersion);
+            this.lbl_productAuthor.Text = String.Format("Created by {0}", AssemblyCompany);
+            this.lbl_ogProjectAuthor.Text = String.Format("Original project by Alex Barney");
+            this.lbl_cliVersion.Text = String.Format("Running on VGAudioCli {0}", GetCliVersion());
+            this.txt_license.Text = ReadLicense();
+        }
+
+        private string ReadLicense()
+        {
+            string Win32License;
+            string VGAudioLicense;
+
+            byte[] win32_license = VGAudio.Win32.Properties.Resources.LICENSE;
+            using (MemoryStream stream = new MemoryStream(win32_license))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                Win32License = reader.ReadToEnd();
+            }
+
+            byte[] vgaudio_license = VGAudio.Win32.Properties.Resources.LICENSE_VGAUDIO;
+            using (MemoryStream stream = new MemoryStream(vgaudio_license))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                VGAudioLicense = reader.ReadToEnd();
+            }
+
+            return String.Format("License (VGAudio.Win32):\r\n{0}\r\nLicense (VGAudio):\r\n{1}", Win32License, VGAudioLicense);
+        }
+
+        private string GetCliVersion()
+        {
+            if (FormMethods.MassPathCheck(Main.VGAudioCli))
+            {
+                ProcessStartInfo procInfo = new ProcessStartInfo
+                {
+                    FileName = Main.VGAudioCli,
+                    WorkingDirectory = Path.GetDirectoryName(Main.VGAudioCli),
+                    Arguments = "--version ",
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+                var proc = Process.Start(procInfo);
+                proc.WaitForExit();
+                if (proc.ExitCode == 1)
+                {
+                    return FormMethods.GetBetween(proc.StandardOutput.ReadToEnd(), "VGAudio v", "\r\n");
+                }
+            }
+            return "(Unknown)";
         }
 
         #region Assembly Attribute Accessors

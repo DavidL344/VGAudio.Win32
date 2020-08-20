@@ -30,11 +30,11 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutBox));
             this.tableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.logoPictureBox = new System.Windows.Forms.PictureBox();
-            this.labelProductName = new System.Windows.Forms.Label();
-            this.labelVersion = new System.Windows.Forms.Label();
-            this.labelCopyright = new System.Windows.Forms.Label();
-            this.labelCompanyName = new System.Windows.Forms.Label();
-            this.textBoxDescription = new System.Windows.Forms.TextBox();
+            this.lbl_productName = new System.Windows.Forms.Label();
+            this.lbl_productAuthor = new System.Windows.Forms.Label();
+            this.lbl_ogProjectAuthor = new System.Windows.Forms.Label();
+            this.lbl_cliVersion = new System.Windows.Forms.Label();
+            this.txt_license = new System.Windows.Forms.TextBox();
             this.okButton = new System.Windows.Forms.Button();
             this.tableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
@@ -46,11 +46,11 @@
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33F));
             this.tableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 67F));
             this.tableLayoutPanel.Controls.Add(this.logoPictureBox, 0, 0);
-            this.tableLayoutPanel.Controls.Add(this.labelProductName, 1, 0);
-            this.tableLayoutPanel.Controls.Add(this.labelVersion, 1, 1);
-            this.tableLayoutPanel.Controls.Add(this.labelCopyright, 1, 2);
-            this.tableLayoutPanel.Controls.Add(this.labelCompanyName, 1, 3);
-            this.tableLayoutPanel.Controls.Add(this.textBoxDescription, 1, 4);
+            this.tableLayoutPanel.Controls.Add(this.lbl_productName, 1, 0);
+            this.tableLayoutPanel.Controls.Add(this.lbl_productAuthor, 1, 1);
+            this.tableLayoutPanel.Controls.Add(this.lbl_ogProjectAuthor, 1, 2);
+            this.tableLayoutPanel.Controls.Add(this.lbl_cliVersion, 1, 3);
+            this.tableLayoutPanel.Controls.Add(this.txt_license, 1, 4);
             this.tableLayoutPanel.Controls.Add(this.okButton, 1, 5);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(24, 21);
@@ -79,67 +79,67 @@
             this.logoPictureBox.TabIndex = 12;
             this.logoPictureBox.TabStop = false;
             // 
-            // labelProductName
+            // lbl_productName
             // 
-            this.labelProductName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelProductName.Location = new System.Drawing.Point(382, 0);
-            this.labelProductName.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
-            this.labelProductName.MaximumSize = new System.Drawing.Size(0, 41);
-            this.labelProductName.Name = "labelProductName";
-            this.labelProductName.Size = new System.Drawing.Size(722, 41);
-            this.labelProductName.TabIndex = 19;
-            this.labelProductName.Text = "Product Name";
-            this.labelProductName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbl_productName.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbl_productName.Location = new System.Drawing.Point(382, 0);
+            this.lbl_productName.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
+            this.lbl_productName.MaximumSize = new System.Drawing.Size(0, 41);
+            this.lbl_productName.Name = "lbl_productName";
+            this.lbl_productName.Size = new System.Drawing.Size(722, 41);
+            this.lbl_productName.TabIndex = 19;
+            this.lbl_productName.Text = "Product Name";
+            this.lbl_productName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // labelVersion
+            // lbl_productAuthor
             // 
-            this.labelVersion.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelVersion.Location = new System.Drawing.Point(382, 63);
-            this.labelVersion.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
-            this.labelVersion.MaximumSize = new System.Drawing.Size(0, 41);
-            this.labelVersion.Name = "labelVersion";
-            this.labelVersion.Size = new System.Drawing.Size(722, 41);
-            this.labelVersion.TabIndex = 0;
-            this.labelVersion.Text = "Version";
-            this.labelVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbl_productAuthor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbl_productAuthor.Location = new System.Drawing.Point(382, 63);
+            this.lbl_productAuthor.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
+            this.lbl_productAuthor.MaximumSize = new System.Drawing.Size(0, 41);
+            this.lbl_productAuthor.Name = "lbl_productAuthor";
+            this.lbl_productAuthor.Size = new System.Drawing.Size(722, 41);
+            this.lbl_productAuthor.TabIndex = 0;
+            this.lbl_productAuthor.Text = "Product Author";
+            this.lbl_productAuthor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // labelCopyright
+            // lbl_ogProjectAuthor
             // 
-            this.labelCopyright.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelCopyright.Location = new System.Drawing.Point(382, 126);
-            this.labelCopyright.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
-            this.labelCopyright.MaximumSize = new System.Drawing.Size(0, 41);
-            this.labelCopyright.Name = "labelCopyright";
-            this.labelCopyright.Size = new System.Drawing.Size(722, 41);
-            this.labelCopyright.TabIndex = 21;
-            this.labelCopyright.Text = "Copyright";
-            this.labelCopyright.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbl_ogProjectAuthor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbl_ogProjectAuthor.Location = new System.Drawing.Point(382, 126);
+            this.lbl_ogProjectAuthor.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
+            this.lbl_ogProjectAuthor.MaximumSize = new System.Drawing.Size(0, 41);
+            this.lbl_ogProjectAuthor.Name = "lbl_ogProjectAuthor";
+            this.lbl_ogProjectAuthor.Size = new System.Drawing.Size(722, 41);
+            this.lbl_ogProjectAuthor.TabIndex = 21;
+            this.lbl_ogProjectAuthor.Text = "Original Project Author";
+            this.lbl_ogProjectAuthor.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // labelCompanyName
+            // lbl_cliVersion
             // 
-            this.labelCompanyName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.labelCompanyName.Location = new System.Drawing.Point(382, 189);
-            this.labelCompanyName.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
-            this.labelCompanyName.MaximumSize = new System.Drawing.Size(0, 41);
-            this.labelCompanyName.Name = "labelCompanyName";
-            this.labelCompanyName.Size = new System.Drawing.Size(722, 41);
-            this.labelCompanyName.TabIndex = 22;
-            this.labelCompanyName.Text = "Company Name";
-            this.labelCompanyName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lbl_cliVersion.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lbl_cliVersion.Location = new System.Drawing.Point(382, 189);
+            this.lbl_cliVersion.Margin = new System.Windows.Forms.Padding(16, 0, 8, 0);
+            this.lbl_cliVersion.MaximumSize = new System.Drawing.Size(0, 41);
+            this.lbl_cliVersion.Name = "lbl_cliVersion";
+            this.lbl_cliVersion.Size = new System.Drawing.Size(722, 41);
+            this.lbl_cliVersion.TabIndex = 22;
+            this.lbl_cliVersion.Text = "Command-line Interface Version";
+            this.lbl_cliVersion.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // textBoxDescription
+            // txt_license
             // 
-            this.textBoxDescription.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.textBoxDescription.Location = new System.Drawing.Point(382, 259);
-            this.textBoxDescription.Margin = new System.Windows.Forms.Padding(16, 7, 8, 7);
-            this.textBoxDescription.Multiline = true;
-            this.textBoxDescription.Name = "textBoxDescription";
-            this.textBoxDescription.ReadOnly = true;
-            this.textBoxDescription.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.textBoxDescription.Size = new System.Drawing.Size(722, 302);
-            this.textBoxDescription.TabIndex = 23;
-            this.textBoxDescription.TabStop = false;
-            this.textBoxDescription.Text = "Description";
+            this.txt_license.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txt_license.Location = new System.Drawing.Point(382, 259);
+            this.txt_license.Margin = new System.Windows.Forms.Padding(16, 7, 8, 7);
+            this.txt_license.Multiline = true;
+            this.txt_license.Name = "txt_license";
+            this.txt_license.ReadOnly = true;
+            this.txt_license.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.txt_license.Size = new System.Drawing.Size(722, 302);
+            this.txt_license.TabIndex = 23;
+            this.txt_license.TabStop = false;
+            this.txt_license.Text = "License";
             // 
             // okButton
             // 
@@ -180,11 +180,11 @@
 
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel;
         private System.Windows.Forms.PictureBox logoPictureBox;
-        private System.Windows.Forms.Label labelProductName;
-        private System.Windows.Forms.Label labelVersion;
-        private System.Windows.Forms.Label labelCopyright;
-        private System.Windows.Forms.Label labelCompanyName;
-        private System.Windows.Forms.TextBox textBoxDescription;
+        private System.Windows.Forms.Label lbl_productName;
+        private System.Windows.Forms.Label lbl_productAuthor;
+        private System.Windows.Forms.Label lbl_ogProjectAuthor;
+        private System.Windows.Forms.Label lbl_cliVersion;
+        private System.Windows.Forms.TextBox txt_license;
         private System.Windows.Forms.Button okButton;
     }
 }

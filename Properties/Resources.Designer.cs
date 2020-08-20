@@ -63,6 +63,26 @@ namespace VGAudio.Win32.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] LICENSE {
+            get {
+                object obj = ResourceManager.GetObject("LICENSE", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] LICENSE_VGAUDIO {
+            get {
+                object obj = ResourceManager.GetObject("LICENSE_VGAUDIO", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] VGAudioCli {
             get {
                 object obj = ResourceManager.GetObject("VGAudioCli", resourceCulture);
