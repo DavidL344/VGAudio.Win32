@@ -43,7 +43,9 @@ namespace VGAudio.Win32
                 VGAudioLicense = reader.ReadToEnd();
             }
 
-            return String.Format("License (VGAudio.Win32):\r\n{0}\r\nLicense (VGAudio):\r\n{1}", Win32License, VGAudioLicense);
+            string[] githubRepo = { "https://github.com/DavidL344/VGAudio.Win32", "https://github.com/Thealexbarney/VGAudio" };
+            return String.Format("License (VGAudio.Win32):\r\n{0}\r\nGitHub Repo (VGAudio.Win32):\r\n{1}\r\n\r\nLicense (VGAudio):\r\n{2}\r\nGitHub Repo (VGAudio):\r\n{3}",
+                                 Win32License, githubRepo[0], VGAudioLicense, githubRepo[1]);
         }
 
         private string GetCliVersion()
