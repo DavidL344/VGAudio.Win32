@@ -294,6 +294,7 @@ namespace VGAudio.Win32
                     MessageBox.Show("Unable to read the file!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            CloseFile();
             UpdateStatus();
             return false;
         }
