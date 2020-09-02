@@ -384,28 +384,36 @@ namespace VGAudio.Win32
                 }
             }
 
-            if (exportExtension == "wav")
+            if (chk_loop.Checked)
             {
-                if (chk_loop.Checked)
+                if (exportExtension == "wav")
                 {
-                    DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved into the wave file and will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    // Encoding the loop information into the wave file
+                    // is useful only for conversions done later on (to a format that supports it)
+                    DialogResult dialogResult = MessageBox.Show("While the wave file can hold loop information, it won't be read by most media players.\r\nExport the loop information anyway?", Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    switch (dialogResult)
+                    {
+                        case DialogResult.Yes:
+                            break;
+                        case DialogResult.No:
+                            chk_loop.Checked = false;
+                            break;
+                        case DialogResult.Cancel:
+                        default:
+                            UpdateStatus();
+                            return;
+                    }
+                }
+            }
+            else
+            {
+                if (OpenedFileLoop.ContainsKey("StartLoaded") && OpenedFileLoop.ContainsKey("EndLoaded"))
+                {
+                    DialogResult dialogResult = MessageBox.Show("The imported file has loop information, which will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     if (dialogResult != DialogResult.Yes)
                     {
                         UpdateStatus();
                         return;
-                    }
-                    chk_loop.Checked = false;
-                }
-                else
-                {
-                    if (OpenedFileLoop.ContainsKey("StartLoaded") && OpenedFileLoop.ContainsKey("EndLoaded"))
-                    {
-                        DialogResult dialogResult = MessageBox.Show("The imported file has loop information, which cannot be saved into the wave file and will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-                        if (dialogResult != DialogResult.Yes)
-                        {
-                            UpdateStatus();
-                            return;
-                        }
                     }
                 }
             }
