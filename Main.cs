@@ -239,7 +239,7 @@ namespace VGAudio.Win32
                         OpenedFileLoop.Add("EndMax", mLoopEnd); // Makes sure the user doesn't input more samples than the file has
                         OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1); // Loop end has to be a bigger number than loop start
 
-                        chk_loop.Text = "Change the loop";
+                        chk_loop.Text = "Keep the loop";
                         chk_loop.Checked = true;
                     }
                     else
@@ -463,6 +463,10 @@ namespace VGAudio.Win32
                                 chk_loop.Checked = false;
                             }
                             procInfo.Arguments = procInfo.Arguments + " -l " + loopStart + "-" + loopEnd;
+                        }
+                        else
+                        {
+                            procInfo.Arguments += " --no-loop";
                         }
 
                         FormMethods.FileLock(null); // Unlock the file

@@ -96,10 +96,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\VGAudioCli.exe" />
+    <None Include="Resources\LICENSE_VGAUDIO" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\LICENSE_VGAUDIO" />
+    <None Include="Resources\VGAudioCli.exe" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
