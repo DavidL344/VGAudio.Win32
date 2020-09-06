@@ -92,6 +92,7 @@ namespace VGAudio.Win32
                 }
                 else
                 {
+                    // TODO: add support for batch conversions
                     MessageBox.Show("Only one file is supported at a time.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -135,6 +136,15 @@ namespace VGAudio.Win32
             if (!OpenedFileRemake.ContainsKey("FilePath"))
             {
                 lst_exportExtensions.SelectedIndex = 1;
+            }
+
+            // Check if the selected path is not a directory
+            // https://stackoverflow.com/a/1395226
+            if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
+            {
+                // TODO: add support for directories to enable batch conversions
+                MessageBox.Show("Batch conversions are currently not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
             }
 
             // Get the file extension without the '.' early for the file extension verification
