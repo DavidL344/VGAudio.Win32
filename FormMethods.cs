@@ -16,7 +16,7 @@ namespace VGAudio.Win32
     {
         private static readonly Main AppForm = new Main();
         private static FileStream FileStreamLock;
-        public static bool MassPathCheck(string VGAudioCli, string inputFile = null)
+        public static bool VerifyIntegrity(string inputFile = null)
         {
             if (inputFile != null)
             {
@@ -34,15 +34,11 @@ namespace VGAudio.Win32
                 }
             }
 
-            if (!File.Exists(VGAudioCli))
+            if (!File.Exists(Main.VGAudioCli))
             {
                 try
                 {
-                    using (FileStream fsDst = new FileStream(VGAudioCli, FileMode.CreateNew, FileAccess.Write))
-                    {
-                        byte[] bytes = Resources.VGAudioCli;
-                        fsDst.Write(bytes, 0, bytes.Length);
-                    }
+                    return ExtractCli();
                 }
                 catch (Exception e)
                 {
@@ -52,6 +48,31 @@ namespace VGAudio.Win32
                 }
             }
             return true;
+        }
+
+        public static bool ExtractCli()
+        {
+            if (!File.Exists(Main.VGAudioCli))
+            {
+                try
+                {
+                    using (FileStream fsDst = new FileStream(Main.VGAudioCli, FileMode.CreateNew, FileAccess.Write))
+                    {
+                        byte[] bytes = Resources.VGAudioCli;
+                        fsDst.Write(bytes, 0, bytes.Length);
+                    }
+                    return true;
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(String.Format("Unable to extract VGAudioCli: {0}", e.Message), "VGAudio", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+            else
+            {
+                return true;
+            }
         }
 
         // https://stackoverflow.com/a/10709874

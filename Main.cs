@@ -197,7 +197,7 @@ namespace VGAudio.Win32
             // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
             OpenedFileRemake.Add("FileNameShort", FormMethods.TruncateFileName(OpenedFileRemake["FileName"], OpenedFileRemake["FileExtension"]));
 
-            if (FormMethods.MassPathCheck(VGAudioCli, OpenedFileRemake["FilePath"]))
+            if (FormMethods.VerifyIntegrity(OpenedFileRemake["FilePath"]))
             {
                 ProcessStartInfo procInfo = new ProcessStartInfo
                 {
@@ -438,7 +438,7 @@ namespace VGAudio.Win32
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                if (FormMethods.MassPathCheck(VGAudioCli, OpenedFileRemake["FilePath"]))
+                if (FormMethods.VerifyIntegrity(OpenedFileRemake["FilePath"]))
                 {
                     // Do stuff
                     UpdateStatus("Converting the file...");
