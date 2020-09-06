@@ -316,7 +316,6 @@ namespace VGAudio.Win32
             chk_loop.Visible = loaded;
             lbl_exportAs.Visible = loaded;
             lst_exportExtensions.Visible = loaded;
-            lst_audioFormat.Visible = false;
             btn_advancedOptions.Visible = false;
 
             if (loaded)
@@ -350,19 +349,10 @@ namespace VGAudio.Win32
             switch (lst_exportExtensions.SelectedItem.ToString().ToLower())
             {
                 case "brstm":
-                    lst_audioFormat.Visible = true;
-                    btn_advancedOptions.Visible = true;
-                    if (lst_audioFormat.SelectedItem == null)
-                    {
-                        lst_audioFormat.SelectedIndex = 0;
-                    }
-                    break;
                 case "bcstm":
-                    lst_audioFormat.Visible = false;
                     btn_advancedOptions.Visible = true;
                     break;
                 default:
-                    lst_audioFormat.Visible = false;
                     btn_advancedOptions.Visible = false;
                     break;
             }
@@ -370,7 +360,14 @@ namespace VGAudio.Win32
 
         private void OpenAdvancedOptions(object sender, EventArgs e)
         {
-            MessageBox.Show("Coming soon!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MainAdvanced mainAdvanced = new MainAdvanced(lst_exportExtensions.SelectedItem.ToString())
+            {
+                StartPosition = FormStartPosition.Manual,
+                Left = this.Left,
+                Top = this.Top,
+                Text = String.Format("Advanced options | {0}", Text)
+            };
+            mainAdvanced.ShowDialog();
         }
 
         private void LoopTheFile(object sender, EventArgs e)
@@ -522,11 +519,7 @@ namespace VGAudio.Win32
                         switch (exportExtension)
                         {
                             case "brstm":
-                                if (lst_audioFormat.SelectedItem == null)
-                                {
-                                    lst_audioFormat.SelectedIndex = 0;
-                                }
-                                switch (lst_audioFormat.SelectedItem.ToString())
+                                switch (MainAdvanced.brstm_audioFormat)
                                 {
                                     case "DSP-ADPCM":
                                         // If not specified, the file is converted to DSP-ADPCM audio format
@@ -562,7 +555,7 @@ namespace VGAudio.Win32
                             }
                             else
                             {
-                                // Should never occur
+                                // Should happen only if the operation is not supported by the CLI
                                 MessageBox.Show(standardConsoleOutput, "Conversion Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }

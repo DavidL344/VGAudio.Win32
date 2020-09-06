@@ -42,7 +42,6 @@
             this.txt_metadata = new System.Windows.Forms.TextBox();
             this.btn_dump = new System.Windows.Forms.Button();
             this.btn_advancedOptions = new System.Windows.Forms.Button();
-            this.lst_audioFormat = new System.Windows.Forms.ComboBox();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
@@ -219,27 +218,12 @@
             this.btn_advancedOptions.Visible = false;
             this.btn_advancedOptions.Click += new System.EventHandler(this.OpenAdvancedOptions);
             // 
-            // lst_audioFormat
-            // 
-            this.lst_audioFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.lst_audioFormat.FormattingEnabled = true;
-            this.lst_audioFormat.Items.AddRange(new object[] {
-            "DSP-ADPCM",
-            "16-bit PCM",
-            "8-bit PCM"});
-            this.lst_audioFormat.Location = new System.Drawing.Point(556, 89);
-            this.lst_audioFormat.Name = "lst_audioFormat";
-            this.lst_audioFormat.Size = new System.Drawing.Size(216, 39);
-            this.lst_audioFormat.TabIndex = 12;
-            this.lst_audioFormat.Visible = false;
-            // 
             // Main
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.lst_audioFormat);
             this.Controls.Add(this.btn_advancedOptions);
             this.Controls.Add(this.btn_dump);
             this.Controls.Add(this.btn_export);
@@ -277,12 +261,11 @@
         private System.Windows.Forms.Label lbl_loopStart;
         private System.Windows.Forms.Label lbl_loopEnd;
         private System.Windows.Forms.Label lbl_exportAs;
-        private System.Windows.Forms.ComboBox lst_exportExtensions;
         private System.Windows.Forms.Button btn_export;
         private System.Windows.Forms.TextBox txt_metadata;
         private System.Windows.Forms.Button btn_dump;
         private System.Windows.Forms.Button btn_advancedOptions;
-        private System.Windows.Forms.ComboBox lst_audioFormat;
+        private System.Windows.Forms.ComboBox lst_exportExtensions;
     }
 }
 
