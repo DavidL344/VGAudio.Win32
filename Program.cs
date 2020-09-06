@@ -12,8 +12,23 @@ namespace VGAudio.Win32
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            switch (args.Length)
+            {
+                case 1:
+                    switch (args[0])
+                    {
+                        case "--extract":
+                            FormMethods.ExtractCli();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    break;
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Main());
