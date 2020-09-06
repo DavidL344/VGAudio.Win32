@@ -41,6 +41,7 @@
             this.btn_export = new System.Windows.Forms.Button();
             this.txt_metadata = new System.Windows.Forms.TextBox();
             this.btn_dump = new System.Windows.Forms.Button();
+            this.lbx_files = new System.Windows.Forms.ListBox();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
@@ -205,6 +206,16 @@
             this.btn_dump.Visible = false;
             this.btn_dump.Click += new System.EventHandler(this.FileDump);
             // 
+            // lbx_files
+            // 
+            this.lbx_files.FormattingEnabled = true;
+            this.lbx_files.ItemHeight = 31;
+            this.lbx_files.Location = new System.Drawing.Point(42, 204);
+            this.lbx_files.Name = "lbx_files";
+            this.lbx_files.Size = new System.Drawing.Size(712, 97);
+            this.lbx_files.TabIndex = 11;
+            this.lbx_files.Visible = false;
+            // 
             // Main
             // 
             this.AllowDrop = true;
@@ -223,6 +234,7 @@
             this.Controls.Add(this.num_loopEnd);
             this.Controls.Add(this.num_loopStart);
             this.Controls.Add(this.txt_metadata);
+            this.Controls.Add(this.lbx_files);
             this.Name = "Main";
             this.Text = "VGAudio";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
@@ -251,6 +263,7 @@
         private System.Windows.Forms.Button btn_export;
         private System.Windows.Forms.TextBox txt_metadata;
         private System.Windows.Forms.Button btn_dump;
+        private System.Windows.Forms.ListBox lbx_files;
     }
 }
 
