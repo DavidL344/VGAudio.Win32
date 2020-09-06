@@ -92,7 +92,14 @@ namespace VGAudio.Win32
                 }
                 else
                 {
-                    MessageBox.Show("Only one file is supported at a time.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (BatchConvert.CycleThroughFiles(fileList))
+                    {
+                        // Batch mode ON
+                    }
+                    else
+                    {
+                        MessageBox.Show("Only one file is supported at a time.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }

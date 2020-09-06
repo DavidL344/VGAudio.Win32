@@ -41,6 +41,7 @@
             this.btn_export = new System.Windows.Forms.Button();
             this.txt_metadata = new System.Windows.Forms.TextBox();
             this.btn_dump = new System.Windows.Forms.Button();
+            this.listBox1 = new System.Windows.Forms.ListBox();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
@@ -205,12 +206,23 @@
             this.btn_dump.Visible = false;
             this.btn_dump.Click += new System.EventHandler(this.FileDump);
             // 
+            // listBox1
+            // 
+            this.listBox1.FormattingEnabled = true;
+            this.listBox1.ItemHeight = 31;
+            this.listBox1.Location = new System.Drawing.Point(138, 204);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(507, 97);
+            this.listBox1.TabIndex = 11;
+            this.listBox1.Visible = false;
+            // 
             // Main
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.listBox1);
             this.Controls.Add(this.btn_dump);
             this.Controls.Add(this.btn_export);
             this.Controls.Add(this.lst_exportExtensions);
@@ -251,6 +263,7 @@
         private System.Windows.Forms.Button btn_export;
         private System.Windows.Forms.TextBox txt_metadata;
         private System.Windows.Forms.Button btn_dump;
+        private System.Windows.Forms.ListBox listBox1;
     }
 }
 
