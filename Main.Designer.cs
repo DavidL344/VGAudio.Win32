@@ -42,6 +42,7 @@
             this.txt_metadata = new System.Windows.Forms.TextBox();
             this.btn_dump = new System.Windows.Forms.Button();
             this.btn_advancedOptions = new System.Windows.Forms.Button();
+            this.lbl_dnd = new System.Windows.Forms.Label();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
@@ -218,6 +219,15 @@
             this.btn_advancedOptions.Visible = false;
             this.btn_advancedOptions.Click += new System.EventHandler(this.OpenAdvancedOptions);
             // 
+            // lbl_dnd
+            // 
+            this.lbl_dnd.AutoSize = true;
+            this.lbl_dnd.Location = new System.Drawing.Point(164, 199);
+            this.lbl_dnd.Name = "lbl_dnd";
+            this.lbl_dnd.Size = new System.Drawing.Size(455, 32);
+            this.lbl_dnd.TabIndex = 12;
+            this.lbl_dnd.Text = "...or just drag and drop the file here";
+            // 
             // Main
             // 
             this.AllowDrop = true;
@@ -237,6 +247,7 @@
             this.Controls.Add(this.num_loopEnd);
             this.Controls.Add(this.num_loopStart);
             this.Controls.Add(this.txt_metadata);
+            this.Controls.Add(this.lbl_dnd);
             this.Name = "Main";
             this.Text = "VGAudio";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Main_FormClosing);
@@ -266,6 +277,7 @@
         private System.Windows.Forms.Button btn_dump;
         private System.Windows.Forms.Button btn_advancedOptions;
         private System.Windows.Forms.ComboBox lst_exportExtensions;
+        private System.Windows.Forms.Label lbl_dnd;
     }
 }
 

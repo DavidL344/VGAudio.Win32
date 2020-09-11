@@ -317,6 +317,7 @@ namespace VGAudio.Win32
             lbl_exportAs.Visible = loaded;
             lst_exportExtensions.Visible = loaded;
             btn_advancedOptions.Visible = false;
+            lbl_dnd.Visible = !loaded;
 
             if (loaded)
             {
