@@ -21,6 +21,7 @@ namespace VGAudio.Win32
         public Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
         public Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
+        public static Dictionary<string, object> AdvancedSettings = new Dictionary<string, object>();
         //public Dictionary<string, string> PreviousOpenedFile = new Dictionary<string, string>();
         public readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public readonly string extsFilter = "All Supported Audio Streams|*.wav;*.dsp;*.idsp;*.brstm;*.bcstm;*.bfstm;*.hps;*.adx;*.hca;*.genh;*.at9|"
@@ -109,6 +110,12 @@ namespace VGAudio.Win32
             UpdateStatus("Close");
             OpenedFileRemake.Clear();
             OpenedFileLoop.Clear();
+
+            if (FeatureConfig["ResetExportOptionsOnNewFile"])
+            {
+                lst_exportExtensions.SelectedIndex = default;
+                MainAdvanced.Reset();
+            }
         }
 
         private bool FileDialog()
@@ -132,10 +139,17 @@ namespace VGAudio.Win32
 
         private bool FileDialogProcess(string filePath)
         {
-            // Select the second export extension (DSP)
+            bool noPreviousFile; // Saves the value of whether there was previously a file opened or not
+            
             if (!OpenedFileRemake.ContainsKey("FilePath"))
             {
+                // Select the second export extension (DSP)
                 lst_exportExtensions.SelectedIndex = 1;
+                noPreviousFile = true;
+            }
+            else
+            {
+                noPreviousFile = false;
             }
 
             // Check if the selected path is not a directory
@@ -195,6 +209,12 @@ namespace VGAudio.Win32
             }
             if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
 
+            if (FeatureConfig["ResetExportOptionsOnNewFile"])
+            {
+                // Reset the advanced options
+                MainAdvanced.Reset();
+            }
+
             // Load file information
             OpenedFileRemake.Add("FileName", Path.GetFileName(filePath));
             OpenedFileRemake.Add("FilePath", filePath);
@@ -250,7 +270,8 @@ namespace VGAudio.Win32
                         OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1); // Loop end has to be a bigger number than loop start
 
                         chk_loop.Text = "Keep the loop";
-                        chk_loop.Checked = true;
+                        if (FeatureConfig["ResetExportOptionsOnNewFile"]) chk_loop.Checked = true;
+                        
                     }
                     else
                     {
@@ -267,7 +288,7 @@ namespace VGAudio.Win32
                             OpenedFileLoop.Add("StartMax", OpenedFileLoop["EndMax"] - 1);
 
                             chk_loop.Text = "Create a loop";
-                            chk_loop.Checked = false;
+                            if (FeatureConfig["ResetExportOptionsOnNewFile"]) chk_loop.Checked = false;
                         }
                         else
                         {
@@ -279,11 +300,17 @@ namespace VGAudio.Win32
                     }
                     num_loopStart.Maximum = OpenedFileLoop["StartMax"];
                     num_loopStart.Minimum = OpenedFileLoop["StartMin"];
-                    num_loopStart.Value = OpenedFileLoop["Start"];
 
                     num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
                     num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-                    num_loopEnd.Value = OpenedFileLoop["End"];
+
+                    // Load the loop values only if it's the first file loaded
+                    // Overwrite the loop values only if specified in the config
+                    if (FeatureConfig["ResetExportOptionsOnNewFile"] || noPreviousFile)
+                    {
+                        num_loopStart.Value = OpenedFileLoop["Start"];
+                        num_loopEnd.Value = OpenedFileLoop["End"];
+                    }
 
                     // Check again if the file is accessible
                     // It could've been locked or deleted by something else in the meantime
@@ -321,7 +348,8 @@ namespace VGAudio.Win32
 
             if (loaded)
             {
-                LoopTheFile("", new EventArgs());
+                LoopTheFile();
+                ExportExtensionUpdater();
                 if (FeatureConfig["OpenCloseWinformsButton"])
                 {
                     btn_open.Text = "Close File";
@@ -345,12 +373,12 @@ namespace VGAudio.Win32
             }
         }
 
-        private void ExportExtensionUpdater(object sender, EventArgs e)
+        private void ExportExtensionUpdater(object sender = null, EventArgs e = null)
         {
             switch (lst_exportExtensions.SelectedItem.ToString().ToLower())
             {
                 case "brstm":
-                case "bcstm":
+                case "hca":
                     btn_advancedOptions.Visible = true;
                     break;
                 default:
@@ -371,7 +399,7 @@ namespace VGAudio.Win32
             mainAdvanced.ShowDialog();
         }
 
-        private void LoopTheFile(object sender, EventArgs e)
+        private void LoopTheFile(object sender = null, EventArgs e = null)
         {
             if (chk_loop.Checked)
             {
@@ -398,12 +426,10 @@ namespace VGAudio.Win32
 
         private void FileExport(object sender, EventArgs e)
         {
-            // TODO: advanced settings (BRSTM, BCSTM) + audio format (BRSTM)
             UpdateStatus("Verifying the file...");
 
             // If the file was missing or inaccessible, but suddenly is, relock it again
             FormMethods.FileLock(OpenedFileRemake["FilePath"]);
-
 
             if (lst_exportExtensions.SelectedItem == null)
             {
@@ -517,28 +543,42 @@ namespace VGAudio.Win32
                             procInfo.Arguments += " --no-loop";
                         }
 
-                        switch (exportExtension)
+                        if ((bool)AdvancedSettings["Apply"])
                         {
-                            case "brstm":
-                                switch (MainAdvanced.brstm_audioFormat)
-                                {
-                                    case "DSP-ADPCM":
-                                        // If not specified, the file is converted to DSP-ADPCM audio format
-                                        break;
-                                    case "16-bit PCM":
-                                        procInfo.Arguments += " -f pcm16";
-                                        break;
-                                    case "8-bit PCM":
-                                        procInfo.Arguments += " -f pcm8";
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                break;
-                            case "bcstm":
-                                break;
-                            default:
-                                break;
+                            MessageBox.Show("temp: Advanced settings applied!");
+                            switch (exportExtension)
+                            {
+                                case "brstm":
+                                    switch (AdvancedSettings["BRSTM_audioFormat"])
+                                    {
+                                        case "DSP-ADPCM":
+                                            // If not specified, the file is converted to DSP-ADPCM audio format
+                                            MessageBox.Show("dspadpcm");
+                                            break;
+                                        case "16-bit PCM":
+                                            procInfo.Arguments += " -f pcm16";
+                                            MessageBox.Show("pcm16");
+                                            break;
+                                        case "8-bit PCM":
+                                            procInfo.Arguments += " -f pcm8";
+                                            MessageBox.Show("pcm8");
+                                            break;
+                                        default:
+                                            MessageBox.Show("default / " + AdvancedSettings["BRSTM_audioFormat"]);
+                                            break;
+                                    }
+                                    break;
+                                case "hca":
+                                    MessageBox.Show("hcaq: " + AdvancedSettings["HCA_audioQuality"]);
+                                    procInfo.Arguments += " --hcaquality " + AdvancedSettings["HCA_audioQuality"];
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            MessageBox.Show("temp: Advanced settings not applied!");
                         }
 
                         FormMethods.FileLock(null); // Unlock the file
@@ -706,6 +746,9 @@ namespace VGAudio.Win32
             OpenedFileRemake.Clear();
             OpenedFileLoop.Clear();
 
+            // Init the advanced settings dictionary
+            MainAdvanced.Reset();
+
             // Listen to pressed keys
             this.KeyPreview = true;
             this.KeyDown += new KeyEventHandler(FormMethods.ActionListener);
@@ -722,6 +765,9 @@ namespace VGAudio.Win32
 
             // Lock the opened file so that it can't be moved or deleted
             FeatureConfig.Add("LockOpenedFile", true);
+
+            // Reset the loop information and the advanced options after the file is closed
+            FeatureConfig.Add("ResetExportOptionsOnNewFile", true);
         }
 
         private void TestFeature()
@@ -739,10 +785,8 @@ namespace VGAudio.Win32
                     CloseFile();
                 }
             }
-            else
-            {
-                FormMethods.FileLock(null);
-            }
+            // Unlock the file before exiting
+            FormMethods.FileLock(null);
         }
     }
 }

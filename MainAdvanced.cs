@@ -13,8 +13,7 @@ namespace VGAudio.Win32
 {
     public partial class MainAdvanced : Form
     {
-        private string exportExtension;
-        public static string brstm_audioFormat;
+        private readonly string exportExtension;
         public MainAdvanced(string exportExtension)
         {
             InitializeComponent();
@@ -27,27 +26,97 @@ namespace VGAudio.Win32
             MaximumSize = Size;
             MaximizeBox = false;
 
-            lbl_brstm_audioFormat.Visible = false;
-            lst_brstm_audioFormat.Visible = false;
+            // Load if the advanced settings should be applied
+            UpdateValuesFromFields();
+            AdvancedToggle();
+        }
 
-            switch (exportExtension)
+        private void UpdateValuesFromFields()
+        {
+            chk_advanced.Checked = (bool)Main.AdvancedSettings["Apply"];
+            var brstm_audioFormat = (string)Main.AdvancedSettings["BRSTM_audioFormat"];
+            var hca_audioQuality = (string)Main.AdvancedSettings["HCA_audioQuality"];
+
+            if (brstm_audioFormat != null)
             {
-                case "brstm":
-                    lbl_brstm_audioFormat.Visible = true;
-                    lst_brstm_audioFormat.Visible = true;
-                    if (lst_brstm_audioFormat.SelectedItem == null)
-                    {
-                        lst_brstm_audioFormat.SelectedIndex = 0;
-                    }
-                    break;
-                default:
-                    break;
+                lst_brstm_audioFormat.SelectedItem = brstm_audioFormat;
+            }
+            else
+            {
+                // Default value: DSP-ADPCM
+                lst_brstm_audioFormat.SelectedIndex = 0;
+            }
+
+            if (hca_audioQuality != null)
+            {
+                lst_hca_audioQuality.SelectedItem = hca_audioQuality;
+            }
+            else
+            {
+                // Default value: High
+                lst_hca_audioQuality.SelectedIndex = 1;
             }
         }
 
-        private void lst_brstm_audioFormat_SelectedIndexChanged(object sender, EventArgs e)
+        private void AdvancedToggle(object sender = null, EventArgs e = null)
         {
-            brstm_audioFormat = lst_brstm_audioFormat.SelectedItem.ToString();
+            Main.AdvancedSettings["Apply"] = chk_advanced.Checked;
+
+            if (chk_advanced.Checked)
+            {
+                // TODO:
+                // - ADX options (type, framesize, keystring, keycode, filter, version)
+                // - HCA options (quality, bitrate, limit bitrate)
+                switch (exportExtension)
+                {
+                    case "brstm":
+                        lbl_brstm_audioFormat.Visible = true;
+                        lst_brstm_audioFormat.Visible = true;
+                        lbl_hca_audioQuality.Visible = false;
+                        lst_hca_audioQuality.Visible = false;
+                        break;
+                    case "hca":
+                        lbl_brstm_audioFormat.Visible = false;
+                        lst_brstm_audioFormat.Visible = false;
+                        lbl_hca_audioQuality.Visible = true;
+                        lst_hca_audioQuality.Visible = true;
+                        break;
+                    default:
+                        Main.AdvancedSettings["Apply"] = false;
+                        lbl_brstm_audioFormat.Visible = false;
+                        lst_brstm_audioFormat.Visible = false;
+                        lbl_hca_audioQuality.Visible = false;
+                        lst_hca_audioQuality.Visible = false;
+                        break;
+                }
+            }
+            else
+            {
+                lbl_brstm_audioFormat.Visible = false;
+                lst_brstm_audioFormat.Visible = false;
+                lbl_hca_audioQuality.Visible = false;
+                lst_hca_audioQuality.Visible = false;
+            }
+        }
+
+        private void OnClose(object sender, FormClosedEventArgs e)
+        {
+            // Apply the changes made
+            Apply();
+        }
+
+        private void Apply()
+        {
+            Main.AdvancedSettings["BRSTM_audioFormat"] = lst_brstm_audioFormat.SelectedItem.ToString();
+            Main.AdvancedSettings["HCA_audioQuality"] = lst_hca_audioQuality.SelectedItem.ToString();
+        }
+
+        public static void Reset()
+        {
+            Main.AdvancedSettings.Clear();
+            Main.AdvancedSettings.Add("Apply", false);
+            Main.AdvancedSettings.Add("BRSTM_audioFormat", null);
+            Main.AdvancedSettings.Add("HCA_audioQuality", null);
         }
     }
 }
