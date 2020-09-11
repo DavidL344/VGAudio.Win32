@@ -25,6 +25,7 @@ namespace VGAudio.Win32
             MinimumSize = Size;
             MaximumSize = Size;
             MaximizeBox = false;
+            lbl_options.Text = String.Format("{0} options:", exportExtension.ToUpper());
 
             // Load if the advanced settings should be applied
             UpdateValuesFromFields();
@@ -61,8 +62,7 @@ namespace VGAudio.Win32
         private void AdvancedToggle(object sender = null, EventArgs e = null)
         {
             Main.AdvancedSettings["Apply"] = chk_advanced.Checked;
-
-            if (chk_advanced.Checked)
+            if ((bool)Main.AdvancedSettings["Apply"])
             {
                 // TODO:
                 // - ADX options (type, framesize, keystring, keycode, filter, version)
@@ -97,6 +97,7 @@ namespace VGAudio.Win32
                 lbl_hca_audioQuality.Visible = false;
                 lst_hca_audioQuality.Visible = false;
             }
+            lbl_options.Visible = (bool)Main.AdvancedSettings["Apply"];
         }
 
         private void OnClose(object sender, FormClosedEventArgs e)

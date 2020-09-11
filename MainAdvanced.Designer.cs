@@ -30,12 +30,10 @@
         {
             this.lst_brstm_audioFormat = new System.Windows.Forms.ComboBox();
             this.lbl_brstm_audioFormat = new System.Windows.Forms.Label();
-            this.lbl_brstm_settings = new System.Windows.Forms.Label();
+            this.lbl_options = new System.Windows.Forms.Label();
             this.lbl_hca_audioQuality = new System.Windows.Forms.Label();
             this.lst_hca_audioQuality = new System.Windows.Forms.ComboBox();
             this.chk_advanced = new System.Windows.Forms.CheckBox();
-            this.lbl_hca_settings = new System.Windows.Forms.Label();
-            this.lbl_brstm_line = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // lst_brstm_audioFormat
@@ -46,7 +44,7 @@
             "DSP-ADPCM",
             "16-bit PCM",
             "8-bit PCM"});
-            this.lst_brstm_audioFormat.Location = new System.Drawing.Point(209, 100);
+            this.lst_brstm_audioFormat.Location = new System.Drawing.Point(215, 110);
             this.lst_brstm_audioFormat.Name = "lst_brstm_audioFormat";
             this.lst_brstm_audioFormat.Size = new System.Drawing.Size(216, 39);
             this.lst_brstm_audioFormat.TabIndex = 13;
@@ -54,25 +52,25 @@
             // lbl_brstm_audioFormat
             // 
             this.lbl_brstm_audioFormat.AutoSize = true;
-            this.lbl_brstm_audioFormat.Location = new System.Drawing.Point(19, 100);
+            this.lbl_brstm_audioFormat.Location = new System.Drawing.Point(25, 110);
             this.lbl_brstm_audioFormat.Name = "lbl_brstm_audioFormat";
             this.lbl_brstm_audioFormat.Size = new System.Drawing.Size(184, 32);
             this.lbl_brstm_audioFormat.TabIndex = 14;
             this.lbl_brstm_audioFormat.Text = "Audio format:";
             // 
-            // lbl_brstm_settings
+            // lbl_options
             // 
-            this.lbl_brstm_settings.AutoSize = true;
-            this.lbl_brstm_settings.Location = new System.Drawing.Point(17, 56);
-            this.lbl_brstm_settings.Name = "lbl_brstm_settings";
-            this.lbl_brstm_settings.Size = new System.Drawing.Size(227, 32);
-            this.lbl_brstm_settings.TabIndex = 15;
-            this.lbl_brstm_settings.Text = "BRSTM settings:";
+            this.lbl_options.AutoSize = true;
+            this.lbl_options.Location = new System.Drawing.Point(23, 66);
+            this.lbl_options.Name = "lbl_options";
+            this.lbl_options.Size = new System.Drawing.Size(264, 32);
+            this.lbl_options.TabIndex = 15;
+            this.lbl_options.Text = "(extension) options:";
             // 
             // lbl_hca_audioQuality
             // 
             this.lbl_hca_audioQuality.AutoSize = true;
-            this.lbl_hca_audioQuality.Location = new System.Drawing.Point(21, 217);
+            this.lbl_hca_audioQuality.Location = new System.Drawing.Point(25, 110);
             this.lbl_hca_audioQuality.Name = "lbl_hca_audioQuality";
             this.lbl_hca_audioQuality.Size = new System.Drawing.Size(188, 32);
             this.lbl_hca_audioQuality.TabIndex = 18;
@@ -88,7 +86,7 @@
             "Middle",
             "Low",
             "Lowest"});
-            this.lst_hca_audioQuality.Location = new System.Drawing.Point(211, 217);
+            this.lst_hca_audioQuality.Location = new System.Drawing.Point(215, 110);
             this.lst_hca_audioQuality.Name = "lst_hca_audioQuality";
             this.lst_hca_audioQuality.Size = new System.Drawing.Size(216, 39);
             this.lst_hca_audioQuality.TabIndex = 17;
@@ -104,34 +102,15 @@
             this.chk_advanced.UseVisualStyleBackColor = true;
             this.chk_advanced.CheckedChanged += new System.EventHandler(this.AdvancedToggle);
             // 
-            // lbl_hca_settings
-            // 
-            this.lbl_hca_settings.AutoSize = true;
-            this.lbl_hca_settings.Location = new System.Drawing.Point(19, 173);
-            this.lbl_hca_settings.Name = "lbl_hca_settings";
-            this.lbl_hca_settings.Size = new System.Drawing.Size(188, 32);
-            this.lbl_hca_settings.TabIndex = 19;
-            this.lbl_hca_settings.Text = "HCA settings:";
-            // 
-            // lbl_brstm_line
-            // 
-            this.lbl_brstm_line.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lbl_brstm_line.Location = new System.Drawing.Point(0, 150);
-            this.lbl_brstm_line.Name = "lbl_brstm_line";
-            this.lbl_brstm_line.Size = new System.Drawing.Size(801, 2);
-            this.lbl_brstm_line.TabIndex = 16;
-            // 
             // MainAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.chk_advanced);
-            this.Controls.Add(this.lbl_hca_settings);
             this.Controls.Add(this.lbl_hca_audioQuality);
             this.Controls.Add(this.lst_hca_audioQuality);
-            this.Controls.Add(this.lbl_brstm_line);
-            this.Controls.Add(this.lbl_brstm_settings);
+            this.Controls.Add(this.lbl_options);
             this.Controls.Add(this.lbl_brstm_audioFormat);
             this.Controls.Add(this.lst_brstm_audioFormat);
             this.Name = "MainAdvanced";
@@ -147,11 +126,9 @@
 
         private System.Windows.Forms.ComboBox lst_brstm_audioFormat;
         private System.Windows.Forms.Label lbl_brstm_audioFormat;
-        private System.Windows.Forms.Label lbl_brstm_settings;
+        private System.Windows.Forms.Label lbl_options;
         private System.Windows.Forms.Label lbl_hca_audioQuality;
         private System.Windows.Forms.ComboBox lst_hca_audioQuality;
         private System.Windows.Forms.CheckBox chk_advanced;
-        private System.Windows.Forms.Label lbl_hca_settings;
-        private System.Windows.Forms.Label lbl_brstm_line;
     }
 }

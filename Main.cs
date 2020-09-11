@@ -545,7 +545,6 @@ namespace VGAudio.Win32
 
                         if ((bool)AdvancedSettings["Apply"])
                         {
-                            MessageBox.Show("temp: Advanced settings applied!");
                             switch (exportExtension)
                             {
                                 case "brstm":
@@ -553,32 +552,23 @@ namespace VGAudio.Win32
                                     {
                                         case "DSP-ADPCM":
                                             // If not specified, the file is converted to DSP-ADPCM audio format
-                                            MessageBox.Show("dspadpcm");
                                             break;
                                         case "16-bit PCM":
                                             procInfo.Arguments += " -f pcm16";
-                                            MessageBox.Show("pcm16");
                                             break;
                                         case "8-bit PCM":
                                             procInfo.Arguments += " -f pcm8";
-                                            MessageBox.Show("pcm8");
                                             break;
                                         default:
-                                            MessageBox.Show("default / " + AdvancedSettings["BRSTM_audioFormat"]);
                                             break;
                                     }
                                     break;
                                 case "hca":
-                                    MessageBox.Show("hcaq: " + AdvancedSettings["HCA_audioQuality"]);
                                     procInfo.Arguments += " --hcaquality " + AdvancedSettings["HCA_audioQuality"];
                                     break;
                                 default:
                                     break;
                             }
-                        }
-                        else
-                        {
-                            MessageBox.Show("temp: Advanced settings not applied!");
                         }
 
                         FormMethods.FileLock(null); // Unlock the file
