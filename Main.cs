@@ -696,7 +696,6 @@ namespace VGAudio.Win32
                 
                 if (chk_loop.Checked && exportExtension == "wav")
                 {
-                    // TODO (CRITICAL): why can I set higher loop start than loop end?
                     lineList.Add("\r\nConversion command (see the warning below):\r\n" + convertCommand);
                     lineList.Add("\r\n[WARNING] While the wave file can hold loop information, it won't be read by most media players.");
                 }
@@ -761,8 +760,8 @@ namespace VGAudio.Win32
         private void NumLoopOnUpdate(object sender, EventArgs e)
         {
             OpenedFileLoop["StartMin"] = 0;
-            OpenedFileLoop["StartMax"] = OpenedFileLoop["End"] - 1;
-            OpenedFileLoop["EndMin"] = OpenedFileLoop["Start"] + 1;
+            OpenedFileLoop["StartMax"] = (int)num_loopEnd.Value - 1;
+            OpenedFileLoop["EndMin"] = (int)num_loopStart.Value + 1;
 
             num_loopStart.Minimum = OpenedFileLoop["StartMin"];
             num_loopStart.Maximum = OpenedFileLoop["StartMax"];
