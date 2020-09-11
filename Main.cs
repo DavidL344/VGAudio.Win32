@@ -651,16 +651,59 @@ namespace VGAudio.Win32
                 lineList.Add("----------\r\n");
                 lineList.Add("Custom Export Info:");
                 lineList.Add("Target file: " + exportExtension);
+                
                 if (chk_loop.Checked)
                 {
-                    if (exportExtension != "wav")
+                    lineList.Add("Loop start: " + num_loopStart.Value);
+                    lineList.Add("Loop end: " + num_loopEnd.Value);
+                    convertCommand += " -l " + num_loopStart.Value + "-" + num_loopEnd.Value;
+                }
+                else
+                {
+                    convertCommand += " --no-loop";
+                }
+
+                if ((bool)AdvancedSettings["Apply"])
+                {
+                    switch (exportExtension)
                     {
-                        lineList.Add("Loop start: " + num_loopStart.Value);
-                        lineList.Add("Loop end: " + num_loopEnd.Value);
-                        convertCommand += " -l " + num_loopStart.Value + "-" + num_loopEnd.Value;
+                        case "brstm":
+                            lineList.Add("Audio format: " + AdvancedSettings["BRSTM_audioFormat"]);
+                            switch (AdvancedSettings["BRSTM_audioFormat"])
+                            {
+                                case "DSP-ADPCM":
+                                    // If not specified, the file is converted to DSP-ADPCM audio format
+                                    break;
+                                case "16-bit PCM":
+                                    convertCommand += " -f pcm16";
+                                    break;
+                                case "8-bit PCM":
+                                    convertCommand += " -f pcm8";
+                                    break;
+                                default:
+                                    break;
+                            }
+                            convertCommand += " -f pcm8";
+                            break;
+                        case "hca":
+                            lineList.Add("Audio quality: " + AdvancedSettings["HCA_audioQuality"]);
+                            convertCommand += " --hcaquality " + AdvancedSettings["HCA_audioQuality"];
+                            break;
+                        default:
+                            break;
                     }
                 }
-                lineList.Add("\r\nConversion command (defined from the UI):\r\n" + convertCommand);
+                
+                if (chk_loop.Checked && exportExtension == "wav")
+                {
+                    // TODO (CRITICAL): why can I set higher loop start than loop end?
+                    lineList.Add("\r\nConversion command (see the warning below):\r\n" + convertCommand);
+                    lineList.Add("\r\n[WARNING] While the wave file can hold loop information, it won't be read by most media players.");
+                }
+                else
+                {
+                    lineList.Add("\r\nConversion command:\r\n" + convertCommand);
+                }
             }
 
             string[] lines = lineList.ToArray();
