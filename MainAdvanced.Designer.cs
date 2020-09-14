@@ -143,7 +143,7 @@
             this.pnl_hca.Controls.Add(this.rb_hca_audioBitrate);
             this.pnl_hca.Controls.Add(this.rb_hca_audioQuality);
             this.pnl_hca.Controls.Add(this.lst_hca_audioQuality);
-            this.pnl_hca.Location = new System.Drawing.Point(29, 191);
+            this.pnl_hca.Location = new System.Drawing.Point(29, 110);
             this.pnl_hca.Name = "pnl_hca";
             this.pnl_hca.Size = new System.Drawing.Size(549, 220);
             this.pnl_hca.TabIndex = 26;
