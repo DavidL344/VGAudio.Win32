@@ -514,63 +514,18 @@ namespace VGAudio.Win32
                         {
                             FileName = VGAudioCli,
                             WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
-                            Arguments = "-i " + OpenedFileRemake["FilePathEscaped"] + " -o " + "\"" + Path.GetFullPath(saveFileDialog.FileName) + "\"",
+                            Arguments = FormMethods.GenerateConversionParams(
+                                OpenedFileRemake["FilePathEscaped"],
+                                "\"" + Path.GetFullPath(saveFileDialog.FileName) + "\"",
+                                chk_loop.Checked,
+                                num_loopStart.Value,
+                                num_loopEnd.Value
+                            ),
                             RedirectStandardOutput = true,
                             UseShellExecute = false,
                             CreateNoWindow = true,
                             WindowStyle = ProcessWindowStyle.Hidden
                         };
-
-                        if (chk_loop.Checked)
-                        {
-                            var loopStart = num_loopStart.Value;
-                            var loopEnd = num_loopEnd.Value;
-
-                            if (loopStart > loopEnd)
-                            {
-                                DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed the Loop End value.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-                                if (dialogResult != DialogResult.Yes)
-                                {
-                                    UpdateStatus();
-                                    return;
-                                }
-                                chk_loop.Checked = false;
-                            }
-                            procInfo.Arguments = procInfo.Arguments + " -l " + loopStart + "-" + loopEnd;
-                        }
-                        else
-                        {
-                            procInfo.Arguments += " --no-loop";
-                        }
-
-                        if ((bool)AdvancedSettings["Apply"])
-                        {
-                            switch (exportExtension)
-                            {
-                                case "brstm":
-                                    switch (AdvancedSettings["BRSTM_audioFormat"])
-                                    {
-                                        case "DSP-ADPCM":
-                                            // If not specified, the file is converted to DSP-ADPCM audio format
-                                            break;
-                                        case "16-bit PCM":
-                                            procInfo.Arguments += " -f pcm16";
-                                            break;
-                                        case "8-bit PCM":
-                                            procInfo.Arguments += " -f pcm8";
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                    break;
-                                case "hca":
-                                    procInfo.Arguments += " --hcaquality " + AdvancedSettings["HCA_audioQuality"];
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-
                         FormMethods.FileLock(null); // Unlock the file
                         var proc = Process.Start(procInfo); // Process the file
                         proc.WaitForExit();
@@ -635,9 +590,7 @@ namespace VGAudio.Win32
             UpdateStatus("Dumping info...");
             FormMethods.EnableCloseButton(this, false);
             var path = OpenedFileRemake["FilePath"] + ".dump";
-
             var exportExtension = lst_exportExtensions.SelectedItem.ToString().ToLower();
-            var convertCommand = "VGAudioCli.exe -i " + OpenedFileRemake["FilePathEscaped"] + " -o " + "output." + exportExtension;
 
             List<string> lineList = new List<string>
             {
@@ -656,11 +609,6 @@ namespace VGAudio.Win32
                 {
                     lineList.Add("Loop start: " + num_loopStart.Value);
                     lineList.Add("Loop end: " + num_loopEnd.Value);
-                    convertCommand += " -l " + num_loopStart.Value + "-" + num_loopEnd.Value;
-                }
-                else
-                {
-                    convertCommand += " --no-loop";
                 }
 
                 if ((bool)AdvancedSettings["Apply"])
@@ -669,39 +617,40 @@ namespace VGAudio.Win32
                     {
                         case "brstm":
                             lineList.Add("Audio format: " + AdvancedSettings["BRSTM_audioFormat"]);
-                            switch (AdvancedSettings["BRSTM_audioFormat"])
+                            break;
+                        case "hca":
+                            switch (AdvancedSettings["HCA_audioRadioButtonSelector"])
                             {
-                                case "DSP-ADPCM":
-                                    // If not specified, the file is converted to DSP-ADPCM audio format
+                                case "quality":
+                                    lineList.Add("Audio quality: " + AdvancedSettings["HCA_audioQuality"]);
                                     break;
-                                case "16-bit PCM":
-                                    convertCommand += " -f pcm16";
-                                    break;
-                                case "8-bit PCM":
-                                    convertCommand += " -f pcm8";
+                                case "bitrate":
+                                    lineList.Add("Audio bitrate: " + AdvancedSettings["HCA_audioBitrate"]);
                                     break;
                                 default:
                                     break;
                             }
-                            convertCommand += " -f pcm8";
-                            break;
-                        case "hca":
-                            lineList.Add("Audio quality: " + AdvancedSettings["HCA_audioQuality"]);
-                            convertCommand += " --hcaquality " + AdvancedSettings["HCA_audioQuality"];
                             break;
                         default:
                             break;
                     }
                 }
-                
+
+                var conversionCommand = "VGAudioCli.exe " + FormMethods.GenerateConversionParams(
+                        OpenedFileRemake["FilePathEscaped"],
+                        String.Format("\"output.{0}\"", exportExtension),
+                        chk_loop.Checked,
+                        num_loopStart.Value,
+                        num_loopEnd.Value);
+
                 if (chk_loop.Checked && exportExtension == "wav")
                 {
-                    lineList.Add("\r\nConversion command (see the warning below):\r\n" + convertCommand);
+                    lineList.Add("\r\nConversion command (see the warning below):\r\n" + conversionCommand);
                     lineList.Add("\r\n[WARNING] While the wave file can hold loop information, it won't be read by most media players.");
                 }
                 else
                 {
-                    lineList.Add("\r\nConversion command:\r\n" + convertCommand);
+                    lineList.Add("\r\nConversion command:\r\n" + conversionCommand);
                 }
             }
 

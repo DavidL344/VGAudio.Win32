@@ -226,5 +226,73 @@ namespace VGAudio.Win32
                 e.SuppressKeyPress = true; // Stops other controls on the form receiving event.
             }
         }
+
+        public static string GenerateConversionParams(string input, string output, bool loopChecked, decimal loopStart, decimal loopEnd)
+        {
+            string arguments = String.Format("-i {0} -o {1}", input, output);
+            string exportExtension = output.Split('.').Last().Trim('"').ToLower();
+
+            if (loopChecked)
+            {
+                if (loopStart > loopEnd)
+                {
+                    DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed the Loop End value.\r\nContinue the export without the loop information?", AppForm.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                    if (dialogResult != DialogResult.Yes)
+                    {
+                        //AppForm.UpdateStatus();
+                        return null;
+                    }
+                    arguments += " --no-loop";
+                }
+                else
+                {
+                    arguments += String.Format(" -l {0}-{1}", loopStart, loopEnd);
+                }
+            }
+            else
+            {
+                arguments += " --no-loop";
+            }
+
+            if ((bool)Main.AdvancedSettings["Apply"])
+            {
+                switch (exportExtension)
+                {
+                    case "brstm":
+                        switch (Main.AdvancedSettings["BRSTM_audioFormat"])
+                        {
+                            case "DSP-ADPCM":
+                                // If not specified, the file is converted to DSP-ADPCM audio format
+                                break;
+                            case "16-bit PCM":
+                                arguments += " -f pcm16";
+                                break;
+                            case "8-bit PCM":
+                                arguments += " -f pcm8";
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
+                    case "hca":
+                        switch (Main.AdvancedSettings["HCA_audioRadioButtonSelector"])
+                        {
+                            case "quality":
+                                arguments += " --hcaquality " + Main.AdvancedSettings["HCA_audioQuality"];
+                                break;
+                            case "bitrate":
+                                arguments += " --bitrate " + Main.AdvancedSettings["HCA_audioBitrate"];
+                                break;
+                            default:
+                                break;
+                        }
+                        if ((bool)Main.AdvancedSettings["HCA_limitBitrate"]) arguments += " --limit-bitrate";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return arguments;
+        }
     }
 }
