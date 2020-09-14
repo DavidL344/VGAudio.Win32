@@ -237,11 +237,7 @@ namespace VGAudio.Win32
                 if (loopStart > loopEnd)
                 {
                     DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed the Loop End value.\r\nContinue the export without the loop information?", AppForm.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-                    if (dialogResult != DialogResult.Yes)
-                    {
-                        //AppForm.UpdateStatus();
-                        return null;
-                    }
+                    if (dialogResult != DialogResult.Yes) return null;
                     arguments += " --no-loop";
                 }
                 else

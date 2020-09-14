@@ -505,64 +505,68 @@ namespace VGAudio.Win32
             {
                 if (FormMethods.VerifyIntegrity(OpenedFileRemake["FilePath"]))
                 {
-                    // Do stuff
+                    // Prepare the arguments
                     UpdateStatus("Converting the file...");
                     FormMethods.EnableCloseButton(this, false);
-                    try
+                    var arguments = FormMethods.GenerateConversionParams(
+                        OpenedFileRemake["FilePathEscaped"],
+                        "\"" + Path.GetFullPath(saveFileDialog.FileName) + "\"",
+                        chk_loop.Checked,
+                        num_loopStart.Value,
+                        num_loopEnd.Value);
+                    // Cancelling the operation before it starts results in null
+                    if (arguments != null)
                     {
-                        ProcessStartInfo procInfo = new ProcessStartInfo
+                        try
                         {
-                            FileName = VGAudioCli,
-                            WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
-                            Arguments = FormMethods.GenerateConversionParams(
-                                OpenedFileRemake["FilePathEscaped"],
-                                "\"" + Path.GetFullPath(saveFileDialog.FileName) + "\"",
-                                chk_loop.Checked,
-                                num_loopStart.Value,
-                                num_loopEnd.Value
-                            ),
-                            RedirectStandardOutput = true,
-                            UseShellExecute = false,
-                            CreateNoWindow = true,
-                            WindowStyle = ProcessWindowStyle.Hidden
-                        };
-                        FormMethods.FileLock(null); // Unlock the file
-                        var proc = Process.Start(procInfo); // Process the file
-                        proc.WaitForExit();
-                        FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file
-                        UpdateStatus();
-                        var standardConsoleOutput = proc.StandardOutput.ReadToEnd();
-                        if (proc.ExitCode == 0)
-                        {
-                            // Progress bar [####   ] starts with '[' and success starts with, well, 'Success!'
-                            if (standardConsoleOutput.StartsWith("[") || standardConsoleOutput.StartsWith("Success!"))
+                            ProcessStartInfo procInfo = new ProcessStartInfo
                             {
-                                MessageBox.Show("Task performed successfully.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                FileName = VGAudioCli,
+                                WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
+                                Arguments = arguments,
+                                RedirectStandardOutput = true,
+                                UseShellExecute = false,
+                                CreateNoWindow = true,
+                                WindowStyle = ProcessWindowStyle.Hidden
+                            };
+                            FormMethods.FileLock(null); // Unlock the file
+                            var proc = Process.Start(procInfo); // Process the file
+                            proc.WaitForExit();
+                            FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file
+                            UpdateStatus();
+                            var standardConsoleOutput = proc.StandardOutput.ReadToEnd();
+                            if (proc.ExitCode == 0)
+                            {
+                                // Progress bar [####   ] starts with '[' and success starts with, well, 'Success!'
+                                if (standardConsoleOutput.StartsWith("[") || standardConsoleOutput.StartsWith("Success!"))
+                                {
+                                    MessageBox.Show("Task performed successfully.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                }
+                                else
+                                {
+                                    // Should happen only if the operation is not supported by the CLI
+                                    MessageBox.Show(standardConsoleOutput, "Conversion Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
                             }
                             else
                             {
-                                // Should happen only if the operation is not supported by the CLI
-                                MessageBox.Show(standardConsoleOutput, "Conversion Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                // Error occurs when the user replaces an existing file
+                                // with invalid export extension through the dialog box
+                                string[] errorString = standardConsoleOutput.Split(
+                                    new[] { "\r\n", "\r", "\n" },
+                                    StringSplitOptions.None
+                                );
+
+                                // Returns the error message without the usage of VGAudioCli
+                                MessageBox.Show(errorString[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            // Error occurs when the user replaces an existing file
-                            // with invalid export extension through the dialog box
-                            string[] errorString = standardConsoleOutput.Split(
-                                new[] { "\r\n", "\r", "\n" },
-                                StringSplitOptions.None
-                            );
-
-                            // Returns the error message without the usage of VGAudioCli
-                            MessageBox.Show(errorString[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file after an unsuccessful attempt to convert it
+                            UpdateStatus();
+                            MessageBox.Show(ex.Message, "Fatal Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file after an unsuccessful attempt to convert it
-                        UpdateStatus();
-                        MessageBox.Show(ex.Message, "Fatal Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
             }
@@ -636,12 +640,20 @@ namespace VGAudio.Win32
                     }
                 }
 
-                var conversionCommand = "VGAudioCli.exe " + FormMethods.GenerateConversionParams(
-                        OpenedFileRemake["FilePathEscaped"],
-                        String.Format("\"output.{0}\"", exportExtension),
-                        chk_loop.Checked,
-                        num_loopStart.Value,
-                        num_loopEnd.Value);
+                var conversionCommand = FormMethods.GenerateConversionParams(
+                    OpenedFileRemake["FilePathEscaped"],
+                    String.Format("\"output.{0}\"", exportExtension),
+                    chk_loop.Checked,
+                    num_loopStart.Value,
+                    num_loopEnd.Value);
+                if (conversionCommand == null)
+                {
+                    conversionCommand = "(unable to generate)";
+                }
+                else
+                {
+                    conversionCommand = "VGAudioCli.exe " + conversionCommand;
+                }
 
                 if (chk_loop.Checked && exportExtension == "wav")
                 {
