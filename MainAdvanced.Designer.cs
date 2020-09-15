@@ -133,16 +133,17 @@
             this.lst_hca_audioQuality.Name = "lst_hca_audioQuality";
             this.lst_hca_audioQuality.Size = new System.Drawing.Size(216, 39);
             this.lst_hca_audioQuality.TabIndex = 17;
+            this.lst_hca_audioQuality.Visible = false;
             this.lst_hca_audioQuality.SelectedValueChanged += new System.EventHandler(this.UpdateApproxKbps);
             // 
             // pnl_hca
             // 
+            this.pnl_hca.Controls.Add(this.lst_hca_audioQuality);
+            this.pnl_hca.Controls.Add(this.num_hca_audioBitrate);
             this.pnl_hca.Controls.Add(this.lbl_hca_conversion);
             this.pnl_hca.Controls.Add(this.chk_hca_limitBitrate);
-            this.pnl_hca.Controls.Add(this.num_hca_audioBitrate);
             this.pnl_hca.Controls.Add(this.rb_hca_audioBitrate);
             this.pnl_hca.Controls.Add(this.rb_hca_audioQuality);
-            this.pnl_hca.Controls.Add(this.lst_hca_audioQuality);
             this.pnl_hca.Location = new System.Drawing.Point(29, 110);
             this.pnl_hca.Name = "pnl_hca";
             this.pnl_hca.Size = new System.Drawing.Size(549, 220);
@@ -156,6 +157,7 @@
             this.lbl_hca_conversion.Size = new System.Drawing.Size(281, 32);
             this.lbl_hca_conversion.TabIndex = 25;
             this.lbl_hca_conversion.Text = "bps to Kbps / approx.";
+            this.lbl_hca_conversion.Visible = false;
             // 
             // chk_hca_limitBitrate
             // 
@@ -184,10 +186,11 @@
             this.num_hca_audioBitrate.Size = new System.Drawing.Size(216, 38);
             this.num_hca_audioBitrate.TabIndex = 23;
             this.num_hca_audioBitrate.Value = new decimal(new int[] {
-            320000,
+            235000,
             0,
             0,
             0});
+            this.num_hca_audioBitrate.Visible = false;
             this.num_hca_audioBitrate.ValueChanged += new System.EventHandler(this.UpdateKbpsConversion);
             // 
             // MainAdvanced
