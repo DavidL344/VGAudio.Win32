@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -20,6 +21,7 @@ namespace VGAudio.Win32
             InitializeComponent();
             this.exportExtension = exportExtension.ToLower();
 
+            // Add samples from 44100 Hz sample CRI HCA file
             BitrateValue.Add("Highest", 353);
             BitrateValue.Add("High", 235);
             BitrateValue.Add("Middle", 176);
@@ -37,7 +39,6 @@ namespace VGAudio.Win32
             // Load if the advanced settings should be applied
             UpdateValuesFromFields();
             AdvancedToggle();
-            HcaCheckboxToggle();
         }
 
         private void UpdateValuesFromFields()
@@ -49,6 +50,7 @@ namespace VGAudio.Win32
             decimal hca_audioBitrate;
             if (Main.AdvancedSettings["HCA_audioBitrate"] != null)
             {
+                // Check if the bitrate saved in the dictionary is valid
                 hca_audioBitrate = (decimal)Main.AdvancedSettings["HCA_audioBitrate"];
                 if (hca_audioBitrate < num_hca_audioBitrate.Minimum || hca_audioBitrate > num_hca_audioBitrate.Maximum)
                 {
@@ -97,16 +99,15 @@ namespace VGAudio.Win32
             switch (Main.AdvancedSettings["HCA_audioRadioButtonSelector"])
             {
                 case "bitrate":
-                    rb_hca_audioQuality.Checked = false;
                     rb_hca_audioBitrate.Checked = true;
                     break;
                 case "quality":
                 case null:
                 default:
                     rb_hca_audioQuality.Checked = true;
-                    rb_hca_audioBitrate.Checked = false;
                     break;
             }
+            lbl_hca_conversion.Visible = true;
         }
 
         private void AdvancedToggle(object sender = null, EventArgs e = null)
@@ -116,7 +117,7 @@ namespace VGAudio.Win32
             {
                 // TODO:
                 // - ADX options (type, framesize, keystring, keycode, filter, version)
-                // - HCA options (quality, bitrate, limit bitrate)
+                // - BCSTM/BFSTM options (little endian / big endian)
                 switch (exportExtension)
                 {
                     case "brstm":
@@ -157,7 +158,21 @@ namespace VGAudio.Win32
         }
         private void UpdateApproxKbps(object sender = null, EventArgs e = null)
         {
+            // Get the approximate value from 44100 Hz sample
             int approxValue = BitrateValue[lst_hca_audioQuality.SelectedItem.ToString()];
+
+            // Strip down the string to just the integer part, then try to parse it as a one
+            var sampleRateSplit = Regex.Split(Main.OpenedFileRemake["SampleRate"], " Hz")[0];
+            if (int.TryParse(sampleRateSplit, out int sampleRate))
+            {
+                // Make an approximate calculation from the file's sample rate
+                approxValue /= 44100 / sampleRate;
+            }
+            else
+            {
+                MessageBox.Show("failed: " + Main.OpenedFileRemake["SampleRate"]);
+            }
+            
             lbl_hca_conversion.Text = String.Format("= approx. {0} Kbps", approxValue);
         }
 

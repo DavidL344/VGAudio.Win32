@@ -18,7 +18,7 @@ namespace VGAudio.Win32
     {
         public static string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
         
-        public Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
+        public static Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
         public Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
         public static Dictionary<string, object> AdvancedSettings = new Dictionary<string, object>();
@@ -441,7 +441,7 @@ namespace VGAudio.Win32
 
             if (OpenedFileRemake["FileExtension"] == exportExtension)
             {
-                DialogResult dialogResult = MessageBox.Show("The file you're trying to export has the same extension as the original file.\r\nContinue?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                DialogResult dialogResult = MessageBox.Show("The file you're trying to export has the same extension as the original file. Some of the changes might not be applied.\r\nContinue?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                 if (dialogResult != DialogResult.Yes)
                 {
                     UpdateStatus();
