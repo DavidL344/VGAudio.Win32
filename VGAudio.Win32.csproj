@@ -55,6 +55,12 @@
     <Compile Include="AboutBox.Designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
+    <Compile Include="BatchConvert.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BatchConvert.Designer.cs">
+      <DependentUpon>BatchConvert.cs</DependentUpon>
+    </Compile>
     <Compile Include="FormMethods.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
@@ -72,6 +78,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BatchConvert.resx">
+      <DependentUpon>BatchConvert.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
