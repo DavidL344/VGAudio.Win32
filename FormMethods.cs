@@ -290,5 +290,15 @@ namespace VGAudio.Win32
             }
             return arguments;
         }
+
+        public static void Show(object sender, EventArgs e)
+        {
+            ((Control)sender).Show();
+        }
+
+        public static void Hide(object sender, EventArgs e)
+        {
+            ((Control)sender).Hide();
+        }
     }
 }
