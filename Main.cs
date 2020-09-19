@@ -101,8 +101,8 @@ namespace VGAudio.Win32
                         Top = this.Top,
                         Text = String.Format("Batch conversion | {0}", Text)
                     };
-                    batchConvert.Activated += new EventHandler(FormMethods.Hide);
-                    batchConvert.FormClosed += new FormClosedEventHandler(FormMethods.Show);
+                    batchConvert.Activated += new EventHandler(HideForm);
+                    batchConvert.FormClosed += new FormClosedEventHandler(ShowForm);
                     batchConvert.ShowDialog();
                 }
             }
@@ -775,6 +775,20 @@ namespace VGAudio.Win32
         private void TestFeature()
         {
 
+        }
+
+        // Unable to use ((Control)sender).Show(); from FormMethods
+        // The program tries to show the BatchConvert form that's already closing
+        private void ShowForm(object sender, EventArgs e)
+        {
+            this.Show();
+        }
+
+        // Unable to use ((Control)sender).Hide(); from FormMethods
+        // The program hides the BatchConvert form that just appeared
+        private void HideForm(object sender, EventArgs e)
+        {
+            this.Hide();
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
