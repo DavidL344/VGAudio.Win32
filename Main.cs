@@ -93,8 +93,17 @@ namespace VGAudio.Win32
                 }
                 else
                 {
-                    // TODO: add support for batch conversions
-                    MessageBox.Show("Only one file is supported at a time.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Pass the array of multiple files (batch conversion)
+                    BatchConvert batchConvert = new BatchConvert(fileList)
+                    {
+                        StartPosition = FormStartPosition.Manual,
+                        Left = this.Left,
+                        Top = this.Top,
+                        Text = String.Format("Batch conversion | {0}", Text)
+                    };
+                    batchConvert.Activated += new EventHandler(FormMethods.Hide);
+                    batchConvert.FormClosed += new FormClosedEventHandler(FormMethods.Show);
+                    batchConvert.ShowDialog();
                 }
             }
         }
