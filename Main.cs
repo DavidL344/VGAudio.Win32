@@ -23,7 +23,7 @@ namespace VGAudio.Win32
         public Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
         public static Dictionary<string, object> AdvancedSettings = new Dictionary<string, object>();
         //public Dictionary<string, string> PreviousOpenedFile = new Dictionary<string, string>();
-        public readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
+        public static readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public readonly string extsFilter = "All Supported Audio Streams|*.wav;*.dsp;*.idsp;*.brstm;*.bcstm;*.bfstm;*.hps;*.adx;*.hca;*.genh;*.at9|"
                                             + "WAV|*.wav|DSP|*.dsp|IDSP|*.idsp|BRSTM|*.brstm|BCSTM|*.bcstm|BFSTM|*.bfstm|HPS|*.hps|ADX|*.adx|HCA|*.hca|GENH|*.genh|AT9|*.at9";
 
@@ -101,9 +101,17 @@ namespace VGAudio.Win32
                         Top = this.Top,
                         Text = String.Format("Batch conversion | {0}", Text)
                     };
+
                     batchConvert.Activated += new EventHandler(HideForm);
                     batchConvert.FormClosed += new FormClosedEventHandler(ShowForm);
                     batchConvert.ShowDialog();
+
+                    /*
+                    if (batchConvert.fileStatus["success"] > 0)
+                    {
+                        
+                    }
+                    */
                 }
             }
         }
