@@ -43,6 +43,8 @@
             this.btn_dump = new System.Windows.Forms.Button();
             this.btn_advancedOptions = new System.Windows.Forms.Button();
             this.lbl_dnd = new System.Windows.Forms.Label();
+            this.btn_file_previous = new System.Windows.Forms.Button();
+            this.btn_file_next = new System.Windows.Forms.Button();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
@@ -228,12 +230,36 @@
             this.lbl_dnd.TabIndex = 12;
             this.lbl_dnd.Text = "...or just drag and drop the file here";
             // 
+            // btn_file_previous
+            // 
+            this.btn_file_previous.Location = new System.Drawing.Point(0, 0);
+            this.btn_file_previous.Name = "btn_file_previous";
+            this.btn_file_previous.Size = new System.Drawing.Size(54, 54);
+            this.btn_file_previous.TabIndex = 13;
+            this.btn_file_previous.Text = "<";
+            this.btn_file_previous.UseVisualStyleBackColor = true;
+            this.btn_file_previous.Visible = false;
+            this.btn_file_previous.Click += new System.EventHandler(this.FileHistoryPrevious);
+            // 
+            // btn_file_next
+            // 
+            this.btn_file_next.Location = new System.Drawing.Point(746, 0);
+            this.btn_file_next.Name = "btn_file_next";
+            this.btn_file_next.Size = new System.Drawing.Size(54, 54);
+            this.btn_file_next.TabIndex = 14;
+            this.btn_file_next.Text = ">";
+            this.btn_file_next.UseVisualStyleBackColor = true;
+            this.btn_file_next.Visible = false;
+            this.btn_file_next.Click += new System.EventHandler(this.FileHistoryNext);
+            // 
             // Main
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btn_file_next);
+            this.Controls.Add(this.btn_file_previous);
             this.Controls.Add(this.btn_advancedOptions);
             this.Controls.Add(this.btn_dump);
             this.Controls.Add(this.btn_export);
@@ -278,6 +304,8 @@
         private System.Windows.Forms.Button btn_advancedOptions;
         private System.Windows.Forms.ComboBox lst_exportExtensions;
         private System.Windows.Forms.Label lbl_dnd;
+        private System.Windows.Forms.Button btn_file_previous;
+        private System.Windows.Forms.Button btn_file_next;
     }
 }
 

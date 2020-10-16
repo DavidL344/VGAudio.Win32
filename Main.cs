@@ -22,7 +22,15 @@ namespace VGAudio.Win32
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
         public Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
         public static Dictionary<string, object> AdvancedSettings = new Dictionary<string, object>();
-        //public Dictionary<string, string> PreviousOpenedFile = new Dictionary<string, string>();
+
+        public Dictionary<string, string> PreviousOpenedFile = new Dictionary<string, string>();
+        public Dictionary<string, int> PreviousFileLoop = new Dictionary<string, int>();
+        public Dictionary<string, object> PreviousAdvancedSettings = new Dictionary<string, object>();
+
+        public Dictionary<string, string> NextOpenedFile = new Dictionary<string, string>();
+        public Dictionary<string, int> NextFileLoop = new Dictionary<string, int>();
+        public Dictionary<string, object> NextAdvancedSettings = new Dictionary<string, object>();
+        
         public readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public readonly string extsFilter = "All Supported Audio Streams|*.wav;*.dsp;*.idsp;*.brstm;*.bcstm;*.bfstm;*.hps;*.adx;*.hca;*.genh;*.at9|"
                                             + "WAV|*.wav|DSP|*.dsp|IDSP|*.idsp|BRSTM|*.brstm|BCSTM|*.bcstm|BFSTM|*.bfstm|HPS|*.hps|ADX|*.adx|HCA|*.hca|GENH|*.genh|AT9|*.at9";
@@ -106,6 +114,7 @@ namespace VGAudio.Win32
 
         private void CloseFile()
         {
+            FileHistory("save");
             FileLoaded(false);
             UpdateStatus("Close");
             OpenedFileRemake.Clear();
@@ -150,6 +159,9 @@ namespace VGAudio.Win32
             else
             {
                 noPreviousFile = false;
+
+                // Save the information about the file before it gets closed
+                FileHistory("save");
             }
 
             // Check if the selected path is not a directory
@@ -203,8 +215,6 @@ namespace VGAudio.Win32
                 // Remember the previous file path and metadata for checking if the locked file is in use by the app - replaced
                 // TODO (IDEA): remember everything - PreviousOpenedFile = OpenedFileRemake (could load previously closed file)
                 // TODO (IDEA): if loading previously closed file, save the current one (OpenedFileRemake) to NextOpenedFile
-                // if (OpenedFileRemake.ContainsKey("FilePath")) PreviousOpenedFile["FilePath"] = OpenedFileRemake["FilePath"];
-                // if (OpenedFileRemake.ContainsKey("Metadata")) PreviousOpenedFile["Metadata"] = OpenedFileRemake["Metadata"];
                 OpenedFileRemake.Clear();
             }
             if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
@@ -716,6 +726,110 @@ namespace VGAudio.Win32
                     slb_status.Text = message;
                     break;
             }
+        }
+
+        private void FileHistory(string command)
+        {
+            switch (command)
+            {
+                case "back":
+                    // The "present" data gets moved to "next" data
+                    NextOpenedFile.Clear();
+                    NextFileLoop.Clear();
+                    NextAdvancedSettings.Clear();
+
+                    if (OpenedFileRemake.Count > 0) OpenedFileRemake = NextOpenedFile;
+                    if (OpenedFileLoop.Count > 0) OpenedFileLoop = NextFileLoop;
+                    if (AdvancedSettings.Count > 0) AdvancedSettings = NextAdvancedSettings;
+
+                    // The "previous" data get moved to "present" data
+                    OpenedFileRemake.Clear();
+                    OpenedFileLoop.Clear();
+                    AdvancedSettings.Clear();
+
+                    if (PreviousOpenedFile.Count > 0) OpenedFileRemake = PreviousOpenedFile;
+                    if (PreviousFileLoop.Count > 0) OpenedFileLoop = PreviousFileLoop;
+                    if (PreviousAdvancedSettings.Count > 0) AdvancedSettings = PreviousAdvancedSettings;
+
+                    // Remove the duplicate of "previous" data
+                    PreviousOpenedFile.Clear();
+                    PreviousFileLoop.Clear();
+                    PreviousAdvancedSettings.Clear();
+
+                    FileHistory("update");
+                    break;
+                case "forward":
+                    // The "present" data gets moved to "previous" data
+                    PreviousOpenedFile.Clear();
+                    PreviousFileLoop.Clear();
+                    PreviousAdvancedSettings.Clear();
+
+                    if (OpenedFileRemake.Count > 0) PreviousOpenedFile = OpenedFileRemake;
+                    if (OpenedFileLoop.Count > 0) PreviousFileLoop = OpenedFileLoop;
+                    if (AdvancedSettings.Count > 0) PreviousAdvancedSettings = AdvancedSettings;
+
+                    // The "next" data get moved to "present" data
+                    OpenedFileRemake.Clear();
+                    OpenedFileLoop.Clear();
+                    AdvancedSettings.Clear();
+
+                    if (NextOpenedFile.Count > 0) OpenedFileRemake = NextOpenedFile;
+                    if (NextFileLoop.Count > 0) OpenedFileLoop = NextFileLoop;
+                    if (NextAdvancedSettings.Count > 0) AdvancedSettings = NextAdvancedSettings;
+
+                    // Remove the duplicate of "next" data
+                    NextOpenedFile.Clear();
+                    NextFileLoop.Clear();
+                    NextAdvancedSettings.Clear();
+
+                    FileHistory("update");
+                    break;
+                case "save":
+                    PreviousOpenedFile.Clear();
+                    PreviousFileLoop.Clear();
+                    PreviousAdvancedSettings.Clear();
+                    if (OpenedFileLoop.Count > 0) PreviousOpenedFile = OpenedFileRemake;
+                    if (OpenedFileLoop.Count > 0) PreviousFileLoop = OpenedFileLoop;
+                    if (AdvancedSettings.Count > 0) PreviousAdvancedSettings = AdvancedSettings;
+
+                    FileHistory("update");
+                    break;
+                case "clear":
+                    PreviousOpenedFile.Clear();
+                    PreviousFileLoop.Clear();
+                    PreviousAdvancedSettings.Clear();
+                    NextOpenedFile.Clear();
+                    NextFileLoop.Clear();
+                    NextAdvancedSettings.Clear();
+
+                    FileHistory("update");
+                    break;
+                case "update":
+                    if (PreviousOpenedFile.Count > 0)
+                    {
+                        btn_file_previous.Visible = true;
+                        btn_file_next.Visible = false;
+                    }
+
+                    if (NextOpenedFile.Count > 0)
+                    {
+                        btn_file_previous.Visible = false;
+                        btn_file_next.Visible = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void FileHistoryPrevious(object sender, EventArgs e)
+        {
+            FileHistory("back");
+        }
+
+        private void FileHistoryNext(object sender, EventArgs e)
+        {
+            FileHistory("forward");
         }
 
         private void NumLoopOnUpdate(object sender, EventArgs e)
