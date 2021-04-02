@@ -254,6 +254,61 @@ namespace VGAudio.Win32
             {
                 switch (exportExtension)
                 {
+                    case "adx":
+                        if ((bool)Main.AdvancedSettings["ADX_encrypt"])
+                        {
+                            switch (Main.AdvancedSettings["ADX_type"])
+                            {
+                                case "Linear":
+                                case "Fixed":
+                                    arguments += " --adxtype " + Main.AdvancedSettings["ADX_type"];
+                                    break;
+                                case "Exponential":
+                                    arguments += " --adxtype Exp";
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            if ((bool)Main.AdvancedSettings["ADX_keystring_use"])
+                            {
+                                if (Main.AdvancedSettings.TryGetValue("ADX_keystring", out object keystring))
+                                {
+                                    arguments += " --keystring " + keystring;
+                                }
+                            }
+
+                            if ((bool)Main.AdvancedSettings["ADX_keycode_use"])
+                            {
+                                if (Main.AdvancedSettings.TryGetValue("ADX_keycode", out object keycode))
+                                {
+                                    arguments += " --keycode " + keycode;
+                                }
+                            }
+
+                            switch (Main.AdvancedSettings["ADX_filter"])
+                            {
+                                case 0:
+                                case 1:
+                                case 2:
+                                case 3:
+                                    arguments += " --filter " + Main.AdvancedSettings["ADX_filter"];
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            switch (Main.AdvancedSettings["ADX_version"])
+                            {
+                                case 3: // Default
+                                case 4:
+                                    arguments += " --version " + Main.AdvancedSettings["ADX_version"];
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        break;
                     case "brstm":
                         switch (Main.AdvancedSettings["BRSTM_audioFormat"])
                         {

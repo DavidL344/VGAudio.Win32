@@ -377,6 +377,7 @@ namespace VGAudio.Win32
         {
             switch (lst_exportExtensions.SelectedItem.ToString().ToLower())
             {
+                case "adx":
                 case "brstm":
                 case "hca":
                     btn_advancedOptions.Visible = true;
@@ -619,6 +620,20 @@ namespace VGAudio.Win32
                 {
                     switch (exportExtension)
                     {
+                        case "adx":
+                            if ((bool)AdvancedSettings["ADX_encrypt"])
+                            {
+                                lineList.Add("Encoding type: " + AdvancedSettings["ADX_type"]);
+                                if ((bool)AdvancedSettings["ADX_keystring_use"])
+                                    lineList.Add("Keystring: " + AdvancedSettings["ADX_keystring"]);
+                                if ((bool)AdvancedSettings["ADX_keycode_use"])
+                                    lineList.Add("Keycode: " + AdvancedSettings["ADX_keycode"]);
+                                if ((bool)AdvancedSettings["ADX_filter_use"])
+                                    lineList.Add("Encoding filter: " + AdvancedSettings["ADX_filter"]);
+                                if ((bool)AdvancedSettings["ADX_version_use"])
+                                    lineList.Add("Header version: " + AdvancedSettings["ADX_version"]);
+                            }
+                            break;
                         case "brstm":
                             lineList.Add("Audio format: " + AdvancedSettings["BRSTM_audioFormat"]);
                             break;
@@ -765,7 +780,7 @@ namespace VGAudio.Win32
 
         private void TestFeature()
         {
-
+            
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)

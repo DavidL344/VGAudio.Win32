@@ -44,7 +44,54 @@ namespace VGAudio.Win32
         private void UpdateValuesFromFields()
         {
             chk_advanced.Checked = (bool)Main.AdvancedSettings["Apply"];
+
+            // Update values for ADX
+            var adx_encrypt = (bool)Main.AdvancedSettings["ADX_encrypt"];
+            var adx_type = (string)Main.AdvancedSettings["ADX_type"];
+            var adx_keystring_use = (bool)Main.AdvancedSettings["ADX_keystring_use"];
+            var adx_keystring = (string)Main.AdvancedSettings["ADX_keystring"];
+            var adx_keycode_use = (bool)Main.AdvancedSettings["ADX_keycode_use"];
+            var adx_keycode = (string)Main.AdvancedSettings["ADX_keycode"];
+            var adx_filter_use = (bool)Main.AdvancedSettings["ADX_filter_use"];
+            var adx_filter = (int?)Main.AdvancedSettings["ADX_filter"];
+            var adx_version_use = (bool)Main.AdvancedSettings["ADX_version_use"];
+            var adx_version = (int?)Main.AdvancedSettings["ADX_version"];
+
+            if (adx_type != null)
+            {
+                lst_adx_type.SelectedItem = adx_type;
+            }
+            else
+            {
+                // Default value: Linear
+                lst_adx_type.SelectedIndex = 0;
+            }
+
+            if (adx_keystring != null) txt_adx_encrypt_keystring.Text = adx_keystring;
+            if (adx_keycode != null) txt_adx_encrypt_keycode.Text = adx_keycode;
+            if (adx_filter != null) num_adx_encrypt_filter.Value = (Decimal)adx_filter;
+            if (adx_version != null) num_adx_encrypt_version.Value = (Decimal)adx_version;
+
+            chk_adx_encrypt.Checked = adx_encrypt;
+            chk_adx_encrypt_keystring.Checked = adx_keystring_use;
+            chk_adx_encrypt_keycode.Checked = adx_keycode_use;
+            chk_adx_encrypt_filter.Checked = adx_filter_use;
+            chk_adx_encrypt_version.Checked = adx_version_use;
+
+            // Update values for BRSTM
             var brstm_audioFormat = (string)Main.AdvancedSettings["BRSTM_audioFormat"];
+
+            if (brstm_audioFormat != null)
+            {
+                lst_brstm_audioFormat.SelectedItem = brstm_audioFormat;
+            }
+            else
+            {
+                // Default value: DSP-ADPCM
+                lst_brstm_audioFormat.SelectedIndex = 0;
+            }
+
+            // Update values for HCA
             var hca_audioQuality = (string)Main.AdvancedSettings["HCA_audioQuality"];
 
             decimal hca_audioBitrate;
@@ -71,16 +118,6 @@ namespace VGAudio.Win32
             else
             {
                 hca_limitBitrate = false;
-            }
-
-            if (brstm_audioFormat != null)
-            {
-                lst_brstm_audioFormat.SelectedItem = brstm_audioFormat;
-            }
-            else
-            {
-                // Default value: DSP-ADPCM
-                lst_brstm_audioFormat.SelectedIndex = 0;
             }
 
             if (hca_audioQuality != null)
@@ -115,32 +152,65 @@ namespace VGAudio.Win32
             Main.AdvancedSettings["Apply"] = chk_advanced.Checked;
             if ((bool)Main.AdvancedSettings["Apply"])
             {
-                // TODO:
-                // - ADX options (type, framesize, keystring, keycode, filter, version)
-                // - BCSTM/BFSTM options (little endian / big endian)
+                pnl_adx.Visible = false;
+                pnl_brstm.Visible = false;
+                pnl_hca.Visible = false;
+
                 switch (exportExtension)
                 {
+                    case "adx":
+                        AdxCheckboxToggle();
+                        pnl_adx.Visible = true;
+                        break;
                     case "brstm":
                         pnl_brstm.Visible = true;
-                        pnl_hca.Visible = false;
                         break;
                     case "hca":
-                        pnl_brstm.Visible = false;
                         pnl_hca.Visible = true;
                         break;
                     default:
                         Main.AdvancedSettings["Apply"] = false;
-                        pnl_brstm.Visible = false;
-                        pnl_hca.Visible = false;
                         break;
                 }
             }
             else
             {
+                pnl_adx.Visible = false;
                 pnl_brstm.Visible = false;
                 pnl_hca.Visible = false;
             }
             lbl_options.Visible = (bool)Main.AdvancedSettings["Apply"];
+        }
+
+        private void AdxCheckboxToggle(object sender = null, EventArgs e = null)
+        {
+            lst_adx_type.Visible = chk_adx_encrypt.Checked;
+            chk_adx_encrypt_keystring.Visible = chk_adx_encrypt.Checked;
+            chk_adx_encrypt_keycode.Visible = chk_adx_encrypt.Checked;
+            chk_adx_encrypt_filter.Visible = chk_adx_encrypt.Checked;
+            chk_adx_encrypt_version.Visible = chk_adx_encrypt.Checked;
+
+            txt_adx_encrypt_keystring.Enabled = chk_adx_encrypt_keystring.Checked;
+            txt_adx_encrypt_keycode.Enabled = chk_adx_encrypt_keycode.Checked;
+            num_adx_encrypt_filter.Enabled = chk_adx_encrypt_filter.Checked;
+            num_adx_encrypt_version.Enabled = chk_adx_encrypt_version.Checked;
+
+            if (chk_adx_encrypt.Checked)
+            {
+                chk_adx_encrypt.Text = "Encryption type:";
+                txt_adx_encrypt_keystring.Visible = chk_adx_encrypt_keystring.Checked;
+                txt_adx_encrypt_keycode.Visible = chk_adx_encrypt_keycode.Checked;
+                num_adx_encrypt_filter.Visible = chk_adx_encrypt_filter.Checked;
+                num_adx_encrypt_version.Visible = chk_adx_encrypt_version.Checked;
+            }
+            else
+            {
+                chk_adx_encrypt.Text = "Encrypt";
+                txt_adx_encrypt_keystring.Visible = false;
+                txt_adx_encrypt_keycode.Visible = false;
+                num_adx_encrypt_filter.Visible = false;
+                num_adx_encrypt_version.Visible = false;
+            }
         }
 
         private void HcaCheckboxToggle(object sender = null, EventArgs e = null)
@@ -156,6 +226,7 @@ namespace VGAudio.Win32
         {
             lbl_hca_conversion.Text = String.Format("bps = {0} Kbps", num_hca_audioBitrate.Value / 1000);
         }
+
         private void UpdateApproxKbps(object sender = null, EventArgs e = null)
         {
             // Get the approximate value from 44100 Hz sample
@@ -186,6 +257,22 @@ namespace VGAudio.Win32
         {
             switch (exportExtension)
             {
+                case "adx":
+                    Main.AdvancedSettings["ADX_encrypt"] = chk_adx_encrypt.Checked;
+                    Main.AdvancedSettings["ADX_type"] = lst_adx_type.SelectedItem.ToString();
+
+                    Main.AdvancedSettings["ADX_keystring_use"] = chk_adx_encrypt_keystring.Checked;
+                    Main.AdvancedSettings["ADX_keystring"] = txt_adx_encrypt_keystring.Text;
+
+                    Main.AdvancedSettings["ADX_keycode_use"] = chk_adx_encrypt_keycode.Checked;
+                    Main.AdvancedSettings["ADX_keycode"] = txt_adx_encrypt_keycode.Text;
+
+                    Main.AdvancedSettings["ADX_filter_use"] = chk_adx_encrypt_filter.Checked;
+                    Main.AdvancedSettings["ADX_filter"] = (int?)num_adx_encrypt_filter.Value;
+
+                    Main.AdvancedSettings["ADX_version_use"] = chk_adx_encrypt_version.Checked;
+                    Main.AdvancedSettings["ADX_version"] = (int?)num_adx_encrypt_version.Value;
+                    break;
                 case "brstm":
                     Main.AdvancedSettings["BRSTM_audioFormat"] = lst_brstm_audioFormat.SelectedItem.ToString();
                     break;
@@ -211,6 +298,16 @@ namespace VGAudio.Win32
         {
             Main.AdvancedSettings.Clear();
             Main.AdvancedSettings.Add("Apply", false);
+            Main.AdvancedSettings.Add("ADX_encrypt", false);
+            Main.AdvancedSettings.Add("ADX_type", null);
+            Main.AdvancedSettings.Add("ADX_keystring_use", false);
+            Main.AdvancedSettings.Add("ADX_keystring", null);
+            Main.AdvancedSettings.Add("ADX_keycode_use", false);
+            Main.AdvancedSettings.Add("ADX_keycode", null);
+            Main.AdvancedSettings.Add("ADX_filter_use", false);
+            Main.AdvancedSettings.Add("ADX_filter", null);
+            Main.AdvancedSettings.Add("ADX_version_use", false);
+            Main.AdvancedSettings.Add("ADX_version", null);
             Main.AdvancedSettings.Add("BRSTM_audioFormat", null);
             Main.AdvancedSettings.Add("HCA_audioRadioButtonSelector", null);
             Main.AdvancedSettings.Add("HCA_audioQuality", null);
