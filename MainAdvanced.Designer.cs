@@ -41,22 +41,22 @@
             this.lbl_hca_conversion = new System.Windows.Forms.Label();
             this.chk_hca_limitBitrate = new System.Windows.Forms.CheckBox();
             this.pnl_adx = new System.Windows.Forms.Panel();
-            this.lst_adx_type = new System.Windows.Forms.ComboBox();
-            this.chk_adx_encrypt = new System.Windows.Forms.CheckBox();
-            this.chk_adx_encrypt_keystring = new System.Windows.Forms.CheckBox();
-            this.txt_adx_encrypt_keystring = new System.Windows.Forms.TextBox();
-            this.txt_adx_encrypt_keycode = new System.Windows.Forms.TextBox();
-            this.chk_adx_encrypt_keycode = new System.Windows.Forms.CheckBox();
-            this.chk_adx_encrypt_filter = new System.Windows.Forms.CheckBox();
-            this.num_adx_encrypt_filter = new System.Windows.Forms.NumericUpDown();
             this.num_adx_encrypt_version = new System.Windows.Forms.NumericUpDown();
             this.chk_adx_encrypt_version = new System.Windows.Forms.CheckBox();
+            this.num_adx_encrypt_filter = new System.Windows.Forms.NumericUpDown();
+            this.chk_adx_encrypt_filter = new System.Windows.Forms.CheckBox();
+            this.txt_adx_encrypt_keycode = new System.Windows.Forms.TextBox();
+            this.chk_adx_encrypt_keycode = new System.Windows.Forms.CheckBox();
+            this.txt_adx_encrypt_keystring = new System.Windows.Forms.TextBox();
+            this.chk_adx_encrypt_keystring = new System.Windows.Forms.CheckBox();
+            this.chk_adx_encrypt = new System.Windows.Forms.CheckBox();
+            this.lst_adx_type = new System.Windows.Forms.ComboBox();
             this.pnl_brstm.SuspendLayout();
             this.pnl_hca.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_hca_audioBitrate)).BeginInit();
             this.pnl_adx.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.num_adx_encrypt_filter)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_adx_encrypt_version)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_adx_encrypt_filter)).BeginInit();
             this.SuspendLayout();
             // 
             // lst_brstm_audioFormat
@@ -224,89 +224,6 @@
             this.pnl_adx.Size = new System.Drawing.Size(565, 328);
             this.pnl_adx.TabIndex = 26;
             // 
-            // lst_adx_type
-            // 
-            this.lst_adx_type.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.lst_adx_type.FormattingEnabled = true;
-            this.lst_adx_type.Items.AddRange(new object[] {
-            "Linear",
-            "Fixed",
-            "Exponential"});
-            this.lst_adx_type.Location = new System.Drawing.Point(281, 14);
-            this.lst_adx_type.Name = "lst_adx_type";
-            this.lst_adx_type.Size = new System.Drawing.Size(216, 39);
-            this.lst_adx_type.TabIndex = 13;
-            // 
-            // chk_adx_encrypt
-            // 
-            this.chk_adx_encrypt.AutoSize = true;
-            this.chk_adx_encrypt.Location = new System.Drawing.Point(18, 14);
-            this.chk_adx_encrypt.Name = "chk_adx_encrypt";
-            this.chk_adx_encrypt.Size = new System.Drawing.Size(149, 36);
-            this.chk_adx_encrypt.TabIndex = 15;
-            this.chk_adx_encrypt.Text = "Encrypt";
-            this.chk_adx_encrypt.UseVisualStyleBackColor = true;
-            this.chk_adx_encrypt.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
-            // 
-            // chk_adx_encrypt_keystring
-            // 
-            this.chk_adx_encrypt_keystring.AutoSize = true;
-            this.chk_adx_encrypt_keystring.Location = new System.Drawing.Point(54, 68);
-            this.chk_adx_encrypt_keystring.Name = "chk_adx_encrypt_keystring";
-            this.chk_adx_encrypt_keystring.Size = new System.Drawing.Size(180, 36);
-            this.chk_adx_encrypt_keystring.TabIndex = 16;
-            this.chk_adx_encrypt_keystring.Text = "Keystring:";
-            this.chk_adx_encrypt_keystring.UseVisualStyleBackColor = true;
-            this.chk_adx_encrypt_keystring.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
-            // 
-            // txt_adx_encrypt_keystring
-            // 
-            this.txt_adx_encrypt_keystring.Location = new System.Drawing.Point(240, 68);
-            this.txt_adx_encrypt_keystring.Name = "txt_adx_encrypt_keystring";
-            this.txt_adx_encrypt_keystring.Size = new System.Drawing.Size(309, 38);
-            this.txt_adx_encrypt_keystring.TabIndex = 17;
-            // 
-            // txt_adx_encrypt_keycode
-            // 
-            this.txt_adx_encrypt_keycode.Location = new System.Drawing.Point(240, 123);
-            this.txt_adx_encrypt_keycode.Name = "txt_adx_encrypt_keycode";
-            this.txt_adx_encrypt_keycode.Size = new System.Drawing.Size(309, 38);
-            this.txt_adx_encrypt_keycode.TabIndex = 19;
-            // 
-            // chk_adx_encrypt_keycode
-            // 
-            this.chk_adx_encrypt_keycode.AutoSize = true;
-            this.chk_adx_encrypt_keycode.Location = new System.Drawing.Point(54, 123);
-            this.chk_adx_encrypt_keycode.Name = "chk_adx_encrypt_keycode";
-            this.chk_adx_encrypt_keycode.Size = new System.Drawing.Size(172, 36);
-            this.chk_adx_encrypt_keycode.TabIndex = 18;
-            this.chk_adx_encrypt_keycode.Text = "Keycode:";
-            this.chk_adx_encrypt_keycode.UseVisualStyleBackColor = true;
-            this.chk_adx_encrypt_keycode.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
-            // 
-            // chk_adx_encrypt_filter
-            // 
-            this.chk_adx_encrypt_filter.AutoSize = true;
-            this.chk_adx_encrypt_filter.Location = new System.Drawing.Point(54, 179);
-            this.chk_adx_encrypt_filter.Name = "chk_adx_encrypt_filter";
-            this.chk_adx_encrypt_filter.Size = new System.Drawing.Size(125, 36);
-            this.chk_adx_encrypt_filter.TabIndex = 20;
-            this.chk_adx_encrypt_filter.Text = "Filter:";
-            this.chk_adx_encrypt_filter.UseVisualStyleBackColor = true;
-            this.chk_adx_encrypt_filter.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
-            // 
-            // num_adx_encrypt_filter
-            // 
-            this.num_adx_encrypt_filter.Location = new System.Drawing.Point(240, 179);
-            this.num_adx_encrypt_filter.Maximum = new decimal(new int[] {
-            3,
-            0,
-            0,
-            0});
-            this.num_adx_encrypt_filter.Name = "num_adx_encrypt_filter";
-            this.num_adx_encrypt_filter.Size = new System.Drawing.Size(120, 38);
-            this.num_adx_encrypt_filter.TabIndex = 21;
-            // 
             // num_adx_encrypt_version
             // 
             this.num_adx_encrypt_version.Location = new System.Drawing.Point(240, 235);
@@ -340,6 +257,89 @@
             this.chk_adx_encrypt_version.UseVisualStyleBackColor = true;
             this.chk_adx_encrypt_version.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
             // 
+            // num_adx_encrypt_filter
+            // 
+            this.num_adx_encrypt_filter.Location = new System.Drawing.Point(240, 179);
+            this.num_adx_encrypt_filter.Maximum = new decimal(new int[] {
+            3,
+            0,
+            0,
+            0});
+            this.num_adx_encrypt_filter.Name = "num_adx_encrypt_filter";
+            this.num_adx_encrypt_filter.Size = new System.Drawing.Size(120, 38);
+            this.num_adx_encrypt_filter.TabIndex = 21;
+            // 
+            // chk_adx_encrypt_filter
+            // 
+            this.chk_adx_encrypt_filter.AutoSize = true;
+            this.chk_adx_encrypt_filter.Location = new System.Drawing.Point(54, 179);
+            this.chk_adx_encrypt_filter.Name = "chk_adx_encrypt_filter";
+            this.chk_adx_encrypt_filter.Size = new System.Drawing.Size(125, 36);
+            this.chk_adx_encrypt_filter.TabIndex = 20;
+            this.chk_adx_encrypt_filter.Text = "Filter:";
+            this.chk_adx_encrypt_filter.UseVisualStyleBackColor = true;
+            this.chk_adx_encrypt_filter.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
+            // 
+            // txt_adx_encrypt_keycode
+            // 
+            this.txt_adx_encrypt_keycode.Location = new System.Drawing.Point(240, 123);
+            this.txt_adx_encrypt_keycode.Name = "txt_adx_encrypt_keycode";
+            this.txt_adx_encrypt_keycode.Size = new System.Drawing.Size(309, 38);
+            this.txt_adx_encrypt_keycode.TabIndex = 19;
+            // 
+            // chk_adx_encrypt_keycode
+            // 
+            this.chk_adx_encrypt_keycode.AutoSize = true;
+            this.chk_adx_encrypt_keycode.Location = new System.Drawing.Point(54, 123);
+            this.chk_adx_encrypt_keycode.Name = "chk_adx_encrypt_keycode";
+            this.chk_adx_encrypt_keycode.Size = new System.Drawing.Size(172, 36);
+            this.chk_adx_encrypt_keycode.TabIndex = 18;
+            this.chk_adx_encrypt_keycode.Text = "Keycode:";
+            this.chk_adx_encrypt_keycode.UseVisualStyleBackColor = true;
+            this.chk_adx_encrypt_keycode.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
+            // 
+            // txt_adx_encrypt_keystring
+            // 
+            this.txt_adx_encrypt_keystring.Location = new System.Drawing.Point(240, 68);
+            this.txt_adx_encrypt_keystring.Name = "txt_adx_encrypt_keystring";
+            this.txt_adx_encrypt_keystring.Size = new System.Drawing.Size(309, 38);
+            this.txt_adx_encrypt_keystring.TabIndex = 17;
+            // 
+            // chk_adx_encrypt_keystring
+            // 
+            this.chk_adx_encrypt_keystring.AutoSize = true;
+            this.chk_adx_encrypt_keystring.Location = new System.Drawing.Point(54, 68);
+            this.chk_adx_encrypt_keystring.Name = "chk_adx_encrypt_keystring";
+            this.chk_adx_encrypt_keystring.Size = new System.Drawing.Size(180, 36);
+            this.chk_adx_encrypt_keystring.TabIndex = 16;
+            this.chk_adx_encrypt_keystring.Text = "Keystring:";
+            this.chk_adx_encrypt_keystring.UseVisualStyleBackColor = true;
+            this.chk_adx_encrypt_keystring.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
+            // 
+            // chk_adx_encrypt
+            // 
+            this.chk_adx_encrypt.AutoSize = true;
+            this.chk_adx_encrypt.Location = new System.Drawing.Point(18, 14);
+            this.chk_adx_encrypt.Name = "chk_adx_encrypt";
+            this.chk_adx_encrypt.Size = new System.Drawing.Size(149, 36);
+            this.chk_adx_encrypt.TabIndex = 15;
+            this.chk_adx_encrypt.Text = "Encrypt";
+            this.chk_adx_encrypt.UseVisualStyleBackColor = true;
+            this.chk_adx_encrypt.CheckedChanged += new System.EventHandler(this.AdxCheckboxToggle);
+            // 
+            // lst_adx_type
+            // 
+            this.lst_adx_type.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.lst_adx_type.FormattingEnabled = true;
+            this.lst_adx_type.Items.AddRange(new object[] {
+            "Linear",
+            "Fixed",
+            "Exponential"});
+            this.lst_adx_type.Location = new System.Drawing.Point(281, 14);
+            this.lst_adx_type.Name = "lst_adx_type";
+            this.lst_adx_type.Size = new System.Drawing.Size(216, 39);
+            this.lst_adx_type.TabIndex = 13;
+            // 
             // MainAdvanced
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
@@ -361,8 +361,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.num_hca_audioBitrate)).EndInit();
             this.pnl_adx.ResumeLayout(false);
             this.pnl_adx.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.num_adx_encrypt_filter)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_adx_encrypt_version)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_adx_encrypt_filter)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

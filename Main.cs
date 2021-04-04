@@ -577,20 +577,21 @@ namespace VGAudio.Win32
 
         private void FileDump(object sender, EventArgs e)
         {
-            // Dump export information?
-            DialogResult result = MessageBox.Show("Include export information set in the app?", Text, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-            bool dumpExportInfo;
-            switch (result)
+            MainDump mainDump = new MainDump(OpenedFileRemake["FilePath"], lst_exportExtensions.SelectedItem.ToString().ToLower())
             {
-                case DialogResult.Yes:
-                    dumpExportInfo = true;
-                    break;
-                case DialogResult.No:
-                    dumpExportInfo = false;
-                    break;
-                default:
-                    return;
-            }
+                StartPosition = FormStartPosition.Manual,
+                Left = this.Left,
+                Top = this.Top,
+                Text = String.Format("Dump Info | {0}", Text)
+            };
+            mainDump.ShowDialog();
+
+            if (!mainDump.Options.ContainsKey("Confirmed") || !(bool)mainDump.Options["Confirmed"]) return;
+
+            Dictionary<string, object> Options = mainDump.Options;
+
+            // For temporary compatibility - TODO: replace
+            bool dumpExportInfo = (bool)((Dictionary<string, object>)Options["DumpFileInfo"])["IncludeExportInformation"];
 
             UpdateStatus("Dumping info...");
             FormMethods.EnableCloseButton(this, false);
