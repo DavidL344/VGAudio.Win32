@@ -16,6 +16,7 @@ namespace VGAudio.Win32
     {
         private static readonly Main AppForm = new Main();
         private static FileStream FileStreamLock;
+        public static string AppName = AppForm.Text;
         public static bool VerifyIntegrity(string inputFile = null)
         {
             if (inputFile != null)

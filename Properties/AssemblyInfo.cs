@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("DavidL344")]
 [assembly: AssemblyProduct("VGAudio.Win32")]
-[assembly: AssemblyCopyright("Copyright © 2020 DavidL344")]
+[assembly: AssemblyCopyright("Copyright © 2021 DavidL344")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

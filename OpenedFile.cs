@@ -5,13 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace VGAudio.Win32
 {
     class OpenedFile
     {
         public Dictionary<string, string> Info = new Dictionary<string, string>();
-        public Dictionary<string, string> DisplayInfo = new Dictionary<string, string>();
         public Dictionary<string, string> Metadata = new Dictionary<string, string>();
         public Dictionary<string, int?> Loop = new Dictionary<string, int?>();
         public Dictionary<string, string> ExportInfo = new Dictionary<string, string>();
@@ -20,97 +20,120 @@ namespace VGAudio.Win32
         public bool Initialized = false;
 
         // An equivalent of FileDialogProcess
-        public OpenedFile(string filePath)
+        public OpenedFile(string filePath = null)
         {
+            if (filePath != null) Open(filePath);
+        }
+
+        public bool Open(string filePath = null)
+        {
+            if (filePath == null) return false;
+            if (!File.Exists(filePath)) throw new Exception("The selected file no longer exists!");
+
             if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
             {
                 throw new Exception("Batch conversions are not supported!");
             }
-            if (!IsSupported()) throw new Exception("The selected file is not supported!");
+            if (!IsSupported(Path.GetExtension(filePath).Substring(1))) throw new Exception("The selected file is not supported!");
 
             // TODO: Change to IsLocked()
             if (FormMethods.IsFileLocked(filePath))
             {
                 // Check if the locked file is in use by the app
-                if (filePath == Info["Path"])
+                if (Info.ContainsKey("Path") && filePath == Info["Path"])
                 {
                     if (Main.FeatureConfig.ContainsKey("LockOpenedFile") && Main.FeatureConfig["LockOpenedFile"])
                     {
-                        // TODO: "The selected file is already loaded."
+                        MessageBox.Show("The selected file is already loaded.", FormMethods.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                    return;
+                    return true;
                 }
                 else
                 {
-                    throw new Exception("The selected file is already in use by another process.");
+                    MessageBox.Show("The selected file is already in use by another process.", FormMethods.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
                 }
             }
             Initialized = false;
 
             // File path information
-            Info.Add("Path", filePath);
-            Info.Add("PathEscaped", String.Format("\"{0}\"", filePath));
-
-            // File name information
-            Info.Add("Name", Path.GetFileName(filePath));
-            Info.Add("NameNoExtension", Path.GetFileNameWithoutExtension(filePath));
+            Info["Path"] = filePath;
+            Info["PathEscaped"] = String.Format("\"{0}\"", filePath);
 
             // File extension information
-            Info.Add("Extension", Path.GetExtension(filePath));
-            Info.Add("ExtensionNoDot", Info["Extension"].Substring(1));
+            Info["Extension"] = Path.GetExtension(filePath);
+            Info["ExtensionNoDot"] = Info["Extension"].Substring(1);
+
+            // File name information
+            Info["Name"] = Path.GetFileName(filePath);
+            Info["NameNoExtension"] = Path.GetFileNameWithoutExtension(filePath);
+            Info["NameShort"] = FormMethods.TruncateFileName(Info["Name"], Info["ExtensionNoDot"]);
 
             // File Metadata
-            Metadata.Add("Full", null);
-            Metadata.Add("Short", null);
-            Metadata.Add("EncodingFormat", null);
-            Metadata.Add("SampleCount", null);
-            Metadata.Add("SampleRate", null);
-            Metadata.Add("ChannelCount", null);
+            Metadata["Full"] = null;
+            Metadata["Short"] = null;
+            Metadata["EncodingFormat"] = null;
+            Metadata["SampleCount"] = null;
+            Metadata["SampleRate"] = null;
+            Metadata["ChannelCount"] = null;
 
             // File loop information
-            Loop.Add("Enabled", null);
-            Loop.Add("StartMin", null);
-            Loop.Add("Start", null);
-            Loop.Add("StartMax", null);
-            Loop.Add("EndMin", null);
-            Loop.Add("End", null);
-            Loop.Add("EndMax", null);
-
-            // Parse file metadata and loop information
-            ParseMetadata(LoadCommand("-m " + Info["PathEscaped"]));
-
-            // File export information
-            ExportInfo.Add("Extension", null);
-            ExportInfo.Add("ExtensionNoDot", null);
+            Loop["Enabled"] = null;
+            Loop["StartMin"] = null;
+            Loop["Start"] = null;
+            Loop["StartMax"] = null;
+            Loop["EndMin"] = null;
+            Loop["End"] = null;
+            Loop["EndMax"] = null;
 
             // File export loop information
-            ExportLoop.Add("LoopEnabled", null);
-            ExportLoop.Add("StartMin", null);
-            ExportLoop.Add("Start", null);
-            ExportLoop.Add("StartMax", null);
-            ExportLoop.Add("EndMin", null);
-            ExportLoop.Add("End", null);
-            ExportLoop.Add("EndMax", null);
+            ExportLoop["Enabled"] = null;
+            ExportLoop["StartMin"] = null;
+            ExportLoop["Start"] = null;
+            ExportLoop["StartMax"] = null;
+            ExportLoop["EndMin"] = null;
+            ExportLoop["End"] = null;
+            ExportLoop["EndMax"] = null;
+
+            // Parse file metadata and loop information
+            string metadata = LoadCommand("-m " + Info["PathEscaped"]);
+            if (metadata == null) throw new Exception("Unable to read the file!");
+            ParseMetadata(metadata);
+
+            // File export information
+            ExportInfo["Extension"] = null;
+            ExportInfo["ExtensionNoDot"] = null;
 
             // Advanced file export information
-            AdvancedExportInfo.Add("Apply", false);
-            AdvancedExportInfo.Add("ADX_encrypt", false);
-            AdvancedExportInfo.Add("ADX_type", null);
-            AdvancedExportInfo.Add("ADX_keystring_use", false);
-            AdvancedExportInfo.Add("ADX_keystring", null);
-            AdvancedExportInfo.Add("ADX_keycode_use", false);
-            AdvancedExportInfo.Add("ADX_keycode", null);
-            AdvancedExportInfo.Add("ADX_filter_use", false);
-            AdvancedExportInfo.Add("ADX_filter", null);
-            AdvancedExportInfo.Add("ADX_version_use", false);
-            AdvancedExportInfo.Add("ADX_version", null);
-            AdvancedExportInfo.Add("BRSTM_audioFormat", null);
-            AdvancedExportInfo.Add("HCA_audioRadioButtonSelector", null);
-            AdvancedExportInfo.Add("HCA_audioQuality", null);
-            AdvancedExportInfo.Add("HCA_audioBitrate", null);
-            AdvancedExportInfo.Add("HCA_limitBitrate", null);
+            AdvancedExportInfo["Apply"] = false;
+            AdvancedExportInfo["ADX_encrypt"] = false;
+            AdvancedExportInfo["ADX_type"] = null;
+            AdvancedExportInfo["ADX_keystring_use"] = false;
+            AdvancedExportInfo["ADX_keystring"] = null;
+            AdvancedExportInfo["ADX_keycode_use"] = false;
+            AdvancedExportInfo["ADX_keycode"] = null;
+            AdvancedExportInfo["ADX_filter_use"] = false;
+            AdvancedExportInfo["ADX_filter"] = null;
+            AdvancedExportInfo["ADX_version_use"] = false;
+            AdvancedExportInfo["ADX_version"] = null;
+            AdvancedExportInfo["BRSTM_audioFormat"] = null;
+            AdvancedExportInfo["HCA_audioRadioButtonSelector"] = null;
+            AdvancedExportInfo["HCA_audioQuality"] = null;
+            AdvancedExportInfo["HCA_audioBitrate"] = null;
+            AdvancedExportInfo["HCA_limitBitrate"] = null;
 
-            Initialized = true;
+            // Check again if the file is accessible
+            // It could've been locked or deleted by something else in the meantime
+            if (!FormMethods.IsFileLocked(Info["Path"]))
+            {
+                FormMethods.FileLock(Info["Path"]);
+                Initialized = true;
+            }
+            else
+            {
+                throw new Exception("The selected file is inaccessible!");
+            }
+            return true;
         }
 
         public bool UpdateExportInformation(string key, string value)
@@ -187,7 +210,7 @@ namespace VGAudio.Win32
         public string[] DumpInformation(bool dumpExportInfo)
         {
             string[] lines;
-            bool exportLoop = bool.Parse(ExportLoop["Enabled"].ToString());
+            int? exportLoop = ExportLoop["Enabled"];
 
             List<string> lineList = new List<string>
             {
@@ -202,7 +225,7 @@ namespace VGAudio.Win32
                 lineList.Add("Custom Export Info:");
                 lineList.Add("Target file: " + ExportInfo["Extension"]);
 
-                if (exportLoop)
+                if (exportLoop == 1)
                 {
                     lineList.Add("Loop start: " + ExportLoop["Start"]);
                     lineList.Add("Loop end: " + ExportLoop["End"]);
@@ -257,7 +280,7 @@ namespace VGAudio.Win32
                     conversionCommand = "VGAudioCli.exe " + conversionCommand;
                 }
 
-                if (exportLoop && ExportInfo["ExtensionNoDot"] == "wav")
+                if (exportLoop == 1 && ExportInfo["ExtensionNoDot"] == "wav")
                 {
                     lineList.Add("\r\nConversion command (see the warning below):\r\n" + conversionCommand);
                     lineList.Add("\r\n[WARNING] While the wave file can hold loop information, it won't be read by most media players.");
@@ -271,13 +294,15 @@ namespace VGAudio.Win32
             return lines;
         }
 
-        public bool IsSupported()
+        public bool IsSupported(string fileExtension = null)
         {
-            return Main.extsArray.Contains(Info["Extension"].ToLower());
+            if (fileExtension == null) fileExtension = Info["Extension"];
+            return Main.extsArray.Contains(fileExtension.ToLower());
         }
 
         public string LoadCommand(string arguments = null)
         {
+            if (!FormMethods.VerifyIntegrity()) return null;
             ProcessStartInfo procInfo = new ProcessStartInfo
             {
                 FileName = Main.VGAudioCli,
@@ -299,20 +324,21 @@ namespace VGAudio.Win32
                 return null;
             }
         }
-        public string GenerateConversionParams(bool silent = false)
+        public string GenerateConversionParams(string exportLocation = null, bool silent = false)
         {
-            string arguments = String.Format("-i {0} -o {1}", Info["PathEscaped"], "output." + ExportInfo["ExtensionNoDot"]);
+            if (exportLocation == null) exportLocation = "output." + ExportInfo["ExtensionNoDot"];
+            string arguments = String.Format("-i {0} -o {1}", Info["PathEscaped"], exportLocation);
             
-            if (Loop["Enabled"] == 1)
+            if (ExportLoop["Enabled"] == 1)
             {
-                if (Loop["Start"] > Loop["End"])
+                if (ExportLoop["Start"] > ExportLoop["End"])
                 {
                     // TODO: ask to continue since the export information cannot be saved
                     arguments += " --no-loop";
                 }
                 else
                 {
-                    arguments += String.Format(" -l {0}-{1}", Loop["Start"], Loop["End"]);
+                    arguments += String.Format(" -l {0}-{1}", ExportLoop["Start"], ExportLoop["End"]);
                 }
             }
             else
@@ -414,6 +440,84 @@ namespace VGAudio.Win32
                 }
             }
             return arguments;
+        }
+
+        public void Close(bool resetExportOptions = true)
+        {
+            Info.Clear();
+            Metadata.Clear();
+            Loop.Clear();
+
+            if (resetExportOptions)
+            {
+                ExportLoop.Clear();
+                ExportInfo.Clear();
+                AdvancedExportInfo.Clear();
+            }
+            Initialized = false;
+
+            /*
+            // File path information
+            Info.Add("Path", null);
+            Info.Add("PathEscaped", null);
+
+            // File extension information
+            Info.Add("Extension", null);
+            Info.Add("ExtensionNoDot", null);
+
+            // File name information
+            Info.Add("Name", null);
+            Info.Add("NameNoExtension", null);
+            Info.Add("NameShort", null);
+
+            // File Metadata
+            Metadata.Add("Full", null);
+            Metadata.Add("Short", null);
+            Metadata.Add("EncodingFormat", null);
+            Metadata.Add("SampleCount", null);
+            Metadata.Add("SampleRate", null);
+            Metadata.Add("ChannelCount", null);
+
+            // File loop information
+            Loop.Add("Enabled", null);
+            Loop.Add("StartMin", null);
+            Loop.Add("Start", null);
+            Loop.Add("StartMax", null);
+            Loop.Add("EndMin", null);
+            Loop.Add("End", null);
+            Loop.Add("EndMax", null);
+
+            // File export loop information
+            ExportLoop.Add("Enabled", null);
+            ExportLoop.Add("StartMin", null);
+            ExportLoop.Add("Start", null);
+            ExportLoop.Add("StartMax", null);
+            ExportLoop.Add("EndMin", null);
+            ExportLoop.Add("End", null);
+            ExportLoop.Add("EndMax", null);
+
+            // File export information
+            ExportInfo.Add("Extension", null);
+            ExportInfo.Add("ExtensionNoDot", null);
+
+            // Advanced file export information
+            AdvancedExportInfo.Add("Apply", false);
+            AdvancedExportInfo.Add("ADX_encrypt", false);
+            AdvancedExportInfo.Add("ADX_type", null);
+            AdvancedExportInfo.Add("ADX_keystring_use", false);
+            AdvancedExportInfo.Add("ADX_keystring", null);
+            AdvancedExportInfo.Add("ADX_keycode_use", false);
+            AdvancedExportInfo.Add("ADX_keycode", null);
+            AdvancedExportInfo.Add("ADX_filter_use", false);
+            AdvancedExportInfo.Add("ADX_filter", null);
+            AdvancedExportInfo.Add("ADX_version_use", false);
+            AdvancedExportInfo.Add("ADX_version", null);
+            AdvancedExportInfo.Add("BRSTM_audioFormat", null);
+            AdvancedExportInfo.Add("HCA_audioRadioButtonSelector", null);
+            AdvancedExportInfo.Add("HCA_audioQuality", null);
+            AdvancedExportInfo.Add("HCA_audioBitrate", null);
+            AdvancedExportInfo.Add("HCA_limitBitrate", null);
+            */
         }
     }
 }

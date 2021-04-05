@@ -17,7 +17,8 @@ namespace VGAudio.Win32
     public partial class Main : Form
     {
         public static string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
-        
+        private OpenedFile OpenedFile = new OpenedFile();
+
         public static Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
         public static Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
@@ -38,7 +39,7 @@ namespace VGAudio.Win32
         {
             if (FeatureConfig["OpenCloseWinformsButton"])
             {
-                if (!OpenedFileRemake.ContainsKey("FileName"))
+                if (!OpenedFile.Initialized)
                 {
                     OpenFile();
                 }
@@ -61,7 +62,7 @@ namespace VGAudio.Win32
             }
             else
             {
-                if (!OpenedFileRemake.ContainsKey("FileName"))
+                if (!OpenedFile.Initialized)
                 {
                     FileLoaded(false);
                 }
@@ -75,7 +76,7 @@ namespace VGAudio.Win32
             if (fileList == null)
             {
                 MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                if (!OpenedFileRemake.ContainsKey("FileName"))
+                if (!OpenedFile.Initialized)
                 {
                     CloseFile();
                 }
@@ -107,6 +108,7 @@ namespace VGAudio.Win32
         {
             FileLoaded(false);
             UpdateStatus("Close");
+            OpenedFile.Close(FeatureConfig["ResetExportOptionsOnNewFile"]);
             OpenedFileRemake.Clear();
             OpenedFileLoop.Clear();
 
@@ -139,8 +141,8 @@ namespace VGAudio.Win32
         private bool FileDialogProcess(string filePath)
         {
             bool noPreviousFile; // Saves the value of whether there was previously a file opened or not
-            
-            if (!OpenedFileRemake.ContainsKey("FilePath"))
+
+            if (!OpenedFile.Initialized)
             {
                 // Select the second export extension (DSP)
                 lst_exportExtensions.SelectedIndex = 1;
@@ -151,188 +153,55 @@ namespace VGAudio.Win32
                 noPreviousFile = false;
             }
 
-            // Check if the selected path is not a directory
-            // https://stackoverflow.com/a/1395226
-            if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
+            try
             {
-                // TODO: add support for directories to enable batch conversions
-                MessageBox.Show("Batch conversions are currently not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                // If the app doesn't open the new file but still has one in memory, keep it
+                if (!OpenedFile.Open(filePath) && OpenedFile.Initialized)
+                {
+                    UpdateStatus(); // TODO: necessary?
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                CloseFile();
                 return false;
             }
 
-            // Get the file extension without the '.' early for the file extension verification
-            var FileExtensionWithDot = Path.GetExtension(filePath);
-            var FileExtensionWithoutDot = FileExtensionWithDot.Substring(1);
-
-            // Check if the file extension is valid
-            if (!extsArray.Contains(FileExtensionWithoutDot.ToLower()))
+            if (!OpenedFile.Initialized)
             {
-                MessageBox.Show("The selected file is not supported!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                CloseFile();
                 return false;
             }
 
-            if (FormMethods.IsFileLocked(filePath))
+            txt_metadata.Text = OpenedFile.Metadata["Short"];
+            if (OpenedFile.Loop["Enabled"] == 1)
             {
-                if (OpenedFileRemake.ContainsKey("FilePath"))
-                {
-                    // Check if the locked file is in use by the app
-                    if (filePath == OpenedFileRemake["FilePath"])
-                    {
-                        if (FeatureConfig.ContainsKey("LockOpenedFile") && FeatureConfig["LockOpenedFile"])
-                        {
-                            MessageBox.Show("The selected file is already loaded.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        MessageBox.Show("The selected file is already in use by another process.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                else
-                {
-                    MessageBox.Show("The selected file is already in use by another process.", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-                return false;
+                chk_loop.Text = "Keep the loop";
+                if (FeatureConfig["ResetExportOptionsOnNewFile"]) chk_loop.Checked = true;
+            }
+            else
+            {
+                chk_loop.Text = "Create a loop";
+                if (FeatureConfig["ResetExportOptionsOnNewFile"]) chk_loop.Checked = false;
             }
 
-            // Clear the dictionaries if not empty
-            if (OpenedFileRemake.Count != 0)
+            num_loopStart.Maximum = (decimal)OpenedFile.Loop["StartMax"];
+            num_loopStart.Minimum = (decimal)OpenedFile.Loop["StartMin"];
+
+            num_loopEnd.Maximum = (decimal)OpenedFile.Loop["EndMax"];
+            num_loopEnd.Minimum = (decimal)OpenedFile.Loop["EndMin"];
+
+            // Load the loop values only if it's the first file loaded
+            // Overwrite the loop values only if specified in the config
+            if (FeatureConfig["ResetExportOptionsOnNewFile"] || noPreviousFile)
             {
-                // Remember the previous file path and metadata for checking if the locked file is in use by the app - replaced
-                // TODO (IDEA): remember everything - PreviousOpenedFile = OpenedFileRemake (could load previously closed file)
-                // TODO (IDEA): if loading previously closed file, save the current one (OpenedFileRemake) to NextOpenedFile
-                // if (OpenedFileRemake.ContainsKey("FilePath")) PreviousOpenedFile["FilePath"] = OpenedFileRemake["FilePath"];
-                // if (OpenedFileRemake.ContainsKey("Metadata")) PreviousOpenedFile["Metadata"] = OpenedFileRemake["Metadata"];
-                OpenedFileRemake.Clear();
+                num_loopStart.Value = (decimal)OpenedFile.Loop["Start"];
+                num_loopEnd.Value = (decimal)OpenedFile.Loop["End"];
             }
-            if (OpenedFileLoop.Count != 0) OpenedFileLoop.Clear();
-
-            if (FeatureConfig["ResetExportOptionsOnNewFile"])
-            {
-                // Reset the advanced options
-                MainAdvanced.Reset();
-            }
-
-            // Load file information
-            OpenedFileRemake.Add("FileName", Path.GetFileName(filePath));
-            OpenedFileRemake.Add("FilePath", filePath);
-            OpenedFileRemake.Add("FilePathEscaped", "\"" + OpenedFileRemake["FilePath"] + "\"");
-            OpenedFileRemake.Add("FileNoExtension", Path.GetFileNameWithoutExtension(OpenedFileRemake["FilePath"]));
-
-            // Load file extension without the '.' at the beginning
-            OpenedFileRemake.Add("FileExtension", FileExtensionWithoutDot);
-
-            // Shorten the file name if it's too long and add file extension that wouldn't be otherwise seen
-            OpenedFileRemake.Add("FileNameShort", FormMethods.TruncateFileName(OpenedFileRemake["FileName"], OpenedFileRemake["FileExtension"]));
-
-            if (FormMethods.VerifyIntegrity(OpenedFileRemake["FilePath"]))
-            {
-                ProcessStartInfo procInfo = new ProcessStartInfo
-                {
-                    FileName = VGAudioCli,
-                    WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
-                    Arguments = "-m " + OpenedFileRemake["FilePathEscaped"],
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    WindowStyle = ProcessWindowStyle.Hidden
-                };
-                var proc = Process.Start(procInfo);
-                proc.WaitForExit();
-                if (proc.ExitCode == 0)
-                {
-                    OpenedFileRemake.Add("Metadata", proc.StandardOutput.ReadToEnd());
-
-                    // Vars that are later converted to int
-                    var mLoopStartVar = FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Loop start: ", " samples");
-                    var mLoopEndVar = FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Loop end: ", " samples");
-
-                    OpenedFileRemake.Add("EncodingFormat", FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Encoding format: ", "\r\n"));
-                    OpenedFileRemake.Add("SampleRate", FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Sample rate: ", "\r\n"));
-                    OpenedFileRemake.Add("ChannelCount", FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Channel count: ", "\r\n"));
-
-                    txt_metadata.Text = OpenedFileRemake["EncodingFormat"] + "\r\nSample Rate: " + OpenedFileRemake["SampleRate"] + "\r\nChannel Count: " + OpenedFileRemake["ChannelCount"];
-
-                    if (int.TryParse(mLoopStartVar, out int mLoopStart) && int.TryParse(mLoopEndVar, out int mLoopEnd))
-                    {
-                        OpenedFileLoop.Add("StartLoaded", mLoopStart); // Save the loop start 
-                        OpenedFileLoop.Add("EndLoaded", mLoopEnd); // Save the loop end
-
-                        OpenedFileLoop.Add("Start", OpenedFileLoop["StartLoaded"]); // Sets the loop start at the current loop start
-                        OpenedFileLoop.Add("End", OpenedFileLoop["EndLoaded"]); // Sets the loop end at the current loop end
-
-                        OpenedFileLoop.Add("StartMax", OpenedFileLoop["End"] - 1); // Makes sure the user can only input lower number than the loop's end
-                        OpenedFileLoop.Add("StartMin", 0); // The loop start value cannot be lower than the beginning of the file
-
-                        OpenedFileLoop.Add("EndMax", mLoopEnd); // Makes sure the user doesn't input more samples than the file has
-                        OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1); // Loop end has to be a bigger number than loop start
-
-                        chk_loop.Text = "Keep the loop";
-                        if (FeatureConfig["ResetExportOptionsOnNewFile"]) chk_loop.Checked = true;
-                        
-                    }
-                    else
-                    {
-                        OpenedFileLoop.Add("Start", 0);
-                        OpenedFileLoop.Add("StartMin", 0);
-
-                        var mSampleCountVar = FormMethods.GetBetween(OpenedFileRemake["Metadata"], "Sample count: ", " (");
-                        if (int.TryParse(mSampleCountVar, out int mSampleCount))
-                        {
-                            // If there's no loop, the new loop end is end of the file by default
-                            OpenedFileLoop.Add("EndMax", mSampleCount);
-                            OpenedFileLoop.Add("EndMin", OpenedFileLoop["Start"] + 1);
-                            OpenedFileLoop.Add("End", OpenedFileLoop["EndMax"]);
-                            OpenedFileLoop.Add("StartMax", OpenedFileLoop["EndMax"] - 1);
-
-                            chk_loop.Text = "Create a loop";
-                            if (FeatureConfig["ResetExportOptionsOnNewFile"]) chk_loop.Checked = false;
-                        }
-                        else
-                        {
-                            // Should never occur - hopefully
-                            MessageBox.Show("File contains invalid header data!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            CloseFile();
-                            return false;
-                        }
-                    }
-                    num_loopStart.Maximum = OpenedFileLoop["StartMax"];
-                    num_loopStart.Minimum = OpenedFileLoop["StartMin"];
-
-                    num_loopEnd.Maximum = OpenedFileLoop["EndMax"];
-                    num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
-
-                    // Load the loop values only if it's the first file loaded
-                    // Overwrite the loop values only if specified in the config
-                    if (FeatureConfig["ResetExportOptionsOnNewFile"] || noPreviousFile)
-                    {
-                        num_loopStart.Value = OpenedFileLoop["Start"];
-                        num_loopEnd.Value = OpenedFileLoop["End"];
-                    }
-
-                    // Check again if the file is accessible
-                    // It could've been locked or deleted by something else in the meantime
-                    if (!FormMethods.IsFileLocked(OpenedFileRemake["FilePath"]))
-                    {
-                        FormMethods.FileLock(OpenedFileRemake["FilePath"]);
-                        UpdateStatus();
-                        return true;
-                    }
-                    else
-                    {
-                        MessageBox.Show("The selected file is inaccessible!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                }
-                else
-                {
-                    // Should never happen - hopefully
-                    MessageBox.Show("Unable to read the file!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            CloseFile();
             UpdateStatus();
-            return false;
+            return true;
         }
 
         private void FileLoaded(bool loaded = true)
@@ -374,7 +243,9 @@ namespace VGAudio.Win32
 
         private void ExportExtensionUpdater(object sender = null, EventArgs e = null)
         {
-            switch (lst_exportExtensions.SelectedItem.ToString().ToLower())
+            OpenedFile.ExportInfo["ExtensionNoDot"] = lst_exportExtensions.SelectedItem.ToString().ToLower();
+            OpenedFile.ExportInfo["Extension"] = String.Format(".{0}", OpenedFile.ExportInfo["ExtensionNoDot"]);
+            switch (OpenedFile.ExportInfo["ExtensionNoDot"])
             {
                 case "adx":
                 case "brstm":
@@ -422,6 +293,8 @@ namespace VGAudio.Win32
 
                 txt_metadata.Visible = true;
             }
+
+            OpenedFile.ExportLoop["Enabled"] = Convert.ToInt32(chk_loop.Checked);
         }
 
         private void FileExport(object sender, EventArgs e)
@@ -429,9 +302,9 @@ namespace VGAudio.Win32
             UpdateStatus("Verifying the file...");
 
             // If the file was missing or inaccessible, but suddenly is, relock it again
-            FormMethods.FileLock(OpenedFileRemake["FilePath"]);
+            FormMethods.FileLock(OpenedFile.Info["Path"]);
 
-            if (lst_exportExtensions.SelectedItem == null)
+            if (OpenedFile.ExportInfo["ExtensionNoDot"] == null)
             {
                 UpdateStatus();
                 MessageBox.Show("Please select the exported file's extension!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -439,7 +312,7 @@ namespace VGAudio.Win32
             }
             var exportExtension = lst_exportExtensions.SelectedItem.ToString().ToLower();
 
-            if (OpenedFileRemake["FileExtension"] == exportExtension)
+            if (OpenedFile.Info["ExtensionNoDot"] == OpenedFile.ExportInfo["ExtensionNoDot"])
             {
                 DialogResult dialogResult = MessageBox.Show("The file you're trying to export has the same extension as the original file. Some of the changes might not be applied.\r\nContinue?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                 if (dialogResult != DialogResult.Yes)
@@ -449,9 +322,9 @@ namespace VGAudio.Win32
                 }
             }
 
-            if (chk_loop.Checked)
+            if (OpenedFile.ExportLoop["Enabled"] == 1)
             {
-                if (exportExtension == "wav")
+                if (OpenedFile.ExportInfo["ExtensionNoDot"] == "wav")
                 {
                     // Encoding the loop information into the wave file
                     // is useful only for conversions done later on (to a format that supports it)
@@ -472,7 +345,7 @@ namespace VGAudio.Win32
             }
             else
             {
-                if (OpenedFileLoop.ContainsKey("StartLoaded") && OpenedFileLoop.ContainsKey("EndLoaded"))
+                if (OpenedFile.Loop.ContainsKey("Start") && OpenedFile.Loop.ContainsKey("End"))
                 {
                     DialogResult dialogResult = MessageBox.Show("The imported file has loop information, which will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     if (dialogResult != DialogResult.Yes)
@@ -486,34 +359,33 @@ namespace VGAudio.Win32
             // Select the save location
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
-                InitialDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
-                Title = "Export " + OpenedFileRemake["FileNoExtension"] + "." + exportExtension,
+                InitialDirectory = Path.GetDirectoryName(OpenedFile.Info["Path"]),
+                Title = "Export " + OpenedFile.Info["NameNoExtension"] + "." + OpenedFile.ExportInfo["ExtensionNoDot"],
                 CheckFileExists = false,
                 CheckPathExists = true,
-                DefaultExt = exportExtension,
-                Filter = exportExtension.ToUpper() + " audio file (*." + exportExtension + ")|*." + exportExtension,
+                DefaultExt = OpenedFile.ExportInfo["ExtensionNoDot"],
+                Filter = OpenedFile.ExportInfo["ExtensionNoDot"].ToUpper() + " audio file (*." + OpenedFile.ExportInfo["ExtensionNoDot"] + ")|*." + OpenedFile.ExportInfo["ExtensionNoDot"],
                 FilterIndex = 1,
                 RestoreDirectory = true
             };
 
             if (FeatureConfig["PrefillExportFileName"])
             {
-                saveFileDialog.FileName = OpenedFileRemake["FileNoExtension"] + "." + exportExtension;
+                saveFileDialog.FileName = OpenedFile.Info["NameNoExtension"] + "." + OpenedFile.ExportInfo["ExtensionNoDot"];
             }
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                if (FormMethods.VerifyIntegrity(OpenedFileRemake["FilePath"]))
+                if (FormMethods.VerifyIntegrity(OpenedFile.Info["Path"]))
                 {
                     // Prepare the arguments
                     UpdateStatus("Converting the file...");
                     FormMethods.EnableCloseButton(this, false);
-                    var arguments = FormMethods.GenerateConversionParams(
-                        OpenedFileRemake["FilePathEscaped"],
-                        "\"" + Path.GetFullPath(saveFileDialog.FileName) + "\"",
-                        chk_loop.Checked,
-                        num_loopStart.Value,
-                        num_loopEnd.Value);
+                    string exportLocation = String.Format("\"{0}\"", Path.GetFullPath(saveFileDialog.FileName));
+
+                    string arguments = OpenedFile.GenerateConversionParams(exportLocation);
+                    MessageBox.Show(arguments);
+
                     // Cancelling the operation before it starts results in null
                     if (arguments != null)
                     {
@@ -522,17 +394,19 @@ namespace VGAudio.Win32
                             ProcessStartInfo procInfo = new ProcessStartInfo
                             {
                                 FileName = VGAudioCli,
-                                WorkingDirectory = Path.GetDirectoryName(OpenedFileRemake["FilePath"]),
+                                WorkingDirectory = Path.GetDirectoryName(OpenedFile.Info["Path"]),
                                 Arguments = arguments,
                                 RedirectStandardOutput = true,
                                 UseShellExecute = false,
                                 CreateNoWindow = true,
                                 WindowStyle = ProcessWindowStyle.Hidden
                             };
+
                             FormMethods.FileLock(null); // Unlock the file
-                            var proc = Process.Start(procInfo); // Process the file
+                            var proc = Process.Start(procInfo); // Process the file - BUG: WAV to DSP/IDSP with a loop hangs here - TODO: fix
+
                             proc.WaitForExit();
-                            FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file
+                            FormMethods.FileLock(OpenedFile.Info["Path"]); // Relock the file
                             UpdateStatus();
                             var standardConsoleOutput = proc.StandardOutput.ReadToEnd();
                             if (proc.ExitCode == 0)
@@ -563,7 +437,7 @@ namespace VGAudio.Win32
                         }
                         catch (Exception ex)
                         {
-                            FormMethods.FileLock(OpenedFileRemake["FilePath"]); // Relock the file after an unsuccessful attempt to convert it
+                            FormMethods.FileLock(OpenedFile.Info["Path"]); // Relock the file after an unsuccessful attempt to convert it
                             UpdateStatus();
                             MessageBox.Show(ex.Message, "Fatal Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
@@ -576,7 +450,7 @@ namespace VGAudio.Win32
 
         private void FileDump(object sender, EventArgs e)
         {
-            MainDump mainDump = new MainDump(OpenedFileRemake["FilePath"], lst_exportExtensions.SelectedItem.ToString().ToLower())
+            MainDump mainDump = new MainDump(OpenedFile.Info["Path"], lst_exportExtensions.SelectedItem.ToString().ToLower())
             {
                 StartPosition = FormStartPosition.Manual,
                 Left = this.Left,
@@ -586,7 +460,6 @@ namespace VGAudio.Win32
             mainDump.ShowDialog();
 
             if (!mainDump.Options.ContainsKey("Confirmed") || !(bool)mainDump.Options["Confirmed"]) return;
-
             Dictionary<string, object> Options = mainDump.Options;
 
             // For temporary compatibility - TODO: replace
@@ -594,7 +467,18 @@ namespace VGAudio.Win32
 
             UpdateStatus("Dumping info...");
             FormMethods.EnableCloseButton(this, false);
-            var path = OpenedFileRemake["FilePath"] + ".dump";
+
+            string[] lines = OpenedFile.DumpInformation(dumpExportInfo);
+            var path = OpenedFile.Info["Path"] + ".dump";
+
+            File.WriteAllLines(path, lines);
+            UpdateStatus();
+            MessageBox.Show("Info dumped to " + path + "!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            /*
+
+
+
+            
             var exportExtension = lst_exportExtensions.SelectedItem.ToString().ToLower();
 
             List<string> lineList = new List<string>
@@ -682,9 +566,7 @@ namespace VGAudio.Win32
             }
 
             string[] lines = lineList.ToArray();
-            File.WriteAllLines(path, lines);
-            UpdateStatus();
-            MessageBox.Show("Info dumped to " + path + "!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            */
         }
 
         public async void UpdateStatus(string message = "Ready")
@@ -693,16 +575,16 @@ namespace VGAudio.Win32
             switch (message)
             {
                 case "Ready":
-                    if (OpenedFileRemake.ContainsKey("FileName"))
+                    if (OpenedFile.Initialized)
                     {
-                        if (File.Exists(OpenedFileRemake["FilePath"]))
+                        if (File.Exists(OpenedFile.Info["Path"]))
                         {
-                            slb_status.Text = "Opened the file: " + OpenedFileRemake["FileNameShort"];
+                            slb_status.Text = "Opened the file: " + OpenedFile.Info["NameShort"];
                         }
                         else
                         {
                             // Makes sure the file name isn't too long
-                            var invalidFileNameShort = FormMethods.TruncateFileName(OpenedFileRemake["FileName"], OpenedFileRemake["FileExtension"], 20);
+                            var invalidFileNameShort = FormMethods.TruncateFileName(OpenedFile.Info["Name"], OpenedFile.Info["ExtensionNoDot"], 20);
                             slb_status.Text = "Please check the path of \"" + invalidFileNameShort + "\"";
                         }
                         return;
@@ -712,20 +594,23 @@ namespace VGAudio.Win32
                 case "Close":
                     // The key won't be set if user tries to drag and drop
                     // an invalid file while no other file is opened
-                    if (OpenedFileRemake.ContainsKey("FileNameShort"))
+                    if (OpenedFile.Info.ContainsKey("NameShort"))
                     {
-                        slb_status.Text = "Closed the file: " + OpenedFileRemake["FileNameShort"];
+                        slb_status.Text = "Closed the file: " + OpenedFile.Info["NameShort"];
                         await Task.Delay(2000);
                     }
 
                     // Another file might've been opened in the meantime when the previous file was closed
                     // Was another file opened during the Task.Delay?
-                    if (OpenedFileRemake.ContainsKey("FileExtension"))
+                    if (OpenedFile.Initialized)
                     {
-                        slb_status.Text = "Opened the file: " + OpenedFileRemake["FileNameShort"];
+                        slb_status.Text = "Opened the file: " + OpenedFile.Info["NameShort"];
                         return;
                     }
-                    slb_status.Text = "Ready";
+                    else
+                    {
+                        slb_status.Text = "Ready";
+                    }
                     break;
                 default:
                     slb_status.Text = message;
@@ -735,13 +620,16 @@ namespace VGAudio.Win32
 
         private void NumLoopOnUpdate(object sender, EventArgs e)
         {
-            OpenedFileLoop["StartMin"] = 0;
-            OpenedFileLoop["StartMax"] = (int)num_loopEnd.Value - 1;
-            OpenedFileLoop["EndMin"] = (int)num_loopStart.Value + 1;
+            OpenedFile.ExportLoop["StartMin"] = 0;
+            OpenedFile.ExportLoop["StartMax"] = (int)num_loopEnd.Value - 1;
+            OpenedFile.ExportLoop["EndMin"] = (int)num_loopStart.Value + 1;
 
-            num_loopStart.Minimum = OpenedFileLoop["StartMin"];
-            num_loopStart.Maximum = OpenedFileLoop["StartMax"];
-            num_loopEnd.Minimum = OpenedFileLoop["EndMin"];
+            num_loopStart.Minimum = (decimal)OpenedFile.ExportLoop["StartMin"];
+            num_loopStart.Maximum = (decimal)OpenedFile.ExportLoop["StartMax"];
+            num_loopEnd.Minimum = (decimal)OpenedFile.ExportLoop["EndMin"];
+
+            OpenedFile.ExportLoop["Start"] = (int)num_loopStart.Value;
+            OpenedFile.ExportLoop["End"] = (int)num_loopEnd.Value;
         }
         private void OnStart()
         {
@@ -792,7 +680,7 @@ namespace VGAudio.Win32
         {
             if (FeatureConfig["CloseButtonClosesFile"])
             {
-                if (OpenedFileRemake.ContainsKey("FilePath"))
+                if (OpenedFile.Initialized)
                 {
                     e.Cancel = true;
                     CloseFile();
