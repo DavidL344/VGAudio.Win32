@@ -160,7 +160,7 @@ namespace VGAudio.Win32
         
         public static bool FileLock(string file = null)
         {
-            if (AppForm.FeatureConfig.ContainsKey("LockOpenedFile") && AppForm.FeatureConfig["LockOpenedFile"])
+            if (Main.FeatureConfig.ContainsKey("LockOpenedFile") && Main.FeatureConfig["LockOpenedFile"])
             {
                 if (file != null)
                 {
@@ -344,6 +344,33 @@ namespace VGAudio.Win32
                 }
             }
             return arguments;
+        }
+
+        public static string CreateExtensionFilter(string[] extensionArray)
+        {
+            // Add every supported file extension as one entry
+            string filter = "All Supported Audio Streams|";
+            bool firstEntry = true;
+
+            foreach (string ext in extensionArray)
+            {
+                if (firstEntry)
+                {
+                    firstEntry = false;
+                }
+                else
+                {
+                    filter += ";";
+                }
+                filter += String.Format("*.{0}", ext.ToLower());
+            }
+
+            // Add supported file extensions as separate entries
+            foreach (string ext in extensionArray)
+            {
+                filter += String.Format("|{0}|*.{1}", ext.ToUpper(), ext.ToLower());
+            }
+            return filter;
         }
     }
 }

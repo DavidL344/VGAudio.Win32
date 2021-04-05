@@ -74,6 +74,7 @@
     <Compile Include="MainDump.Designer.cs">
       <DependentUpon>MainDump.cs</DependentUpon>
     </Compile>
+    <Compile Include="OpenedFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="AboutBox.resx">

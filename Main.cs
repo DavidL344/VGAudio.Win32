@@ -20,12 +20,11 @@ namespace VGAudio.Win32
         
         public static Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
         public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
-        public Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
         public static Dictionary<string, object> AdvancedSettings = new Dictionary<string, object>();
         //public Dictionary<string, string> PreviousOpenedFile = new Dictionary<string, string>();
-        public readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
-        public readonly string extsFilter = "All Supported Audio Streams|*.wav;*.dsp;*.idsp;*.brstm;*.bcstm;*.bfstm;*.hps;*.adx;*.hca;*.genh;*.at9|"
-                                            + "WAV|*.wav|DSP|*.dsp|IDSP|*.idsp|BRSTM|*.brstm|BCSTM|*.bcstm|BFSTM|*.bfstm|HPS|*.hps|ADX|*.adx|HCA|*.hca|GENH|*.genh|AT9|*.at9";
+        public static readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
+        public static string extsFilter;
 
         public Main()
         {
@@ -758,11 +757,16 @@ namespace VGAudio.Win32
             // Init the advanced settings dictionary
             MainAdvanced.Reset();
 
+            // Create the supported extensions to a filter
+            extsFilter = FormMethods.CreateExtensionFilter(extsArray);
+
             // Listen to pressed keys
             this.KeyPreview = true;
             this.KeyDown += new KeyEventHandler(FormMethods.ActionListener);
 
             // Feature Config
+            FeatureConfig.Clear();
+
             // A button that requires an extra click to close the file first before opening a new one
             FeatureConfig.Add("OpenCloseWinformsButton", true);
 
