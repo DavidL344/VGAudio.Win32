@@ -300,7 +300,7 @@ namespace VGAudio.Win32
 
         private void FileExport(object sender, EventArgs e)
         {
-            UpdateStatus("Verifying the file...");
+            UpdateStatus("Converting the file...");
 
             // If the file was missing or inaccessible, but suddenly is, relock it again
             FormMethods.FileLock(OpenedFile.Info["Path"]);
@@ -379,7 +379,6 @@ namespace VGAudio.Win32
                 if (FormMethods.VerifyIntegrity(OpenedFile.Info["Path"]))
                 {
                     // Prepare the arguments
-                    UpdateStatus("Converting the file...");
                     FormMethods.EnableCloseButton(this, false);
                     string exportLocation = String.Format("\"{0}\"", Path.GetFullPath(saveFileDialog.FileName));
                     string arguments = OpenedFile.GenerateConversionParams(exportLocation);
@@ -402,35 +401,37 @@ namespace VGAudio.Win32
 
                             FormMethods.FileLock(null); // Unlock the file
                             var proc = Process.Start(procInfo); // Process the file - BUG: WAV to DSP/IDSP with a loop hangs here - TODO: fix
-
-                            proc.WaitForExit();
+                            
+                            string line = "";
+                            while (!proc.StandardOutput.EndOfStream)
+                            {
+                                line += proc.StandardOutput.ReadLine() + "\r\n";
+                            }
+                            string[] standardConsoleOutput = line.Split(
+                                new[] { "\r\n", "\r", "\n" },
+                                StringSplitOptions.None
+                            );
                             FormMethods.FileLock(OpenedFile.Info["Path"]); // Relock the file
                             UpdateStatus();
-                            var standardConsoleOutput = proc.StandardOutput.ReadToEnd();
+
                             if (proc.ExitCode == 0)
                             {
                                 // Progress bar [####   ] starts with '[' and success starts with, well, 'Success!'
-                                if (standardConsoleOutput.StartsWith("[") || standardConsoleOutput.StartsWith("Success!"))
+                                if (standardConsoleOutput[0].StartsWith("[") || standardConsoleOutput[0].StartsWith("Success!"))
                                 {
                                     MessageBox.Show("Task performed successfully.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 }
                                 else
                                 {
                                     // Should happen only if the operation is not supported by the CLI
-                                    MessageBox.Show(standardConsoleOutput, "Conversion Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show(standardConsoleOutput[0], "Conversion Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
                             }
                             else
                             {
                                 // Error occurs when the user replaces an existing file
                                 // with invalid export extension through the dialog box
-                                string[] errorString = standardConsoleOutput.Split(
-                                    new[] { "\r\n", "\r", "\n" },
-                                    StringSplitOptions.None
-                                );
-
-                                // Returns the error message without the usage of VGAudioCli
-                                MessageBox.Show(errorString[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                MessageBox.Show(standardConsoleOutput[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
                         catch (Exception ex)
