@@ -207,8 +207,10 @@ namespace VGAudio.Win32
             return true;
         }
 
-        public string[] DumpInformation(bool dumpExportInfo)
+        public string[] DumpInformation(Dictionary<string, Dictionary<string, object>> Options)
         {
+            bool dumpExportInfo = (bool)Options["DumpFileInfo"]["IncludeExportInformation"];
+
             string[] lines;
             int? exportLoop = ExportLoop["Enabled"];
 
@@ -279,16 +281,7 @@ namespace VGAudio.Win32
                 {
                     conversionCommand = "VGAudioCli.exe " + conversionCommand;
                 }
-
-                if (exportLoop == 1 && ExportInfo["ExtensionNoDot"] == "wav")
-                {
-                    lineList.Add("\r\nConversion command (see the warning below):\r\n" + conversionCommand);
-                    lineList.Add("\r\n[WARNING] While the wave file can hold loop information, it won't be read by most media players.");
-                }
-                else
-                {
-                    lineList.Add("\r\nConversion command:\r\n" + conversionCommand);
-                }
+                lineList.Add("\r\nConversion command:\r\n" + conversionCommand);
             }
             lines = lineList.ToArray();
             return lines;
@@ -324,21 +317,30 @@ namespace VGAudio.Win32
                 return null;
             }
         }
-        public string GenerateConversionParams(string exportLocation = null, bool silent = false)
+
+        public string GenerateConversionParams(string exportLocation = null, bool batchFormat = false, bool silent = false)
         {
-            if (exportLocation == null) exportLocation = "output." + ExportInfo["ExtensionNoDot"];
+            if (exportLocation == null) exportLocation = String.Format("\"{0}\"", Path.ChangeExtension(Info["Path"], ExportInfo["Extension"]));
             string arguments = String.Format("-i {0} -o {1}", Info["PathEscaped"], exportLocation);
+            List<string> warnings_list = new List<string>();
             
             if (ExportLoop["Enabled"] == 1)
             {
                 if (ExportLoop["Start"] > ExportLoop["End"])
                 {
-                    // TODO: ask to continue since the export information cannot be saved
+                    // The loop information is invalid - the file would contain a negative number of samples
+                    int? sampleLength = (int)ExportLoop["End"] - (int)ExportLoop["Start"];
+                    warnings_list.Add(String.Format("The resulting file length is {0} samples due to an invalid loop points.", sampleLength));
                     arguments += " --no-loop";
                 }
                 else
                 {
                     arguments += String.Format(" -l {0}-{1}", ExportLoop["Start"], ExportLoop["End"]);
+                }
+
+                if (ExportInfo["ExtensionNoDot"] == "wav")
+                {
+                    warnings_list.Add("While the wave file can hold loop information, it won't be read by most media players.");
                 }
             }
             else
@@ -437,6 +439,44 @@ namespace VGAudio.Win32
                         break;
                     default:
                         break;
+                }
+            }
+
+            int chcp = 65001;
+            if (!silent)
+            {
+                string commentCharacter = "";
+                if (batchFormat) commentCharacter = ":: ";
+                string warnings = "";
+                if (warnings_list.Count > 0)
+                {
+                    foreach (var warning in warnings_list)
+                    {
+                        warnings += String.Format("\r\n{0}[WARNING] {1}", commentCharacter, warning.ToString());
+                    }
+                }
+                else
+                {
+                    warnings = null;
+                }
+
+                string title = FormMethods.GetAppInfo("name") + " (" + FormMethods.GetAppInfo("version") + ")";
+                if (batchFormat)
+                {
+                    if (warnings == null) warnings = " (none)";
+                    arguments = String.Format(":: {0}\r\n:: Original file: {1}\r\n:: The converted file: {2}{3}\r\n\r\n@echo off\r\nchcp {4}>nul\r\nVGAudioCli.exe {5}\r\npause>nul", title, Info["Path"], exportLocation, warnings, chcp, arguments);
+                }
+                else
+                {
+                    if (warnings != null) warnings = String.Format("\r\n{0}", warnings);
+                    arguments += warnings;
+                }
+            }
+            else
+            {
+                if (batchFormat)
+                {
+                    arguments = String.Format("@echo off\r\nchcp {0}>nul\r\nVGAudioCli.exe {1}\r\npause>nul", chcp, arguments);
                 }
             }
             return arguments;

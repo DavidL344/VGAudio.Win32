@@ -106,6 +106,7 @@
             this.btn_options_saveExportInfo_fileLocation.TabIndex = 22;
             this.btn_options_saveExportInfo_fileLocation.Text = "Browse";
             this.btn_options_saveExportInfo_fileLocation.UseVisualStyleBackColor = true;
+            this.btn_options_saveExportInfo_fileLocation.Click += new System.EventHandler(this.FileBrowse);
             // 
             // chk_file_dumpFileInfo
             // 
@@ -137,6 +138,7 @@
             this.btn_options_dumpFileInfo_fileLocation.TabIndex = 27;
             this.btn_options_dumpFileInfo_fileLocation.Text = "Browse";
             this.btn_options_dumpFileInfo_fileLocation.UseVisualStyleBackColor = true;
+            this.btn_options_dumpFileInfo_fileLocation.Click += new System.EventHandler(this.FileBrowse);
             // 
             // txt_options_dumpFileInfo_fileLocation
             // 

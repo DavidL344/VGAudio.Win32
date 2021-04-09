@@ -474,21 +474,38 @@ namespace VGAudio.Win32
             };
             mainDump.ShowDialog();
 
-            if (!mainDump.Options.ContainsKey("Confirmed") || !(bool)mainDump.Options["Confirmed"]) return;
-            Dictionary<string, object> Options = mainDump.Options;
+            if (mainDump.Confirmed)
+            {
+                UpdateStatus("Dumping info...");
+                FormMethods.EnableCloseButton(this, false);
+                Dictionary<string, Dictionary<string, object>> Options = mainDump.Options;
 
-            // For temporary compatibility - TODO: replace
-            bool dumpExportInfo = (bool)((Dictionary<string, object>)Options["DumpFileInfo"])["IncludeExportInformation"];
+                try
+                {
+                    if ((bool)Options["DumpFileInfo"]["Use"])
+                    {
+                        string path = (string)Options["DumpFileInfo"]["FileLocation"];
+                        string[] lines = OpenedFile.DumpInformation(Options);
+                        File.WriteAllLines(path, lines);
+                    }
 
-            UpdateStatus("Dumping info...");
-            FormMethods.EnableCloseButton(this, false);
-
-            string[] lines = OpenedFile.DumpInformation(dumpExportInfo);
-            var path = OpenedFile.Info["Path"] + ".dump";
-
-            File.WriteAllLines(path, lines);
-            UpdateStatus();
-            MessageBox.Show("Info dumped to " + path + "!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if ((bool)Options["SaveExportInfo"]["Use"])
+                    {
+                        string path = (string)Options["SaveExportInfo"]["FileLocation"];
+                        string line = OpenedFile.GenerateConversionParams(null, true);
+                        File.WriteAllText(path, String.Format("{0}\r\n", line));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    UpdateStatus();
+                    MessageBox.Show(ex.Message, "Error dumping file information | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+               
+                UpdateStatus();
+                MessageBox.Show("Info dumped successfully!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         public async void UpdateStatus(string message = "Ready")
