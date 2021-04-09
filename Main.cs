@@ -310,7 +310,6 @@ namespace VGAudio.Win32
                 MessageBox.Show("Please select the exported file's extension!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            var exportExtension = lst_exportExtensions.SelectedItem.ToString().ToLower();
 
             if (OpenedFile.Info["ExtensionNoDot"] == OpenedFile.ExportInfo["ExtensionNoDot"])
             {
@@ -345,7 +344,7 @@ namespace VGAudio.Win32
             }
             else
             {
-                if (OpenedFile.Loop.ContainsKey("Start") && OpenedFile.Loop.ContainsKey("End"))
+                if (OpenedFile.ExportLoop["Enabled"] == 1)
                 {
                     DialogResult dialogResult = MessageBox.Show("The imported file has loop information, which will be lost upon export.\r\nContinue the export without the loop information?", Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
                     if (dialogResult != DialogResult.Yes)
@@ -382,9 +381,7 @@ namespace VGAudio.Win32
                     UpdateStatus("Converting the file...");
                     FormMethods.EnableCloseButton(this, false);
                     string exportLocation = String.Format("\"{0}\"", Path.GetFullPath(saveFileDialog.FileName));
-
                     string arguments = OpenedFile.GenerateConversionParams(exportLocation);
-                    MessageBox.Show(arguments);
 
                     // Cancelling the operation before it starts results in null
                     if (arguments != null)
@@ -474,99 +471,6 @@ namespace VGAudio.Win32
             File.WriteAllLines(path, lines);
             UpdateStatus();
             MessageBox.Show("Info dumped to " + path + "!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-            /*
-
-
-
-            
-            var exportExtension = lst_exportExtensions.SelectedItem.ToString().ToLower();
-
-            List<string> lineList = new List<string>
-            {
-                FormMethods.GetAppInfo("name") + " (" + FormMethods.GetAppInfo("version") + ")",
-                "Dumped Info (" + OpenedFileRemake["FileName"] + ")\r\n",
-                OpenedFileRemake["Metadata"]
-            };
-
-            if (dumpExportInfo)
-            {
-                lineList.Add("----------\r\n");
-                lineList.Add("Custom Export Info:");
-                lineList.Add("Target file: " + exportExtension);
-                
-                if (chk_loop.Checked)
-                {
-                    lineList.Add("Loop start: " + num_loopStart.Value);
-                    lineList.Add("Loop end: " + num_loopEnd.Value);
-                }
-
-                if ((bool)AdvancedSettings["Apply"])
-                {
-                    switch (exportExtension)
-                    {
-                        case "adx":
-                            if ((bool)AdvancedSettings["ADX_encrypt"])
-                            {
-                                lineList.Add("Encoding type: " + AdvancedSettings["ADX_type"]);
-                                if ((bool)AdvancedSettings["ADX_keystring_use"])
-                                    lineList.Add("Keystring: " + AdvancedSettings["ADX_keystring"]);
-                                if ((bool)AdvancedSettings["ADX_keycode_use"])
-                                    lineList.Add("Keycode: " + AdvancedSettings["ADX_keycode"]);
-                                if ((bool)AdvancedSettings["ADX_filter_use"])
-                                    lineList.Add("Encoding filter: " + AdvancedSettings["ADX_filter"]);
-                                if ((bool)AdvancedSettings["ADX_version_use"])
-                                    lineList.Add("Header version: " + AdvancedSettings["ADX_version"]);
-                            }
-                            break;
-                        case "brstm":
-                            lineList.Add("Audio format: " + AdvancedSettings["BRSTM_audioFormat"]);
-                            break;
-                        case "hca":
-                            switch (AdvancedSettings["HCA_audioRadioButtonSelector"])
-                            {
-                                case "quality":
-                                    lineList.Add("Audio quality: " + AdvancedSettings["HCA_audioQuality"]);
-                                    break;
-                                case "bitrate":
-                                    lineList.Add("Audio bitrate: " + AdvancedSettings["HCA_audioBitrate"]);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                var conversionCommand = FormMethods.GenerateConversionParams(
-                    OpenedFileRemake["FilePathEscaped"],
-                    String.Format("\"output.{0}\"", exportExtension),
-                    chk_loop.Checked,
-                    num_loopStart.Value,
-                    num_loopEnd.Value);
-                if (conversionCommand == null)
-                {
-                    conversionCommand = "(unable to generate)";
-                }
-                else
-                {
-                    conversionCommand = "VGAudioCli.exe " + conversionCommand;
-                }
-
-                if (chk_loop.Checked && exportExtension == "wav")
-                {
-                    lineList.Add("\r\nConversion command (see the warning below):\r\n" + conversionCommand);
-                    lineList.Add("\r\n[WARNING] While the wave file can hold loop information, it won't be read by most media players.");
-                }
-                else
-                {
-                    lineList.Add("\r\nConversion command:\r\n" + conversionCommand);
-                }
-            }
-
-            string[] lines = lineList.ToArray();
-            */
         }
 
         public async void UpdateStatus(string message = "Ready")
