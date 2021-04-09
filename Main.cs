@@ -378,6 +378,16 @@ namespace VGAudio.Win32
             {
                 if (FormMethods.VerifyIntegrity(OpenedFile.Info["Path"]))
                 {
+                    // Check if the export file extension is the correct one
+                    if (Path.GetExtension(saveFileDialog.FileName).ToLower() != OpenedFile.ExportInfo["Extension"].ToLower())
+                    {
+                        // Error occurs when the user replaces an existing file
+                        // with invalid export extension through the dialog box
+                        UpdateStatus();
+                        MessageBox.Show("The file extension selected is invalid!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     // Prepare the arguments
                     FormMethods.EnableCloseButton(this, false);
                     string exportLocation = String.Format("\"{0}\"", Path.GetFullPath(saveFileDialog.FileName));
@@ -400,7 +410,7 @@ namespace VGAudio.Win32
                             };
 
                             FormMethods.FileLock(null); // Unlock the file
-                            var proc = Process.Start(procInfo); // Process the file - BUG: WAV to DSP/IDSP with a loop hangs here - TODO: fix
+                            var proc = Process.Start(procInfo); // Process the file
                             
                             string line = "";
                             while (!proc.StandardOutput.EndOfStream)
@@ -429,8 +439,7 @@ namespace VGAudio.Win32
                             }
                             else
                             {
-                                // Error occurs when the user replaces an existing file
-                                // with invalid export extension through the dialog box
+                                // This happens if there's an invalid parameter passed to the CLI
                                 MessageBox.Show(standardConsoleOutput[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
