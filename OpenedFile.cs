@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace VGAudio.Win32
 {
-    class OpenedFile
+    public class OpenedFile
     {
         public Dictionary<string, string> Info = new Dictionary<string, string>();
         public Dictionary<string, string> Metadata = new Dictionary<string, string>();
@@ -440,6 +440,26 @@ namespace VGAudio.Win32
                 }
             }
             return arguments;
+        }
+
+        public void LoadAdvancedExportInfo()
+        {
+            AdvancedExportInfo["Apply"] = Main.AdvancedSettings["Apply"];
+            AdvancedExportInfo["ADX_encrypt"] = Main.AdvancedSettings["ADX_encrypt"];
+            AdvancedExportInfo["ADX_type"] = Main.AdvancedSettings["ADX_type"];
+            AdvancedExportInfo["ADX_keystring_use"] = Main.AdvancedSettings["ADX_keystring_use"];
+            AdvancedExportInfo["ADX_keystring"] = Main.AdvancedSettings["ADX_keystring"];
+            AdvancedExportInfo["ADX_keycode_use"] = Main.AdvancedSettings["ADX_keycode_use"];
+            AdvancedExportInfo["ADX_keycode"] = Main.AdvancedSettings["ADX_keycode"];
+            AdvancedExportInfo["ADX_filter_use"] = Main.AdvancedSettings["ADX_filter_use"];
+            AdvancedExportInfo["ADX_filter"] = Main.AdvancedSettings["ADX_filter"];
+            AdvancedExportInfo["ADX_version_use"] = Main.AdvancedSettings["ADX_version_use"];
+            AdvancedExportInfo["ADX_version"] = Main.AdvancedSettings["ADX_version"];
+            AdvancedExportInfo["BRSTM_audioFormat"] = Main.AdvancedSettings["BRSTM_audioFormat"];
+            AdvancedExportInfo["HCA_audioRadioButtonSelector"] = Main.AdvancedSettings["HCA_audioRadioButtonSelector"];
+            AdvancedExportInfo["HCA_audioQuality"] = Main.AdvancedSettings["HCA_audioQuality"];
+            AdvancedExportInfo["HCA_audioBitrate"] = Main.AdvancedSettings["HCA_audioBitrate"];
+            AdvancedExportInfo["HCA_limitBitrate"] = Main.AdvancedSettings["HCA_limitBitrate"];
         }
 
         public void Close(bool resetExportOptions = true)

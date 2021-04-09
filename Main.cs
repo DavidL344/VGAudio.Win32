@@ -260,7 +260,7 @@ namespace VGAudio.Win32
 
         private void OpenAdvancedOptions(object sender, EventArgs e)
         {
-            MainAdvanced mainAdvanced = new MainAdvanced(lst_exportExtensions.SelectedItem.ToString())
+            MainAdvanced mainAdvanced = new MainAdvanced(OpenedFile)
             {
                 StartPosition = FormStartPosition.Manual,
                 Left = this.Left,

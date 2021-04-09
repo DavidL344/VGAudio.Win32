@@ -16,10 +16,12 @@ namespace VGAudio.Win32
     {
         private readonly string exportExtension;
         private readonly Dictionary<string, int> BitrateValue = new Dictionary<string, int>();
-        public MainAdvanced(string exportExtension)
+        private readonly OpenedFile OpenedFile;
+        public MainAdvanced(OpenedFile OpenedFile)
         {
             InitializeComponent();
-            this.exportExtension = exportExtension.ToLower();
+            this.exportExtension = OpenedFile.ExportInfo["ExtensionNoDot"].ToLower();
+            this.OpenedFile = OpenedFile;
 
             // Add samples from 44100 Hz sample CRI HCA file
             BitrateValue.Add("Highest", 353);
@@ -233,7 +235,7 @@ namespace VGAudio.Win32
             int approxValue = BitrateValue[lst_hca_audioQuality.SelectedItem.ToString()];
 
             // Strip down the string to just the integer part, then try to parse it as a one
-            var sampleRateSplit = Regex.Split(Main.OpenedFileRemake["SampleRate"], " Hz")[0];
+            var sampleRateSplit = Regex.Split(OpenedFile.Metadata["SampleRate"], " Hz")[0];
             if (int.TryParse(sampleRateSplit, out int sampleRate))
             {
                 // Make an approximate calculation from the file's sample rate
@@ -241,7 +243,7 @@ namespace VGAudio.Win32
             }
             else
             {
-                MessageBox.Show("failed: " + Main.OpenedFileRemake["SampleRate"]);
+                MessageBox.Show("Sample rate calculation failed: " + OpenedFile.Metadata["SampleRate"]);
             }
             
             lbl_hca_conversion.Text = String.Format("= approx. {0} Kbps", approxValue);
