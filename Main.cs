@@ -268,6 +268,7 @@ namespace VGAudio.Win32
                 Text = String.Format("Advanced options | {0}", Text)
             };
             mainAdvanced.ShowDialog();
+            OpenedFile.LoadAdvancedExportInfo();
         }
 
         private void LoopTheFile(object sender = null, EventArgs e = null)
