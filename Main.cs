@@ -429,7 +429,14 @@ namespace VGAudio.Win32
                                 // Progress bar [####   ] starts with '[' and success starts with, well, 'Success!'
                                 if (standardConsoleOutput[0].StartsWith("[") || standardConsoleOutput[0].StartsWith("Success!"))
                                 {
-                                    MessageBox.Show("Task performed successfully.", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                    string successMessage = "Task performed successfully.";
+                                    if (FeatureConfig["ShowTimeElapsed"])
+                                    {
+                                        string timeElapsed = standardConsoleOutput[1].Substring(standardConsoleOutput[1].IndexOf(":") + 1);
+                                        string timeElapsedFormatted = TimeSpan.FromSeconds(Convert.ToDouble(timeElapsed)).ToString(@"hh\:mm\:ss\.fff");
+                                        successMessage += String.Format(" Time elapsed: {0}", timeElapsedFormatted);
+                                    }
+                                    MessageBox.Show(successMessage, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                                 }
                                 else
                                 {
@@ -584,6 +591,9 @@ namespace VGAudio.Win32
 
             // Reset the loop information and the advanced options after the file is closed
             FeatureConfig.Add("ResetExportOptionsOnNewFile", true);
+
+            // Show the time elapsed after finishing the conversion
+            FeatureConfig.Add("ShowTimeElapsed", true);
         }
 
         private void TestFeature()
