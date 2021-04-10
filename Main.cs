@@ -18,12 +18,8 @@ namespace VGAudio.Win32
     {
         public static string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
         private OpenedFile OpenedFile = new OpenedFile();
-
-        public static Dictionary<string, string> OpenedFileRemake = new Dictionary<string, string>();
-        public Dictionary<string, int> OpenedFileLoop = new Dictionary<string, int>();
         public static Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
         public static Dictionary<string, object> AdvancedSettings = new Dictionary<string, object>();
-        //public Dictionary<string, string> PreviousOpenedFile = new Dictionary<string, string>();
         public static readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public static string extsFilter;
 
@@ -109,8 +105,6 @@ namespace VGAudio.Win32
             FileLoaded(false);
             UpdateStatus("Close");
             OpenedFile.Close(FeatureConfig["ResetExportOptionsOnNewFile"]);
-            OpenedFileRemake.Clear();
-            OpenedFileLoop.Clear();
 
             if (FeatureConfig["ResetExportOptionsOnNewFile"])
             {
@@ -576,10 +570,6 @@ namespace VGAudio.Win32
             MinimumSize = Size;
             MaximumSize = Size;
             MaximizeBox = false;
-
-            // Init OpenedFile
-            OpenedFileRemake.Clear();
-            OpenedFileLoop.Clear();
 
             // Init the advanced settings dictionary
             MainAdvanced.Reset();
