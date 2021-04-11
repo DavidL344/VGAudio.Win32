@@ -67,7 +67,8 @@ namespace VGAudio.Win32
             // File name information
             Info["Name"] = Path.GetFileName(filePath);
             Info["NameNoExtension"] = Path.GetFileNameWithoutExtension(filePath);
-            Info["NameShort"] = FormMethods.TruncateFileName(Info["Name"], Info["ExtensionNoDot"]);
+            Info["NameShort"] = TruncateName();
+            Info["NameShort_OnError"] = TruncateName(16);
 
             // File Metadata
             Metadata["Full"] = null;
@@ -500,6 +501,28 @@ namespace VGAudio.Win32
             AdvancedExportInfo["HCA_audioQuality"] = Main.AdvancedSettings["HCA_audioQuality"];
             AdvancedExportInfo["HCA_audioBitrate"] = Main.AdvancedSettings["HCA_audioBitrate"];
             AdvancedExportInfo["HCA_limitBitrate"] = Main.AdvancedSettings["HCA_limitBitrate"];
+        }
+
+        public string TruncateName(int maxLength = 20)
+        {
+            string fileExtInfo = "... (" + Info["Extension"] + ")";
+
+            // The trim length shouldn't be bigger than the length of the file name itself
+            if (fileExtInfo.Length > maxLength) return fileExtInfo;
+            int trimLength = maxLength - fileExtInfo.Length;
+
+            if (Info["Name"].Length > maxLength)
+            {
+                if (Info["Name"].Length > trimLength)
+                {
+                    string truncate = FormMethods.Truncate(Info["Name"], trimLength);
+                    if (Info["Name"] != truncate)
+                    {
+                        return truncate + fileExtInfo;
+                    }
+                }
+            }
+            return Info["Name"];
         }
 
         public void Close(bool resetExportOptions = true)

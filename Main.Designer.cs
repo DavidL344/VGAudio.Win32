@@ -62,8 +62,10 @@
             // slb_status
             // 
             this.slb_status.Name = "slb_status";
-            this.slb_status.Size = new System.Drawing.Size(146, 41);
+            this.slb_status.Size = new System.Drawing.Size(707, 41);
+            this.slb_status.Spring = true;
             this.slb_status.Text = "Loading...";
+            this.slb_status.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btn_open
             // 

@@ -516,9 +516,7 @@ namespace VGAudio.Win32
                         }
                         else
                         {
-                            // Makes sure the file name isn't too long
-                            var invalidFileNameShort = FormMethods.TruncateFileName(OpenedFile.Info["Name"], OpenedFile.Info["ExtensionNoDot"], 20);
-                            slb_status.Text = "Please check the path of \"" + invalidFileNameShort + "\"";
+                            slb_status.Text = "Please check the path of " + OpenedFile.Info["NameShort_OnError"] + "!";
                         }
                         return;
                     }
