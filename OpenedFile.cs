@@ -17,6 +17,7 @@ namespace VGAudio.Win32
         public Dictionary<string, string> ExportInfo = new Dictionary<string, string>();
         public Dictionary<string, int?> ExportLoop = new Dictionary<string, int?>();
         public Dictionary<string, object> AdvancedExportInfo = new Dictionary<string, object>();
+        private FileStream FileLock = null;
         public bool Initialized = false;
 
         // An equivalent of FileDialogProcess
@@ -36,8 +37,9 @@ namespace VGAudio.Win32
             }
             if (!IsSupported(Path.GetExtension(filePath).Substring(1))) throw new Exception("The selected file is not supported!");
 
-            // TODO: Change to IsLocked()
-            if (FormMethods.IsFileLocked(filePath))
+            // The file path has to be explicitly stated here - the entry Info["Path"] is defined upon successfully loading the file
+            // If the program were to load the new Info["Path"] to memory, it would mismatch the currently opened file in the app
+            if (IsLocked(filePath))
             {
                 // Check if the locked file is in use by the app
                 if (Info.ContainsKey("Path") && filePath == Info["Path"])
@@ -54,7 +56,7 @@ namespace VGAudio.Win32
                     return false;
                 }
             }
-            Initialized = false;
+            if (Initialized) Close(Main.FeatureConfig["ResetExportOptionsOnNewFile"]);
 
             // File path information
             Info["Path"] = filePath;
@@ -125,9 +127,9 @@ namespace VGAudio.Win32
 
             // Check again if the file is accessible
             // It could've been locked or deleted by something else in the meantime
-            if (!FormMethods.IsFileLocked(Info["Path"]))
+            if (!IsLocked())
             {
-                FormMethods.FileLock(Info["Path"]);
+                Lock(true);
                 Initialized = true;
             }
             else
@@ -483,6 +485,57 @@ namespace VGAudio.Win32
             return arguments;
         }
 
+        public bool IsLocked(string filePath = null)
+        {
+            if (filePath == null) filePath = Info["Path"]; // Only used for early verification at line 42
+            try
+            {
+                using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    stream.Close();
+                }
+            }
+            catch (IOException)
+            {
+                // https://stackoverflow.com/a/937558
+                // If the file is unavailable, it is because:
+                // - It's still being written to
+                // - It's being processed by another thread
+                // - It doesn't exist
+                return true;
+            }
+            return false;
+        }
+
+        public bool Lock(bool lockTheFile)
+        {
+            if (Main.FeatureConfig.ContainsKey("LockOpenedFile") && Main.FeatureConfig["LockOpenedFile"])
+            {
+                if (Info.ContainsKey("Path") && File.Exists(Info["Path"]))
+                {
+                    if (lockTheFile)
+                    {
+                        if ((!IsLocked()) && (FileLock == null))
+                        {
+                            // https://stackoverflow.com/a/3279183
+                            FileLock = File.Open(Info["Path"], FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        if ((IsLocked()) && (FileLock != null))
+                        {
+                            FileLock.Close();
+                            FileLock = null;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         public void LoadAdvancedExportInfo()
         {
             AdvancedExportInfo["Apply"] = Main.AdvancedSettings["Apply"];
@@ -527,6 +580,8 @@ namespace VGAudio.Win32
 
         public void Close(bool resetExportOptions = true)
         {
+            Lock(false);
+
             Info.Clear();
             Metadata.Clear();
             Loop.Clear();
@@ -538,69 +593,6 @@ namespace VGAudio.Win32
                 AdvancedExportInfo.Clear();
             }
             Initialized = false;
-
-            /*
-            // File path information
-            Info.Add("Path", null);
-            Info.Add("PathEscaped", null);
-
-            // File extension information
-            Info.Add("Extension", null);
-            Info.Add("ExtensionNoDot", null);
-
-            // File name information
-            Info.Add("Name", null);
-            Info.Add("NameNoExtension", null);
-            Info.Add("NameShort", null);
-
-            // File Metadata
-            Metadata.Add("Full", null);
-            Metadata.Add("Short", null);
-            Metadata.Add("EncodingFormat", null);
-            Metadata.Add("SampleCount", null);
-            Metadata.Add("SampleRate", null);
-            Metadata.Add("ChannelCount", null);
-
-            // File loop information
-            Loop.Add("Enabled", null);
-            Loop.Add("StartMin", null);
-            Loop.Add("Start", null);
-            Loop.Add("StartMax", null);
-            Loop.Add("EndMin", null);
-            Loop.Add("End", null);
-            Loop.Add("EndMax", null);
-
-            // File export loop information
-            ExportLoop.Add("Enabled", null);
-            ExportLoop.Add("StartMin", null);
-            ExportLoop.Add("Start", null);
-            ExportLoop.Add("StartMax", null);
-            ExportLoop.Add("EndMin", null);
-            ExportLoop.Add("End", null);
-            ExportLoop.Add("EndMax", null);
-
-            // File export information
-            ExportInfo.Add("Extension", null);
-            ExportInfo.Add("ExtensionNoDot", null);
-
-            // Advanced file export information
-            AdvancedExportInfo.Add("Apply", false);
-            AdvancedExportInfo.Add("ADX_encrypt", false);
-            AdvancedExportInfo.Add("ADX_type", null);
-            AdvancedExportInfo.Add("ADX_keystring_use", false);
-            AdvancedExportInfo.Add("ADX_keystring", null);
-            AdvancedExportInfo.Add("ADX_keycode_use", false);
-            AdvancedExportInfo.Add("ADX_keycode", null);
-            AdvancedExportInfo.Add("ADX_filter_use", false);
-            AdvancedExportInfo.Add("ADX_filter", null);
-            AdvancedExportInfo.Add("ADX_version_use", false);
-            AdvancedExportInfo.Add("ADX_version", null);
-            AdvancedExportInfo.Add("BRSTM_audioFormat", null);
-            AdvancedExportInfo.Add("HCA_audioRadioButtonSelector", null);
-            AdvancedExportInfo.Add("HCA_audioQuality", null);
-            AdvancedExportInfo.Add("HCA_audioBitrate", null);
-            AdvancedExportInfo.Add("HCA_limitBitrate", null);
-            */
         }
     }
 }

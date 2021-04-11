@@ -227,7 +227,7 @@ namespace VGAudio.Win32
 
                 txt_metadata.Visible = false;
 
-                FormMethods.FileLock(null);
+                OpenedFile.Lock(false);
                 if (FeatureConfig["OpenCloseWinformsButton"])
                 {
                     btn_open.Text = "Open File";
@@ -297,7 +297,7 @@ namespace VGAudio.Win32
             UpdateStatus("Converting the file...");
 
             // If the file was missing or inaccessible, but suddenly is, relock it again
-            FormMethods.FileLock(OpenedFile.Info["Path"]);
+            OpenedFile.Lock(true);
 
             if (OpenedFile.ExportInfo["ExtensionNoDot"] == null)
             {
@@ -403,7 +403,7 @@ namespace VGAudio.Win32
                                 WindowStyle = ProcessWindowStyle.Hidden
                             };
 
-                            FormMethods.FileLock(null); // Unlock the file
+                            OpenedFile.Lock(false); // Unlock the file
                             var proc = Process.Start(procInfo); // Process the file
                             
                             string line = "";
@@ -415,7 +415,7 @@ namespace VGAudio.Win32
                                 new[] { "\r\n", "\r", "\n" },
                                 StringSplitOptions.None
                             );
-                            FormMethods.FileLock(OpenedFile.Info["Path"]); // Relock the file
+                            OpenedFile.Lock(true); // Relock the file
                             UpdateStatus();
 
                             if (proc.ExitCode == 0)
@@ -446,7 +446,7 @@ namespace VGAudio.Win32
                         }
                         catch (Exception ex)
                         {
-                            FormMethods.FileLock(OpenedFile.Info["Path"]); // Relock the file after an unsuccessful attempt to convert it
+                            OpenedFile.Lock(true); // Relock the file after an unsuccessful attempt to convert it
                             UpdateStatus();
                             MessageBox.Show(ex.Message, "Fatal Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
@@ -608,16 +608,8 @@ namespace VGAudio.Win32
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (FeatureConfig["CloseButtonClosesFile"])
-            {
-                if (OpenedFile.Initialized)
-                {
-                    e.Cancel = true;
-                    CloseFile();
-                }
-            }
-            // Unlock the file before exiting
-            FormMethods.FileLock(null);
+            if (FeatureConfig["CloseButtonClosesFile"] && OpenedFile.Initialized) e.Cancel = true;
+            CloseFile();
         }
     }
 }
