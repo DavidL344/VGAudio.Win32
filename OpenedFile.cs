@@ -138,21 +138,6 @@ namespace VGAudio.Win32
             return true;
         }
 
-        public bool UpdateExportInformation(string key, string value)
-        {
-            ExportInfo[key] = value;
-
-            switch (key)
-            {
-                case "Extension":
-                    ExportInfo["ExtensionNoDot"] = ExportInfo[key].Substring(1);
-                    break;
-                default:
-                    break;
-            }
-            return true;
-        }
-
         public bool ParseMetadata(string metadata)
         {
             // Parse the file information - if it fails, close the file
@@ -465,7 +450,6 @@ namespace VGAudio.Win32
                 string title = FormMethods.GetAppInfo("name") + " (" + FormMethods.GetAppInfo("version") + ")";
                 if (batchFormat)
                 {
-                    if (warnings == null) warnings = " (none)";
                     arguments = String.Format(":: {0}\r\n:: Original file: {1}\r\n:: The converted file: {2}{3}\r\n\r\n@echo off\r\nchcp {4}>nul\r\nVGAudioCli.exe {5}\r\npause>nul", title, Info["Path"], exportLocation, warnings, chcp, arguments);
                 }
                 else
