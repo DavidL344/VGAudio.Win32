@@ -48,7 +48,7 @@ namespace VGAudio.Win32
                     {
                         MessageBox.Show("The selected file is already loaded.", FormMethods.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
-                    return true;
+                    return false;
                 }
                 else
                 {
