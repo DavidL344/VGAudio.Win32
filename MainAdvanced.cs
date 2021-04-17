@@ -22,6 +22,7 @@ namespace VGAudio.Win32
             InitializeComponent();
             this.exportExtension = OpenedFile.ExportInfo["ExtensionNoDot"].ToLower();
             this.OpenedFile = OpenedFile;
+            if (!OpenedFile.AdvancedExportInfo.ContainsKey("Apply")) Reset();
 
             // Add samples from 44100 Hz sample CRI HCA file
             BitrateValue.Add("Highest", 353);
@@ -45,19 +46,19 @@ namespace VGAudio.Win32
 
         private void UpdateValuesFromFields()
         {
-            chk_advanced.Checked = (bool)Main.AdvancedSettings["Apply"];
+            chk_advanced.Checked = (bool)OpenedFile.AdvancedExportInfo["Apply"];
 
             // Update values for ADX
-            var adx_encrypt = (bool)Main.AdvancedSettings["ADX_encrypt"];
-            var adx_type = (string)Main.AdvancedSettings["ADX_type"];
-            var adx_keystring_use = (bool)Main.AdvancedSettings["ADX_keystring_use"];
-            var adx_keystring = (string)Main.AdvancedSettings["ADX_keystring"];
-            var adx_keycode_use = (bool)Main.AdvancedSettings["ADX_keycode_use"];
-            var adx_keycode = (string)Main.AdvancedSettings["ADX_keycode"];
-            var adx_filter_use = (bool)Main.AdvancedSettings["ADX_filter_use"];
-            var adx_filter = (int?)Main.AdvancedSettings["ADX_filter"];
-            var adx_version_use = (bool)Main.AdvancedSettings["ADX_version_use"];
-            var adx_version = (int?)Main.AdvancedSettings["ADX_version"];
+            var adx_encrypt = (bool)OpenedFile.AdvancedExportInfo["ADX_encrypt"];
+            var adx_type = (string)OpenedFile.AdvancedExportInfo["ADX_type"];
+            var adx_keystring_use = (bool)OpenedFile.AdvancedExportInfo["ADX_keystring_use"];
+            var adx_keystring = (string)OpenedFile.AdvancedExportInfo["ADX_keystring"];
+            var adx_keycode_use = (bool)OpenedFile.AdvancedExportInfo["ADX_keycode_use"];
+            var adx_keycode = (string)OpenedFile.AdvancedExportInfo["ADX_keycode"];
+            var adx_filter_use = (bool)OpenedFile.AdvancedExportInfo["ADX_filter_use"];
+            var adx_filter = (int?)OpenedFile.AdvancedExportInfo["ADX_filter"];
+            var adx_version_use = (bool)OpenedFile.AdvancedExportInfo["ADX_version_use"];
+            var adx_version = (int?)OpenedFile.AdvancedExportInfo["ADX_version"];
 
             if (adx_type != null)
             {
@@ -81,7 +82,7 @@ namespace VGAudio.Win32
             chk_adx_encrypt_version.Checked = adx_version_use;
 
             // Update values for BRSTM
-            var brstm_audioFormat = (string)Main.AdvancedSettings["BRSTM_audioFormat"];
+            var brstm_audioFormat = (string)OpenedFile.AdvancedExportInfo["BRSTM_audioFormat"];
 
             if (brstm_audioFormat != null)
             {
@@ -94,13 +95,13 @@ namespace VGAudio.Win32
             }
 
             // Update values for HCA
-            var hca_audioQuality = (string)Main.AdvancedSettings["HCA_audioQuality"];
+            var hca_audioQuality = (string)OpenedFile.AdvancedExportInfo["HCA_audioQuality"];
 
             decimal hca_audioBitrate;
-            if (Main.AdvancedSettings["HCA_audioBitrate"] != null)
+            if (OpenedFile.AdvancedExportInfo["HCA_audioBitrate"] != null)
             {
                 // Check if the bitrate saved in the dictionary is valid
-                hca_audioBitrate = (decimal)Main.AdvancedSettings["HCA_audioBitrate"];
+                hca_audioBitrate = (decimal)OpenedFile.AdvancedExportInfo["HCA_audioBitrate"];
                 if (hca_audioBitrate < num_hca_audioBitrate.Minimum || hca_audioBitrate > num_hca_audioBitrate.Maximum)
                 {
                     // Set the default bitrate value from the form
@@ -113,9 +114,9 @@ namespace VGAudio.Win32
             }
 
             bool hca_limitBitrate;
-            if (Main.AdvancedSettings["HCA_limitBitrate"] != null)
+            if (OpenedFile.AdvancedExportInfo["HCA_limitBitrate"] != null)
             {
-                hca_limitBitrate = (bool)Main.AdvancedSettings["HCA_limitBitrate"];
+                hca_limitBitrate = (bool)OpenedFile.AdvancedExportInfo["HCA_limitBitrate"];
             }
             else
             {
@@ -135,7 +136,7 @@ namespace VGAudio.Win32
             num_hca_audioBitrate.Value = hca_audioBitrate;
             chk_hca_limitBitrate.Checked = hca_limitBitrate;
 
-            switch (Main.AdvancedSettings["HCA_audioRadioButtonSelector"])
+            switch (OpenedFile.AdvancedExportInfo["HCA_audioRadioButtonSelector"])
             {
                 case "bitrate":
                     rb_hca_audioBitrate.Checked = true;
@@ -151,8 +152,8 @@ namespace VGAudio.Win32
 
         private void AdvancedToggle(object sender = null, EventArgs e = null)
         {
-            Main.AdvancedSettings["Apply"] = chk_advanced.Checked;
-            if ((bool)Main.AdvancedSettings["Apply"])
+            OpenedFile.AdvancedExportInfo["Apply"] = chk_advanced.Checked;
+            if ((bool)OpenedFile.AdvancedExportInfo["Apply"])
             {
                 pnl_adx.Visible = false;
                 pnl_brstm.Visible = false;
@@ -171,7 +172,7 @@ namespace VGAudio.Win32
                         pnl_hca.Visible = true;
                         break;
                     default:
-                        Main.AdvancedSettings["Apply"] = false;
+                        OpenedFile.AdvancedExportInfo["Apply"] = false;
                         break;
                 }
             }
@@ -181,7 +182,7 @@ namespace VGAudio.Win32
                 pnl_brstm.Visible = false;
                 pnl_hca.Visible = false;
             }
-            lbl_options.Visible = (bool)Main.AdvancedSettings["Apply"];
+            lbl_options.Visible = (bool)OpenedFile.AdvancedExportInfo["Apply"];
         }
 
         private void AdxCheckboxToggle(object sender = null, EventArgs e = null)
@@ -260,61 +261,61 @@ namespace VGAudio.Win32
             switch (exportExtension)
             {
                 case "adx":
-                    Main.AdvancedSettings["ADX_encrypt"] = chk_adx_encrypt.Checked;
-                    Main.AdvancedSettings["ADX_type"] = lst_adx_type.SelectedItem.ToString();
+                    OpenedFile.AdvancedExportInfo["ADX_encrypt"] = chk_adx_encrypt.Checked;
+                    OpenedFile.AdvancedExportInfo["ADX_type"] = lst_adx_type.SelectedItem.ToString();
 
-                    Main.AdvancedSettings["ADX_keystring_use"] = chk_adx_encrypt_keystring.Checked;
-                    Main.AdvancedSettings["ADX_keystring"] = txt_adx_encrypt_keystring.Text;
+                    OpenedFile.AdvancedExportInfo["ADX_keystring_use"] = chk_adx_encrypt_keystring.Checked;
+                    OpenedFile.AdvancedExportInfo["ADX_keystring"] = txt_adx_encrypt_keystring.Text;
 
-                    Main.AdvancedSettings["ADX_keycode_use"] = chk_adx_encrypt_keycode.Checked;
-                    Main.AdvancedSettings["ADX_keycode"] = txt_adx_encrypt_keycode.Text;
+                    OpenedFile.AdvancedExportInfo["ADX_keycode_use"] = chk_adx_encrypt_keycode.Checked;
+                    OpenedFile.AdvancedExportInfo["ADX_keycode"] = txt_adx_encrypt_keycode.Text;
 
-                    Main.AdvancedSettings["ADX_filter_use"] = chk_adx_encrypt_filter.Checked;
-                    Main.AdvancedSettings["ADX_filter"] = (int?)num_adx_encrypt_filter.Value;
+                    OpenedFile.AdvancedExportInfo["ADX_filter_use"] = chk_adx_encrypt_filter.Checked;
+                    OpenedFile.AdvancedExportInfo["ADX_filter"] = (int?)num_adx_encrypt_filter.Value;
 
-                    Main.AdvancedSettings["ADX_version_use"] = chk_adx_encrypt_version.Checked;
-                    Main.AdvancedSettings["ADX_version"] = (int?)num_adx_encrypt_version.Value;
+                    OpenedFile.AdvancedExportInfo["ADX_version_use"] = chk_adx_encrypt_version.Checked;
+                    OpenedFile.AdvancedExportInfo["ADX_version"] = (int?)num_adx_encrypt_version.Value;
                     break;
                 case "brstm":
-                    Main.AdvancedSettings["BRSTM_audioFormat"] = lst_brstm_audioFormat.SelectedItem.ToString();
+                    OpenedFile.AdvancedExportInfo["BRSTM_audioFormat"] = lst_brstm_audioFormat.SelectedItem.ToString();
                     break;
                 case "hca":
                     if (rb_hca_audioQuality.Checked)
                     {
-                        Main.AdvancedSettings["HCA_audioQuality"] = lst_hca_audioQuality.SelectedItem.ToString();
+                        OpenedFile.AdvancedExportInfo["HCA_audioQuality"] = lst_hca_audioQuality.SelectedItem.ToString();
                     }
-                    if (rb_hca_audioBitrate.Checked) Main.AdvancedSettings["HCA_audioBitrate"] = num_hca_audioBitrate.Value;
-                    Main.AdvancedSettings["HCA_limitBitrate"] = chk_hca_limitBitrate.Checked;
+                    if (rb_hca_audioBitrate.Checked) OpenedFile.AdvancedExportInfo["HCA_audioBitrate"] = num_hca_audioBitrate.Value;
+                    OpenedFile.AdvancedExportInfo["HCA_limitBitrate"] = chk_hca_limitBitrate.Checked;
 
-                    if (rb_hca_audioBitrate.Checked) Main.AdvancedSettings["HCA_audioRadioButtonSelector"] = "bitrate";
-                    if (rb_hca_audioQuality.Checked) Main.AdvancedSettings["HCA_audioRadioButtonSelector"] = "quality";
+                    if (rb_hca_audioBitrate.Checked) OpenedFile.AdvancedExportInfo["HCA_audioRadioButtonSelector"] = "bitrate";
+                    if (rb_hca_audioQuality.Checked) OpenedFile.AdvancedExportInfo["HCA_audioRadioButtonSelector"] = "quality";
                     break;
                 default:
-                    Main.AdvancedSettings["Apply"] = false;
+                    OpenedFile.AdvancedExportInfo["Apply"] = false;
                     return;
             }
-            Main.AdvancedSettings["Apply"] = chk_advanced.Checked;
+            OpenedFile.AdvancedExportInfo["Apply"] = chk_advanced.Checked;
         }
 
-        public static void Reset()
+        public void Reset()
         {
-            Main.AdvancedSettings.Clear();
-            Main.AdvancedSettings.Add("Apply", false);
-            Main.AdvancedSettings.Add("ADX_encrypt", false);
-            Main.AdvancedSettings.Add("ADX_type", null);
-            Main.AdvancedSettings.Add("ADX_keystring_use", false);
-            Main.AdvancedSettings.Add("ADX_keystring", null);
-            Main.AdvancedSettings.Add("ADX_keycode_use", false);
-            Main.AdvancedSettings.Add("ADX_keycode", null);
-            Main.AdvancedSettings.Add("ADX_filter_use", false);
-            Main.AdvancedSettings.Add("ADX_filter", null);
-            Main.AdvancedSettings.Add("ADX_version_use", false);
-            Main.AdvancedSettings.Add("ADX_version", null);
-            Main.AdvancedSettings.Add("BRSTM_audioFormat", null);
-            Main.AdvancedSettings.Add("HCA_audioRadioButtonSelector", null);
-            Main.AdvancedSettings.Add("HCA_audioQuality", null);
-            Main.AdvancedSettings.Add("HCA_audioBitrate", null);
-            Main.AdvancedSettings.Add("HCA_limitBitrate", null);
+            OpenedFile.AdvancedExportInfo.Clear();
+            OpenedFile.AdvancedExportInfo.Add("Apply", false);
+            OpenedFile.AdvancedExportInfo.Add("ADX_encrypt", false);
+            OpenedFile.AdvancedExportInfo.Add("ADX_type", null);
+            OpenedFile.AdvancedExportInfo.Add("ADX_keystring_use", false);
+            OpenedFile.AdvancedExportInfo.Add("ADX_keystring", null);
+            OpenedFile.AdvancedExportInfo.Add("ADX_keycode_use", false);
+            OpenedFile.AdvancedExportInfo.Add("ADX_keycode", null);
+            OpenedFile.AdvancedExportInfo.Add("ADX_filter_use", false);
+            OpenedFile.AdvancedExportInfo.Add("ADX_filter", null);
+            OpenedFile.AdvancedExportInfo.Add("ADX_version_use", false);
+            OpenedFile.AdvancedExportInfo.Add("ADX_version", null);
+            OpenedFile.AdvancedExportInfo.Add("BRSTM_audioFormat", null);
+            OpenedFile.AdvancedExportInfo.Add("HCA_audioRadioButtonSelector", null);
+            OpenedFile.AdvancedExportInfo.Add("HCA_audioQuality", null);
+            OpenedFile.AdvancedExportInfo.Add("HCA_audioBitrate", null);
+            OpenedFile.AdvancedExportInfo.Add("HCA_limitBitrate", null);
         }
     }
 }

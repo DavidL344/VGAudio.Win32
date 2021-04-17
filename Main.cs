@@ -19,7 +19,6 @@ namespace VGAudio.Win32
         public static string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
         private OpenedFile OpenedFile = new OpenedFile();
         public static Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
-        public static Dictionary<string, object> AdvancedSettings = new Dictionary<string, object>();
         public static readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public static string extsFilter;
 
@@ -109,7 +108,6 @@ namespace VGAudio.Win32
             if (FeatureConfig["ResetExportOptionsOnNewFile"])
             {
                 lst_exportExtensions.SelectedIndex = default;
-                MainAdvanced.Reset();
             }
         }
 
@@ -262,7 +260,6 @@ namespace VGAudio.Win32
                 Text = String.Format("Advanced options | {0}", Text)
             };
             mainAdvanced.ShowDialog();
-            OpenedFile.LoadAdvancedExportInfo();
         }
 
         private void LoopTheFile(object sender = null, EventArgs e = null)
@@ -568,9 +565,6 @@ namespace VGAudio.Win32
             MinimumSize = Size;
             MaximumSize = Size;
             MaximizeBox = false;
-
-            // Init the advanced settings dictionary
-            MainAdvanced.Reset();
 
             // Create the supported extensions to a filter
             extsFilter = FormMethods.CreateExtensionFilter(extsArray);

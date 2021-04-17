@@ -15,7 +15,6 @@ namespace VGAudio.Win32
     static class FormMethods
     {
         private static readonly Main AppForm = new Main();
-        private static FileStream FileStreamLock;
         public static string AppName = AppForm.Text;
         public static bool VerifyIntegrity(string inputFile = null)
         {
@@ -133,41 +132,6 @@ namespace VGAudio.Win32
                 EnableMenuItem(GetSystemMenu(form.Handle, false), 0xF060, 1);
             }
         }
-        
-        public static bool FileLock(string file = null)
-        {
-            if (Main.FeatureConfig.ContainsKey("LockOpenedFile") && Main.FeatureConfig["LockOpenedFile"])
-            {
-                if (file != null)
-                {
-                    if (File.Exists(file))
-                    {
-                        if (!IsFileLocked(file))
-                        {
-                            if (FileStreamLock != null)
-                            {
-                                FileLock(null);
-                            }
-
-                            // https://stackoverflow.com/a/3279183
-                            FileStreamLock = File.Open(file, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
-                        }
-                        return true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    // https://stackoverflow.com/a/872328
-                    FileStreamLock?.Close();
-                    return true;
-                }
-            }
-            return false;
-        }
 
         // https://stackoverflow.com/a/937558
         public static bool IsFileLocked(string file)
@@ -201,125 +165,6 @@ namespace VGAudio.Win32
                 aboutBox.ShowDialog();
                 e.SuppressKeyPress = true; // Stops other controls on the form receiving event.
             }
-        }
-
-        public static string GenerateConversionParams(string input, string output, bool loopChecked, decimal loopStart, decimal loopEnd)
-        {
-            string arguments = String.Format("-i {0} -o {1}", input, output);
-            string exportExtension = output.Split('.').Last().Trim('"').ToLower();
-
-            if (loopChecked)
-            {
-                if (loopStart > loopEnd)
-                {
-                    DialogResult dialogResult = MessageBox.Show("Loop information cannot be saved: The Loop Start value cannot exceed the Loop End value.\r\nContinue the export without the loop information?", AppForm.Text, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
-                    if (dialogResult != DialogResult.Yes) return null;
-                    arguments += " --no-loop";
-                }
-                else
-                {
-                    arguments += String.Format(" -l {0}-{1}", loopStart, loopEnd);
-                }
-            }
-            else
-            {
-                arguments += " --no-loop";
-            }
-
-            if ((bool)Main.AdvancedSettings["Apply"])
-            {
-                switch (exportExtension)
-                {
-                    case "adx":
-                        if ((bool)Main.AdvancedSettings["ADX_encrypt"])
-                        {
-                            switch (Main.AdvancedSettings["ADX_type"])
-                            {
-                                case "Linear":
-                                case "Fixed":
-                                    arguments += " --adxtype " + Main.AdvancedSettings["ADX_type"];
-                                    break;
-                                case "Exponential":
-                                    arguments += " --adxtype Exp";
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            if ((bool)Main.AdvancedSettings["ADX_keystring_use"])
-                            {
-                                if (Main.AdvancedSettings.TryGetValue("ADX_keystring", out object keystring))
-                                {
-                                    arguments += " --keystring " + keystring;
-                                }
-                            }
-
-                            if ((bool)Main.AdvancedSettings["ADX_keycode_use"])
-                            {
-                                if (Main.AdvancedSettings.TryGetValue("ADX_keycode", out object keycode))
-                                {
-                                    arguments += " --keycode " + keycode;
-                                }
-                            }
-
-                            switch (Main.AdvancedSettings["ADX_filter"])
-                            {
-                                case 0:
-                                case 1:
-                                case 2:
-                                case 3:
-                                    arguments += " --filter " + Main.AdvancedSettings["ADX_filter"];
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            switch (Main.AdvancedSettings["ADX_version"])
-                            {
-                                case 3: // Default
-                                case 4:
-                                    arguments += " --version " + Main.AdvancedSettings["ADX_version"];
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        break;
-                    case "brstm":
-                        switch (Main.AdvancedSettings["BRSTM_audioFormat"])
-                        {
-                            case "DSP-ADPCM":
-                                // If not specified, the file is converted to DSP-ADPCM audio format
-                                break;
-                            case "16-bit PCM":
-                                arguments += " -f pcm16";
-                                break;
-                            case "8-bit PCM":
-                                arguments += " -f pcm8";
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    case "hca":
-                        switch (Main.AdvancedSettings["HCA_audioRadioButtonSelector"])
-                        {
-                            case "quality":
-                                arguments += " --hcaquality " + Main.AdvancedSettings["HCA_audioQuality"];
-                                break;
-                            case "bitrate":
-                                arguments += " --bitrate " + Main.AdvancedSettings["HCA_audioBitrate"];
-                                break;
-                            default:
-                                break;
-                        }
-                        if ((bool)Main.AdvancedSettings["HCA_limitBitrate"]) arguments += " --limit-bitrate";
-                        break;
-                    default:
-                        break;
-                }
-            }
-            return arguments;
         }
 
         public static string CreateExtensionFilter(string[] extensionArray)
