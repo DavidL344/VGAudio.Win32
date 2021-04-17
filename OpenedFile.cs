@@ -29,13 +29,13 @@ namespace VGAudio.Win32
         public bool Open(string filePath = null)
         {
             if (filePath == null) return false;
-            if (!File.Exists(filePath)) throw new Exception("The selected file no longer exists!");
+            if (!File.Exists(filePath)) throw new FileNotFoundException("The selected file no longer exists!");
 
             if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
             {
-                throw new Exception("Batch conversions are not supported!");
+                throw new FileLoadException("Batch conversions are not supported!");
             }
-            if (!IsSupported(Path.GetExtension(filePath).Substring(1))) throw new Exception("The selected file is not supported!");
+            if (!IsSupported(Path.GetExtension(filePath).Substring(1))) throw new FormatException("The selected file is not supported!");
 
             // The file path has to be explicitly stated here - the entry Info["Path"] is defined upon successfully loading the file
             // If the program were to load the new Info["Path"] to memory, it would mismatch the currently opened file in the app
@@ -52,8 +52,7 @@ namespace VGAudio.Win32
                 }
                 else
                 {
-                    MessageBox.Show("The selected file is already in use by another process.", FormMethods.AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return false;
+                    throw new IOException("The selected file is already in use by another process.");
                 }
             }
             if (Initialized) Close(Main.FeatureConfig["ResetExportOptionsOnNewFile"]);
@@ -100,7 +99,7 @@ namespace VGAudio.Win32
 
             // Parse file metadata and loop information
             string metadata = LoadCommand("-m " + Info["PathEscaped"]);
-            if (metadata == null) throw new Exception("Unable to read the file!");
+            if (metadata == null) throw new InvalidDataException("Unable to read the file!");
             ParseMetadata(metadata);
 
             // File export information
@@ -134,7 +133,7 @@ namespace VGAudio.Win32
             }
             else
             {
-                throw new Exception("The selected file is inaccessible!");
+                throw new InvalidDataException("The selected file is inaccessible!");
             }
             return true;
         }

@@ -157,7 +157,7 @@ namespace VGAudio.Win32
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                CloseFile();
+                if (e is InvalidDataException) CloseFile();
                 return false;
             }
 
