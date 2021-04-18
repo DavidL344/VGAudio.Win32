@@ -367,7 +367,7 @@ namespace VGAudio.Win32
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                if (FormMethods.VerifyIntegrity(OpenedFile.Info["Path"]))
+                if (FormMethods.VerifyIntegrity() && File.Exists(OpenedFile.Info["Path"]))
                 {
                     // Check if the export file extension is the correct one
                     if (Path.GetExtension(saveFileDialog.FileName).ToLower() != OpenedFile.ExportInfo["Extension"].ToLower())

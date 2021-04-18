@@ -14,26 +14,9 @@ namespace VGAudio.Win32
 {
     static class FormMethods
     {
-        private static readonly Main AppForm = new Main();
-        public static string AppName = AppForm.Text;
-        public static bool VerifyIntegrity(string inputFile = null)
+        public static string AppName = GetAppInfo("name");
+        public static bool VerifyIntegrity()
         {
-            if (inputFile != null)
-            {
-                // Try to unlock the file to check if it exists
-                if (!File.Exists(inputFile))
-                {
-                    MessageBox.Show("The selected file no longer exists!", "Error | " + AppForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    // Closing the file throws an error, because OpenedFileRemake is a part of another class and is called from here
-                    // Leaving CloseFile() as a private method for now
-                    // AppForm.CloseFile();
-
-                    // Status is overridden by another call of UpdateStatus directly in Main
-                    // AppForm.UpdateStatus("Force closed the file: " + inputFile);
-                    return false;
-                }
-            }
-
             if (!File.Exists(Main.VGAudioCli))
             {
                 try
@@ -42,8 +25,7 @@ namespace VGAudio.Win32
                 }
                 catch (Exception e)
                 {
-                    MessageBox.Show("Unable to verify integrity: " + e.Message, "Error | " + AppForm.Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    AppForm.UpdateStatus();
+                    MessageBox.Show("Unable to verify integrity: " + e.Message, "Error | " + AppName, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
@@ -131,29 +113,6 @@ namespace VGAudio.Win32
                 // The 1 parameter means to gray out. 0xF060 is SC_CLOSE.
                 EnableMenuItem(GetSystemMenu(form.Handle, false), 0xF060, 1);
             }
-        }
-
-        // https://stackoverflow.com/a/937558
-        public static bool IsFileLocked(string file)
-        {
-            try
-            {
-                using (FileStream stream = File.Open(file, FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    stream.Close();
-                }
-            }
-            catch (IOException)
-            {
-                // The file is unavailable because it is:
-                // - still being written to
-                // - being processed by another thread
-                // - does not exist (has already been processed)
-                return true;
-            }
-
-            // The file is not locked
-            return false;
         }
 
         // https://stackoverflow.com/a/5048766

@@ -50,7 +50,7 @@ namespace VGAudio.Win32
 
         private string GetCliProperties()
         {
-            if (FormMethods.VerifyIntegrity(Main.VGAudioCli))
+            if (FormMethods.VerifyIntegrity())
             {
                 // https://stackoverflow.com/a/11350038
                 var cliProperties = FileVersionInfo.GetVersionInfo(Main.VGAudioCli);
