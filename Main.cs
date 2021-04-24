@@ -222,6 +222,7 @@ namespace VGAudio.Win32
                 num_loopEnd.Visible = false;
 
                 txt_metadata.Visible = false;
+                btn_advancedOptions.Visible = false;
 
                 OpenedFile.Lock(false);
                 if (FeatureConfig["OpenCloseWinformsButton"])
@@ -235,7 +236,6 @@ namespace VGAudio.Win32
             chk_loop.Visible = loaded;
             lbl_exportAs.Visible = loaded;
             lst_exportExtensions.Visible = loaded;
-            btn_advancedOptions.Visible = false;
             lbl_dnd.Visible = !loaded;
         }
 
