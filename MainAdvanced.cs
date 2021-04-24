@@ -246,7 +246,8 @@ namespace VGAudio.Win32
             {
                 MessageBox.Show("Sample rate calculation failed: " + OpenedFile.Metadata["SampleRate"]);
             }
-            
+
+            if (Main.FeatureConfig["SyncBitrateTabs"]) num_hca_audioBitrate.Value = approxValue * 1000;
             lbl_hca_conversion.Text = String.Format("= approx. {0} Kbps", approxValue);
         }
 

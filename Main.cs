@@ -599,6 +599,9 @@ namespace VGAudio.Win32
 
             // Show the time elapsed after finishing the conversion
             FeatureConfig.Add("ShowTimeElapsed", true);
+
+            // Sync the audio bitrate between tabs in advanced settings
+            FeatureConfig.Add("SyncBitrateTabs", true);
         }
 
         private void TestFeature()
