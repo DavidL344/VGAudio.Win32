@@ -133,6 +133,7 @@ namespace VGAudio.Win32
         private bool FileDialogProcess(string filePath)
         {
             bool noPreviousFile; // Saves the value of whether there was previously a file opened or not
+            UpdateStatus("Reading the file...");
 
             if (!OpenedFile.Initialized)
             {
@@ -150,14 +151,19 @@ namespace VGAudio.Win32
                 // If the app doesn't open the new file but still has one in memory, keep it
                 if (!OpenedFile.Open(filePath) && OpenedFile.Initialized)
                 {
-                    UpdateStatus(); // TODO: necessary?
+                    UpdateStatus();
+                    if (FeatureConfig.ContainsKey("LockOpenedFile") && FeatureConfig["LockOpenedFile"])
+                    {
+                        MessageBox.Show("The selected file is already loaded.", FormMethods.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
                     return true;
                 }
             }
             catch (Exception e)
             {
+                UpdateStatus();
                 MessageBox.Show(e.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                if (e is InvalidDataException) CloseFile();
+                if (e is EndOfStreamException) CloseFile();
                 return false;
             }
 
@@ -198,14 +204,6 @@ namespace VGAudio.Win32
 
         private void FileLoaded(bool loaded = true)
         {
-            btn_export.Visible = loaded;
-            btn_dump.Visible = loaded;
-            chk_loop.Visible = loaded;
-            lbl_exportAs.Visible = loaded;
-            lst_exportExtensions.Visible = loaded;
-            btn_advancedOptions.Visible = false;
-            lbl_dnd.Visible = !loaded;
-
             if (loaded)
             {
                 LoopTheFile();
@@ -231,6 +229,14 @@ namespace VGAudio.Win32
                     btn_open.Text = "Open File";
                 }
             }
+
+            btn_export.Visible = loaded;
+            btn_dump.Visible = loaded;
+            chk_loop.Visible = loaded;
+            lbl_exportAs.Visible = loaded;
+            lst_exportExtensions.Visible = loaded;
+            btn_advancedOptions.Visible = false;
+            lbl_dnd.Visible = !loaded;
         }
 
         private void ExportExtensionUpdater(object sender = null, EventArgs e = null)

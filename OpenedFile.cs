@@ -33,9 +33,9 @@ namespace VGAudio.Win32
 
             if (File.GetAttributes(filePath).HasFlag(FileAttributes.Directory))
             {
-                throw new FileLoadException("Batch conversions are not supported!");
+                throw new IOException("Batch conversions are not supported!");
             }
-            if (!IsSupported(Path.GetExtension(filePath).Substring(1))) throw new FormatException("The selected file is not supported!");
+            if (!IsSupported(Path.GetExtension(filePath).Substring(1))) throw new IOException("The selected file is not supported!");
 
             // The file path has to be explicitly stated here - the entry Info["Path"] is defined upon successfully loading the file
             // If the program were to load the new Info["Path"] to memory, it would mismatch the currently opened file in the app
@@ -44,10 +44,6 @@ namespace VGAudio.Win32
                 // Check if the locked file is in use by the app
                 if (Info.ContainsKey("Path") && filePath == Info["Path"])
                 {
-                    if (Main.FeatureConfig.ContainsKey("LockOpenedFile") && Main.FeatureConfig["LockOpenedFile"])
-                    {
-                        MessageBox.Show("The selected file is already loaded.", FormMethods.AppName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
                     return false;
                 }
                 else
@@ -55,11 +51,16 @@ namespace VGAudio.Win32
                     throw new IOException("The selected file is already in use by another process.");
                 }
             }
+
+            // Check if the file is valid
+            string filePathEscaped = String.Format("\"{0}\"", filePath);
+            string metadata = LoadCommand("-m " + filePathEscaped);
+            if (metadata == null) throw new IOException("Unable to read the file!");
             if (Initialized) Close(Main.FeatureConfig["ResetExportOptionsOnNewFile"]);
 
             // File path information
             Info["Path"] = filePath;
-            Info["PathEscaped"] = String.Format("\"{0}\"", filePath);
+            Info["PathEscaped"] = filePathEscaped;
 
             // File extension information
             Info["Extension"] = Path.GetExtension(filePath);
@@ -98,8 +99,6 @@ namespace VGAudio.Win32
             ExportLoop["EndMax"] = null;
 
             // Parse file metadata and loop information
-            string metadata = LoadCommand("-m " + Info["PathEscaped"]);
-            if (metadata == null) throw new InvalidDataException("Unable to read the file!");
             ParseMetadata(metadata);
 
             // File export information
@@ -133,7 +132,7 @@ namespace VGAudio.Win32
             }
             else
             {
-                throw new InvalidDataException("The selected file is inaccessible!");
+                throw new EndOfStreamException("The selected file is inaccessible!");
             }
             return true;
         }
@@ -280,13 +279,31 @@ namespace VGAudio.Win32
             return Main.extsArray.Contains(fileExtension.ToLower());
         }
 
-        public string LoadCommand(string arguments = null)
+        public string LoadCommand(string arguments = null, string workingDirectory = null)
         {
             if (!FormMethods.VerifyIntegrity()) return null;
+
+            // If there's an opened file, use its location as a working directory
+            if (workingDirectory == null)
+            {
+                if (Info.ContainsKey("Path"))
+                {
+                    workingDirectory = Path.GetDirectoryName(Info["Path"]);
+                }
+                else
+                {
+                    workingDirectory = Path.GetDirectoryName(Main.VGAudioCli);
+                }
+            }
+            else
+            {
+                if (!Directory.Exists(workingDirectory)) workingDirectory = Path.GetDirectoryName(Main.VGAudioCli);
+            }
+
             ProcessStartInfo procInfo = new ProcessStartInfo
             {
                 FileName = Main.VGAudioCli,
-                WorkingDirectory = Path.GetDirectoryName(Info["Path"]),
+                WorkingDirectory = workingDirectory,
                 Arguments = arguments,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
