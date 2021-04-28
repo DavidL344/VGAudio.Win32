@@ -162,8 +162,25 @@ namespace VGAudio.Win32
             catch (Exception e)
             {
                 UpdateStatus();
-                MessageBox.Show(e.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                if (e is EndOfStreamException) CloseFile();
+                if (e is EndOfStreamException)
+                {
+                    MessageBox.Show(e.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    CloseFile();
+                }
+                else
+                {
+                    // Because the DragDrop event isn't finished, the app the file is dragged from hangs
+                    // This might prevent the user from unlocking the file (when it is dragged from a media player, for example)
+                    DialogResult dialogResult = MessageBox.Show(e.Message, Text, MessageBoxButtons.RetryCancel, MessageBoxIcon.Error);
+                    switch (dialogResult)
+                    {
+                        case DialogResult.Retry:
+                            return FileDialogProcess(filePath);
+                        case DialogResult.Cancel:
+                        default:
+                            break;
+                    }
+                }
                 return false;
             }
 
