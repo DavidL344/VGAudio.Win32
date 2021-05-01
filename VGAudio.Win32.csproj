@@ -49,44 +49,44 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AboutBox.cs">
+    <Compile Include="src\main\about\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="AboutBox.Designer.cs">
+    <Compile Include="src\main\about\AboutBox.Designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormMethods.cs" />
-    <Compile Include="Main.cs">
+    <Compile Include="src\common\FormMethods.cs" />
+    <Compile Include="src\main\Main.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Main.Designer.cs">
+    <Compile Include="src\main\Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainAdvanced.cs">
+    <Compile Include="src\main\advanced\MainAdvanced.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainAdvanced.Designer.cs">
+    <Compile Include="src\main\advanced\MainAdvanced.Designer.cs">
       <DependentUpon>MainAdvanced.cs</DependentUpon>
     </Compile>
-    <Compile Include="MainDump.cs">
+    <Compile Include="src\main\dump\MainDump.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainDump.Designer.cs">
+    <Compile Include="src\main\dump\MainDump.Designer.cs">
       <DependentUpon>MainDump.cs</DependentUpon>
     </Compile>
-    <Compile Include="OpenedFile.cs" />
+    <Compile Include="src\classes\OpenedFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="AboutBox.resx">
+    <EmbeddedResource Include="src\main\about\AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Main.resx">
+    <EmbeddedResource Include="src\main\Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainAdvanced.resx">
+    <EmbeddedResource Include="src\main\advanced\MainAdvanced.resx">
       <DependentUpon>MainAdvanced.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainDump.resx">
+    <EmbeddedResource Include="src\main\dump\MainDump.resx">
       <DependentUpon>MainDump.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
@@ -115,6 +115,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="README.md" />
     <None Include="Resources\LICENSE_VGAUDIO" />
   </ItemGroup>
   <ItemGroup>
