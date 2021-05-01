@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\classes\FeatureConfig.cs" />
     <Compile Include="src\main\about\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>
