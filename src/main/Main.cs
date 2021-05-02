@@ -602,11 +602,50 @@ namespace VGAudio.Win32
 
             // Sync the audio bitrate between tabs in advanced settings
             FeatureConfig.Add("SyncBitrateTabs", true);
+
+            // Enable adaptive dark mode
+            FeatureConfig.Add("AdaptiveDarkMode", false);
+
+            // Set the app's theme
+            DarkMode(this);
         }
 
         private void TestFeature()
         {
             
+        }
+
+        public void DarkMode(Form form)
+        {
+            if (!FeatureConfig["AdaptiveDarkMode"]) return;
+            Color ForeColor_ControlText;
+            Color BackColor_Control;
+            Color BackColor_Button;
+            Color BackColor_Window;
+            
+            if (FormMethods.IsWindowsInDarkMode())
+            {
+                ForeColor_ControlText = SystemColors.Window;
+                BackColor_Control = SystemColors.ControlDarkDark;
+                BackColor_Button = SystemColors.ControlDarkDark;
+                BackColor_Window = SystemColors.ControlDarkDark;
+            }
+            else
+            {
+                ForeColor_ControlText = SystemColors.ControlText;
+                BackColor_Control = SystemColors.Control;
+                BackColor_Button = SystemColors.ControlLight;
+                BackColor_Window = SystemColors.Window;
+            }
+            form.BackColor = BackColor_Control;
+            form.ForeColor = ForeColor_ControlText;
+            btn_open.BackColor = btn_advancedOptions.BackColor = btn_export.BackColor = btn_dump.BackColor = BackColor_Button;
+            statusStrip.BackColor = txt_metadata.BackColor = BackColor_Control;
+            statusStrip.ForeColor = txt_metadata.ForeColor = ForeColor_ControlText;
+            lst_exportExtensions.ForeColor = ForeColor_ControlText;
+            lst_exportExtensions.BackColor = BackColor_Window;
+            num_loopStart.ForeColor = num_loopEnd.ForeColor = ForeColor_ControlText;
+            num_loopStart.BackColor = num_loopEnd.BackColor = BackColor_Window;
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)

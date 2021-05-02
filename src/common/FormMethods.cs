@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -151,6 +152,29 @@ namespace VGAudio.Win32
                 filter += String.Format("|{0}|*.{1}", ext.ToUpper(), ext.ToLower());
             }
             return filter;
+        }
+
+        public static bool IsWindowsInDarkMode()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"))
+                {
+                    if (key != null)
+                    {
+                        Object o = key.GetValue("AppsUseLightTheme");
+                        if (o != null)
+                        {
+                            if (int.TryParse(o.ToString(), out int lightTheme))
+                            {
+                                return (lightTheme == 0);
+                            }
+                        }
+                    }
+                }
+            }
+            finally{}
+            return false;
         }
     }
 }
