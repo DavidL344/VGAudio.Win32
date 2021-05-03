@@ -57,7 +57,6 @@ namespace VGAudio.Win32
                 case "lst":
                 case "num":
                 case "txt":
-                    if (controlName[1] == "metadata") return;
                     control.BackColor = ColorScheme["Back"]["Window"];
                     break;
                 default:

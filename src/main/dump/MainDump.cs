@@ -52,18 +52,20 @@ namespace VGAudio.Win32
             {
                 case "btn_options_dumpFileInfo_fileLocation":
                     activeTextbox = txt_options_dumpFileInfo_fileLocation;
+                    fileExtension = ".dump";
                     title = "Dump file information";
                     break;
                 case "btn_options_saveExportInfo_fileLocation":
                     activeTextbox = txt_options_saveExportInfo_fileLocation;
+                    fileExtension = ".bat";
                     title = "Save export information";
                     break;
                 default:
                     activeTextbox = txt_options_dumpFileInfo_fileLocation;
+                    fileExtension = Path.GetExtension(activeTextbox.Text);
                     break;
             }
             setPath = activeTextbox.Text;
-            fileExtension = Path.GetExtension(activeTextbox.Text);
             fileExtensionNoDot = fileExtension.Substring(1);
 
             SaveFileDialog saveFileDialog = new SaveFileDialog
