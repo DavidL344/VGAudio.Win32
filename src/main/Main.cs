@@ -610,6 +610,10 @@ namespace VGAudio.Win32
             // Set the app's theme
             AppTheme = new Theme();
             AppTheme.Apply(this);
+
+            // Properly render the status strip in dark mode
+            if (FeatureConfig["AdaptiveDarkMode"] && FormMethods.IsWindowsInDarkMode())
+                statusStrip.Renderer = new ToolStripProfessionalRenderer();
         }
 
         private void TestFeature()
