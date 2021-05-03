@@ -35,7 +35,7 @@
             this.lbl_ogProjectAuthor = new System.Windows.Forms.Label();
             this.lbl_cliVersion = new System.Windows.Forms.Label();
             this.txt_license = new System.Windows.Forms.TextBox();
-            this.okButton = new System.Windows.Forms.Button();
+            this.btn_ok = new System.Windows.Forms.Button();
             this.tableLayoutPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.logoPictureBox)).BeginInit();
             this.SuspendLayout();
@@ -51,7 +51,7 @@
             this.tableLayoutPanel.Controls.Add(this.lbl_ogProjectAuthor, 1, 2);
             this.tableLayoutPanel.Controls.Add(this.lbl_cliVersion, 1, 3);
             this.tableLayoutPanel.Controls.Add(this.txt_license, 1, 4);
-            this.tableLayoutPanel.Controls.Add(this.okButton, 1, 5);
+            this.tableLayoutPanel.Controls.Add(this.btn_ok, 1, 5);
             this.tableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel.Location = new System.Drawing.Point(24, 21);
             this.tableLayoutPanel.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
@@ -141,20 +141,20 @@
             this.txt_license.TabStop = false;
             this.txt_license.Text = "License";
             // 
-            // okButton
+            // btn_ok
             // 
-            this.okButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.okButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.okButton.Location = new System.Drawing.Point(904, 575);
-            this.okButton.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
-            this.okButton.Name = "okButton";
-            this.okButton.Size = new System.Drawing.Size(200, 51);
-            this.okButton.TabIndex = 24;
-            this.okButton.Text = "&OK";
+            this.btn_ok.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btn_ok.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btn_ok.Location = new System.Drawing.Point(904, 575);
+            this.btn_ok.Margin = new System.Windows.Forms.Padding(8, 7, 8, 7);
+            this.btn_ok.Name = "btn_ok";
+            this.btn_ok.Size = new System.Drawing.Size(200, 51);
+            this.btn_ok.TabIndex = 24;
+            this.btn_ok.Text = "&OK";
             // 
             // AboutBox
             // 
-            this.AcceptButton = this.okButton;
+            this.AcceptButton = this.btn_ok;
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1160, 675);
@@ -185,6 +185,6 @@
         private System.Windows.Forms.Label lbl_ogProjectAuthor;
         private System.Windows.Forms.Label lbl_cliVersion;
         private System.Windows.Forms.TextBox txt_license;
-        private System.Windows.Forms.Button okButton;
+        private System.Windows.Forms.Button btn_ok;
     }
 }

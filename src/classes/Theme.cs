@@ -19,25 +19,11 @@ namespace VGAudio.Win32
             Load();
         }
 
-        public bool Load(string theme = null)
+        public void Load()
         {
-            if (theme != null) throw new NotImplementedException();
-            SetDefault();
-            return true;
-        }
+            bool DarkMode = false;
+            if (Main.FeatureConfig["AdaptiveDarkMode"]) DarkMode = FormMethods.IsWindowsInDarkMode();
 
-        public void SetDefault()
-        {
-            bool DarkMode;
-            if (Main.FeatureConfig["AdaptiveDarkMode"])
-            {
-                DarkMode = FormMethods.IsWindowsInDarkMode();
-            }
-            else
-            {
-                DarkMode = false;
-            }
-            
             if (DarkMode)
             {
                 ColorScheme["Fore"]["Text"] = SystemColors.Window;
@@ -54,64 +40,37 @@ namespace VGAudio.Win32
             }
         }
 
-        public void Apply(Form form)
+        public void Apply(Control control)
         {
-            Dictionary<string, Control> Control = new Dictionary<string, Control>();
+            // Don't apply the light theme to prevent visual glitches (it is already applied anyway)
+            if (!Main.FeatureConfig["AdaptiveDarkMode"] || !FormMethods.IsWindowsInDarkMode()) return;
 
-            foreach (Control c in form.Controls)
-            {
-                //Control btn_open = form.Controls[form.Controls.IndexOfKey("btn_open")];
-                Control[c.Name] = c;
-            }
-            Control["form"] = form;
-            Control["form"].BackColor = ColorScheme["Back"]["Control"];
-            Control["form"].ForeColor = ColorScheme["Fore"]["Text"];
+            control.ForeColor = ColorScheme["Fore"]["Text"];
+            string[] controlName = control.Name.Split('_');
+            if (string.IsNullOrWhiteSpace(controlName[0])) return;
 
-            /*
-            string test = "";
-            foreach (Control c in form.Controls)
+            switch (controlName[0])
             {
-                test += " " + c.Name;
-            }
-            MessageBox.Show(test);
-            */
-
-            switch (form.GetType().Name)
-            {
-                case "AboutBox":
-                    foreach (Control c in Control["tableLayoutPanel"].Controls)
-                    {
-                        c.BackColor = ColorScheme["Back"]["Control"];
-                        c.ForeColor = ColorScheme["Fore"]["Text"];
-                    }
+                case "btn":
+                    control.BackColor = ColorScheme["Back"]["Button"];
                     break;
-                case "Main":
-                    Control["btn_open"].BackColor = Control["btn_advancedOptions"].BackColor = Control["btn_export"].BackColor = Control["btn_dump"].BackColor = ColorScheme["Back"]["Button"];
-                    Control["statusStrip"].BackColor = Control["txt_metadata"].BackColor = ColorScheme["Back"]["Control"];
-                    Control["statusStrip"].ForeColor = Control["txt_metadata"].ForeColor = ColorScheme["Fore"]["Text"];
-                    Control["lst_exportExtensions"].ForeColor = ColorScheme["Fore"]["Text"];
-                    Control["lst_exportExtensions"].BackColor = ColorScheme["Back"]["Window"];
-                    Control["num_loopStart"].ForeColor = Control["num_loopEnd"].ForeColor = ColorScheme["Fore"]["Text"];
-                    Control["num_loopStart"].BackColor = Control["num_loopEnd"].BackColor = ColorScheme["Back"]["Window"];
-                    break;
-                case "MainAdvanced":
-                    foreach (Control ctrl in form.Controls)
-                    {
-                        if (!ctrl.Name.StartsWith("pnl_")) return;
-                        foreach (Control c in ctrl.Controls)
-                        {
-                            c.BackColor = ColorScheme["Back"]["Control"];
-                            c.ForeColor = ColorScheme["Fore"]["Text"];
-                        }
-                    }
-                    break;
-                case "MainDump":
-                    Control["btn_options_saveExportInfo_fileLocation"].BackColor = Control["btn_options_dumpFileInfo_fileLocation"].BackColor = Control["btn_confirm"].BackColor = ColorScheme["Back"]["Button"];
-                    Control["txt_options_dumpFileInfo_fileLocation"].BackColor = Control["txt_options_saveExportInfo_fileLocation"].BackColor = ColorScheme["Back"]["Control"];
-                    Control["txt_options_dumpFileInfo_fileLocation"].ForeColor = Control["txt_options_saveExportInfo_fileLocation"].ForeColor = ColorScheme["Fore"]["Text"];
+                case "lst":
+                case "num":
+                case "txt":
+                    if (controlName[1] == "metadata") return;
+                    control.BackColor = ColorScheme["Back"]["Window"];
                     break;
                 default:
+                    control.BackColor = ColorScheme["Back"]["Control"];
                     break;
+            }
+
+            if (control.HasChildren)
+            {
+                foreach (Control c in control.Controls)
+                {
+                    Apply(c);
+                }
             }
         }
     }
