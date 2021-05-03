@@ -22,6 +22,7 @@ namespace VGAudio.Win32
             MinimumSize = Size;
             MaximumSize = Size;
             MaximizeBox = false;
+            Main.AppTheme.Apply(this);
 
             string fileLocationNewExtension = Path.ChangeExtension(filePath, newFileExtension);
             chk_file_dumpFileInfo.Checked = true;

@@ -22,6 +22,7 @@ namespace VGAudio.Win32
             this.lbl_ogProjectAuthor.Text = String.Format("Original project by Alex Barney");
             this.lbl_cliVersion.Text = String.Format("Running on {0}", GetCliProperties());
             this.txt_license.Text = ReadLicense();
+            Main.AppTheme.Apply(this);
         }
 
         private string ReadLicense()

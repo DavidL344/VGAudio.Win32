@@ -38,6 +38,7 @@ namespace VGAudio.Win32
             MaximumSize = Size;
             MaximizeBox = false;
             lbl_options.Text = String.Format("{0} options:", exportExtension.ToUpper());
+            Main.AppTheme.Apply(this);
 
             // Load if the advanced settings should be applied
             UpdateValuesFromFields();
