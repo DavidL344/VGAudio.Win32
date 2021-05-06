@@ -36,6 +36,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="RSTMLib">
+      <HintPath>..\..\repos_cloned\RSTMLib\bin\Release\RSTMLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -50,6 +53,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\classes\Theme.cs" />
+    <Compile Include="src\common\brawllib\ConsoleProgressTracker.cs" />
+    <Compile Include="src\common\brawllib\EncodingProgressWrapper.cs" />
+    <Compile Include="src\common\loopingaudioconverter\Interfaces.cs" />
+    <Compile Include="src\common\loopingaudioconverter\PCM16Audio.cs" />
+    <Compile Include="src\common\brawllib\PCM16AudioStream.cs" />
+    <Compile Include="src\common\loopingaudioconverter\Options.cs" />
+    <Compile Include="src\common\loopingaudioconverter\OptionsRun.cs" />
+    <Compile Include="src\common\brawllib\RSTMExporter.cs" />
     <Compile Include="src\main\about\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>

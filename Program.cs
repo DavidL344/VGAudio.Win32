@@ -29,6 +29,11 @@ namespace VGAudio.Win32
                 default:
                     break;
             }
+
+            OptionsRun optionsRun = new OptionsRun();
+            optionsRun.Go();
+
+            return;
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Main());
