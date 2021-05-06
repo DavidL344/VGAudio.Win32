@@ -30,8 +30,27 @@ namespace VGAudio.Win32
                     break;
             }
 
-            OptionsRun optionsRun = new OptionsRun();
-            optionsRun.Go();
+            string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
+            string extsFilter = FormMethods.CreateExtensionFilter(extsArray);
+            OpenFileDialog openFile = new OpenFileDialog
+            {
+                Title = "Open file",
+                DefaultExt = "",
+                Filter = extsFilter,
+                CheckFileExists = true,
+                CheckPathExists = true,
+                DereferenceLinks = true
+            };
+
+            if (openFile.ShowDialog() == DialogResult.OK)
+            {
+                OptionsRun optionsRun = new OptionsRun();
+                optionsRun.Go(openFile.FileName);
+                return;
+            }
+            Main(null);
+
+            
 
             return;
             Application.EnableVisualStyles();

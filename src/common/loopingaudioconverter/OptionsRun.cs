@@ -14,7 +14,7 @@ namespace VGAudio.Win32
 		{
 			public IAudioImporter importer;
 			public IAudioExporter exporter;
-			public void Go()
+			public void Go(string inputFile)
 			{
 			
 			
@@ -22,8 +22,9 @@ namespace VGAudio.Win32
 
 
 				exporter = new RSTMExporter();
-
+			
 			PCM16Audio w = new PCM16Audio(2, 44100, new short[] { -32, -1 });
+			w = importer.ReadFile(inputFile);
 			byte[] data = RSTMConverter.EncodeToByteArray(new PCM16AudioStream(w), null);
 			File.WriteAllBytes(Path.Combine(@"C:\Users\David\Desktop", "test.brstm"), data);
 		}
