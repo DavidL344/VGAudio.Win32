@@ -163,7 +163,7 @@ namespace VGAudio.Win32
             catch (Exception e)
             {
                 UpdateStatus();
-                MessageBox.Show(e.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(e.Message, "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 if (e is EndOfStreamException) CloseFile();
                 return false;
             }
@@ -374,87 +374,33 @@ namespace VGAudio.Win32
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
             {
-                if (FormMethods.VerifyIntegrity() && File.Exists(OpenedFile.Info["Path"]))
+                OpenedFile.ExportInfo["Path"] = saveFileDialog.FileName;
+                OpenedFile.ExportInfo["PathEscaped"] = String.Format("\"{0}\"", Path.GetFullPath(OpenedFile.ExportInfo["Path"]));
+                FormMethods.EnableCloseButton(this, false);
+                try
                 {
-                    // Check if the export file extension is the correct one
-                    if (Path.GetExtension(saveFileDialog.FileName).ToLower() != OpenedFile.ExportInfo["Extension"].ToLower())
+                    if (OpenedFile.Convert())
                     {
-                        // Error occurs when the user replaces an existing file
-                        // with invalid export extension through the dialog box
                         UpdateStatus();
-                        MessageBox.Show("The file extension selected is invalid!", Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
+                        string successMessage = "Task performed successfully.";
+                        if (FeatureConfig["ShowTimeElapsed"]) successMessage += String.Format(" Time elapsed: {0}", OpenedFile.ExportResult["TimeElapsed"]);
+                        MessageBox.Show(successMessage, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
+                }
+                catch (Exception ex)
+                {
+                    OpenedFile.Lock(true);
+                    UpdateStatus();
 
-                    // Prepare the arguments
-                    FormMethods.EnableCloseButton(this, false);
-                    string exportLocation = String.Format("\"{0}\"", Path.GetFullPath(saveFileDialog.FileName));
-                    string arguments = OpenedFile.GenerateConversionParams(exportLocation);
-
-                    // Cancelling the operation before it starts results in null
-                    if (arguments != null)
-                    {
-                        try
-                        {
-                            ProcessStartInfo procInfo = new ProcessStartInfo
-                            {
-                                FileName = VGAudioCli,
-                                WorkingDirectory = Path.GetDirectoryName(OpenedFile.Info["Path"]),
-                                Arguments = arguments,
-                                RedirectStandardOutput = true,
-                                UseShellExecute = false,
-                                CreateNoWindow = true,
-                                WindowStyle = ProcessWindowStyle.Hidden
-                            };
-
-                            OpenedFile.Lock(false); // Unlock the file
-                            var proc = Process.Start(procInfo); // Process the file
-                            
-                            string line = "";
-                            while (!proc.StandardOutput.EndOfStream)
-                            {
-                                line += proc.StandardOutput.ReadLine() + "\r\n";
-                            }
-                            string[] standardConsoleOutput = line.Split(
-                                new[] { "\r\n", "\r", "\n" },
-                                StringSplitOptions.None
-                            );
-                            OpenedFile.Lock(true); // Relock the file
-                            UpdateStatus();
-
-                            if (proc.ExitCode == 0)
-                            {
-                                // Progress bar [####   ] starts with '[' and success starts with, well, 'Success!'
-                                if (standardConsoleOutput[0].StartsWith("[") || standardConsoleOutput[0].StartsWith("Success!"))
-                                {
-                                    string successMessage = "Task performed successfully.";
-                                    if (FeatureConfig["ShowTimeElapsed"])
-                                    {
-                                        string timeElapsed = standardConsoleOutput[1].Substring(standardConsoleOutput[1].IndexOf(":") + 1);
-                                        string timeElapsedFormatted = TimeSpan.FromSeconds(Convert.ToDouble(timeElapsed)).ToString(@"hh\:mm\:ss\.fff");
-                                        successMessage += String.Format(" Time elapsed: {0}", timeElapsedFormatted);
-                                    }
-                                    MessageBox.Show(successMessage, Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                }
-                                else
-                                {
-                                    // Should happen only if the operation is not supported by the CLI
-                                    MessageBox.Show(standardConsoleOutput[0], "Conversion Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                }
-                            }
-                            else
-                            {
-                                // This happens if there's an invalid parameter passed to the CLI
-                                MessageBox.Show(standardConsoleOutput[0], "Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            OpenedFile.Lock(true); // Relock the file after an unsuccessful attempt to convert it
-                            UpdateStatus();
-                            MessageBox.Show(ex.Message, "Fatal Error | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
+                    string exceptionTitle = "Fatal Error";
+                    if (ex is NotSupportedException) exceptionTitle = "Conversion Error";
+                    if (ex is ArgumentException) exceptionTitle = "Error";
+                    MessageBox.Show(ex.Message, String.Format("{0} | {1}", exceptionTitle, Text), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                finally
+                {
+                    FormMethods.EnableCloseButton(this);
                 }
             }
             UpdateStatus();

@@ -16,6 +16,7 @@ namespace VGAudio.Win32
         public Dictionary<string, int?> Loop = new Dictionary<string, int?>();
         public Dictionary<string, string> ExportInfo = new Dictionary<string, string>();
         public Dictionary<string, int?> ExportLoop = new Dictionary<string, int?>();
+        public Dictionary<string, string> ExportResult = new Dictionary<string, string>();
         public Dictionary<string, object> AdvancedExportInfo = new Dictionary<string, object>();
         private FileStream FileLock = null;
         public bool Initialized = false;
@@ -102,6 +103,8 @@ namespace VGAudio.Win32
             ParseMetadata(metadata);
 
             // File export information
+            ExportInfo["Path"] = null;
+            ExportInfo["PathEscaped"] = null;
             ExportInfo["Extension"] = null;
             ExportInfo["ExtensionNoDot"] = null;
 
@@ -122,6 +125,9 @@ namespace VGAudio.Win32
             AdvancedExportInfo["HCA_audioQuality"] = null;
             AdvancedExportInfo["HCA_audioBitrate"] = null;
             AdvancedExportInfo["HCA_limitBitrate"] = null;
+
+            // Result upon file export
+            ExportResult["TimeElapsed"] = null;
 
             // Check again if the file is accessible
             // It could've been locked or deleted by something else in the meantime
@@ -556,6 +562,59 @@ namespace VGAudio.Win32
                 }
             }
             return Info["Name"];
+        }
+
+        public bool Convert()
+        {
+            if (!File.Exists(Info["Path"])) throw new FileNotFoundException("The opened file no longer exists!");
+
+            // Check if the export file extension is the correct one
+            if (Path.GetExtension(ExportInfo["Path"]).ToLower() != ExportInfo["Extension"].ToLower())
+            {
+                // Error occurs when the user replaces an existing file
+                // with invalid export extension through the dialog box
+                throw new ArgumentException("The file extension selected is invalid!");
+            }
+
+            string arguments = GenerateConversionParams(ExportInfo["PathEscaped"]);
+            if (string.IsNullOrEmpty(arguments)) throw new Exception("Internal Error: No parameters!");
+            if (!FormMethods.VerifyIntegrity()) return false;
+            Lock(false); // Unlock the file
+
+            ProcessStartInfo procInfo = new ProcessStartInfo
+            {
+                FileName = Main.VGAudioCli,
+                WorkingDirectory = Path.GetDirectoryName(Info["Path"]),
+                Arguments = arguments,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+            var proc = Process.Start(procInfo);
+
+            string line = "";
+            while (!proc.StandardOutput.EndOfStream)
+            {
+                line += proc.StandardOutput.ReadLine() + "\r\n";
+            }
+            string[] standardConsoleOutput = line.Split(
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.None
+            );
+            Lock(true); // Relock the file
+
+            // Invalid parameter passed to the CLI
+            if (proc.ExitCode != 0) throw new ArgumentException(standardConsoleOutput[0]);
+
+            // Progress bar [####   ] starts with '[' and success starts with, well, 'Success!'
+            if (!standardConsoleOutput[0].StartsWith("[") && !standardConsoleOutput[0].StartsWith("Success!"))
+                throw new NotSupportedException(standardConsoleOutput[0]);
+
+            // Get the time elapsed during the conversion
+            string timeElapsed = standardConsoleOutput[1].Substring(standardConsoleOutput[1].IndexOf(":") + 1);
+            ExportResult["TimeElapsed"] = TimeSpan.FromSeconds(System.Convert.ToDouble(timeElapsed)).ToString(@"hh\:mm\:ss\.fff");
+            return true;
         }
 
         public void Close(bool resetExportOptions = true)
