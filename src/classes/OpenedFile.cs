@@ -493,9 +493,10 @@ namespace VGAudio.Win32
 
         public bool IsLocked(string filePath = null)
         {
-            if (filePath == null) filePath = Info["Path"]; // Only used for early verification at line 42
+            if (filePath == null) filePath = Info["Path"]; // Only used for early verification in this.Open()
             try
             {
+                // This throws an exception on purpose in Main.FileExport and Main.CloseFile()
                 using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
                     stream.Close();

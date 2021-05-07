@@ -103,13 +103,9 @@ namespace VGAudio.Win32
         private void CloseFile()
         {
             FileLoaded(false);
-            UpdateStatus("Close");
             OpenedFile.Close(FeatureConfig["ResetExportOptionsOnNewFile"]);
-
-            if (FeatureConfig["ResetExportOptionsOnNewFile"])
-            {
-                lst_exportExtensions.SelectedIndex = default;
-            }
+            if (FeatureConfig["ResetExportOptionsOnNewFile"]) lst_exportExtensions.SelectedIndex = default;
+            UpdateStatus("Close");
         }
 
         private bool FileDialog()
@@ -225,7 +221,6 @@ namespace VGAudio.Win32
                 txt_metadata.Visible = false;
                 btn_advancedOptions.Visible = false;
 
-                OpenedFile.Lock(false);
                 if (FeatureConfig["OpenCloseWinformsButton"])
                 {
                     btn_open.Text = "Open File";
