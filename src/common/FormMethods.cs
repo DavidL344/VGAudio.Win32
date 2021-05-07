@@ -33,12 +33,13 @@ namespace VGAudio.Win32
             return true;
         }
 
-        public static bool ExtractCli()
+        public static bool ExtractCli(bool overwrite = false)
         {
-            if (!File.Exists(Main.VGAudioCli))
+            if (overwrite || !File.Exists(Main.VGAudioCli))
             {
                 try
                 {
+                    if (overwrite && File.Exists(Main.VGAudioCli)) File.Delete(Main.VGAudioCli);
                     using (FileStream fsDst = new FileStream(Main.VGAudioCli, FileMode.CreateNew, FileAccess.Write))
                     {
                         byte[] bytes = Resources.VGAudioCli;

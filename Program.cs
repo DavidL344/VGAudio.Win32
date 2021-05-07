@@ -20,7 +20,8 @@ namespace VGAudio.Win32
                     switch (args[0])
                     {
                         case "--extract":
-                            FormMethods.ExtractCli();
+                            FormMethods.ExtractCli(true);
+                            Environment.Exit(0);
                             break;
                         default:
                             break;
