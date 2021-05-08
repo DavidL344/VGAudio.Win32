@@ -102,10 +102,10 @@ namespace VGAudio.Win32
 
         private void CloseFile()
         {
-            FileLoaded(false);
-            OpenedFile.Close(FeatureConfig["ResetExportOptionsOnNewFile"]);
+            FileLoaded(false); // Updates the GUI
+            UpdateStatus("Close"); // Informs about closing the file
+            OpenedFile.Close(FeatureConfig["ResetExportOptionsOnNewFile"]); // Actually closes the file
             if (FeatureConfig["ResetExportOptionsOnNewFile"]) lst_exportExtensions.SelectedIndex = default;
-            UpdateStatus("Close");
         }
 
         private bool FileDialog()
@@ -130,7 +130,7 @@ namespace VGAudio.Win32
         private bool FileDialogProcess(string filePath)
         {
             bool noPreviousFile; // Saves the value of whether there was previously a file opened or not
-            UpdateStatus("Reading the file...");
+            UpdateStatus("Read");
 
             if (!OpenedFile.Initialized)
             {
@@ -291,10 +291,8 @@ namespace VGAudio.Win32
             OpenedFile.ExportLoop["Enabled"] = Convert.ToInt32(chk_loop.Checked);
         }
 
-        private void FileExport(object sender, EventArgs e)
+        private async void FileExport(object sender, EventArgs e)
         {
-            UpdateStatus("Converting the file...");
-
             // If the file was missing or inaccessible, but suddenly is, relock it again
             OpenedFile.Lock(true);
 
@@ -372,9 +370,11 @@ namespace VGAudio.Win32
                 OpenedFile.ExportInfo["Path"] = saveFileDialog.FileName;
                 OpenedFile.ExportInfo["PathEscaped"] = String.Format("\"{0}\"", Path.GetFullPath(OpenedFile.ExportInfo["Path"]));
                 FormMethods.EnableCloseButton(this, false);
+                UpdateStatus("Converting the file...");
                 try
                 {
-                    if (OpenedFile.Convert())
+                    Task<bool> conversionResult = OpenedFile.Convert();
+                    if (await conversionResult)
                     {
                         UpdateStatus();
                         string successMessage = "Task performed successfully.";
@@ -390,7 +390,9 @@ namespace VGAudio.Win32
                     string exceptionTitle = "Fatal Error";
                     if (ex is NotSupportedException) exceptionTitle = "Conversion Error";
                     if (ex is ArgumentException) exceptionTitle = "Error";
-                    MessageBox.Show(ex.Message, String.Format("{0} | {1}", exceptionTitle, Text), MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    string errmsg = (string.IsNullOrWhiteSpace(ex.Message)) ? "An unknown error has occured." : ex.Message;
+                    MessageBox.Show(errmsg, String.Format("{0} | {1}", exceptionTitle, Text), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 finally
@@ -450,6 +452,8 @@ namespace VGAudio.Win32
         public async void UpdateStatus(string message = "Ready")
         {
             FormMethods.EnableCloseButton(this);
+            prg_main.Style = ProgressBarStyle.Blocks;
+            prg_main.Value = 0;
             switch (message)
             {
                 case "Ready":
@@ -457,21 +461,30 @@ namespace VGAudio.Win32
                     {
                         if (File.Exists(OpenedFile.Info["Path"]))
                         {
+                            prg_main.Value = 100;
                             slb_status.Text = "Opened the file: " + OpenedFile.Info["NameShort"];
+                            await Task.Delay(2000);
                         }
                         else
                         {
                             slb_status.Text = "Please check the path of " + OpenedFile.Info["NameShort_OnError"] + "!";
                         }
+                        prg_main.Value = 0;
                         return;
                     }
                     slb_status.Text = message;
+                    prg_main.Value = 0;
+                    break;
+                case "Read":
+                    prg_main.Value = 50;
+                    slb_status.Text = "Reading the file...";
                     break;
                 case "Close":
                     // The key won't be set if user tries to drag and drop
                     // an invalid file while no other file is opened
                     if (OpenedFile.Info.ContainsKey("NameShort"))
                     {
+                        prg_main.Value = 100;
                         slb_status.Text = "Closed the file: " + OpenedFile.Info["NameShort"];
                         await Task.Delay(2000);
                     }
@@ -481,14 +494,15 @@ namespace VGAudio.Win32
                     if (OpenedFile.Initialized)
                     {
                         slb_status.Text = "Opened the file: " + OpenedFile.Info["NameShort"];
-                        return;
                     }
                     else
                     {
                         slb_status.Text = "Ready";
                     }
+                    prg_main.Value = 0;
                     break;
                 default:
+                    prg_main.Style = ProgressBarStyle.Marquee;
                     slb_status.Text = message;
                     break;
             }
@@ -547,6 +561,9 @@ namespace VGAudio.Win32
 
             // Enable adaptive dark mode
             FeatureConfig.Add("AdaptiveDarkMode", true);
+
+            // Show the console during conversion
+            FeatureConfig.Add("ShowConsole", true);
 
             // Set the app's theme
             AppTheme = new Theme();

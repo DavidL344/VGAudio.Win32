@@ -43,6 +43,7 @@
             this.btn_dump = new System.Windows.Forms.Button();
             this.btn_advancedOptions = new System.Windows.Forms.Button();
             this.lbl_dnd = new System.Windows.Forms.Label();
+            this.prg_main = new System.Windows.Forms.ProgressBar();
             this.statusStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopStart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_loopEnd)).BeginInit();
@@ -230,12 +231,23 @@
             this.lbl_dnd.TabIndex = 12;
             this.lbl_dnd.Text = "...or just drag and drop the file here";
             // 
+            // prg_main
+            // 
+            this.prg_main.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.prg_main.Location = new System.Drawing.Point(0, -2);
+            this.prg_main.MarqueeAnimationSpeed = 30;
+            this.prg_main.Name = "prg_main";
+            this.prg_main.Size = new System.Drawing.Size(801, 10);
+            this.prg_main.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
+            this.prg_main.TabIndex = 0;
+            // 
             // Main
             // 
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(16F, 31F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.prg_main);
             this.Controls.Add(this.btn_advancedOptions);
             this.Controls.Add(this.btn_dump);
             this.Controls.Add(this.btn_export);
@@ -280,6 +292,7 @@
         private System.Windows.Forms.Button btn_advancedOptions;
         private System.Windows.Forms.ComboBox lst_exportExtensions;
         private System.Windows.Forms.Label lbl_dnd;
+        private System.Windows.Forms.ProgressBar prg_main;
     }
 }
 

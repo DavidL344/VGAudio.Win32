@@ -127,6 +127,7 @@ namespace VGAudio.Win32
             AdvancedExportInfo["HCA_limitBitrate"] = null;
 
             // Result upon file export
+            ExportResult["ConsoleOutput"] = null;
             ExportResult["TimeElapsed"] = null;
 
             // Check again if the file is accessible
@@ -326,6 +327,78 @@ namespace VGAudio.Win32
             {
                 return null;
             }
+        }
+
+        public Task<int> RunProcessAsync(string arguments = null, string workingDirectory = null, bool showConsole = false)
+        {
+            if (!FormMethods.VerifyIntegrity()) return null;
+
+            // If there's an opened file, use its location as a working directory
+            if (workingDirectory == null)
+            {
+                if (Info.ContainsKey("Path"))
+                {
+                    workingDirectory = Path.GetDirectoryName(Info["Path"]);
+                }
+                else
+                {
+                    workingDirectory = Path.GetDirectoryName(Main.VGAudioCli);
+                }
+            }
+            else
+            {
+                if (!Directory.Exists(workingDirectory)) workingDirectory = Path.GetDirectoryName(Main.VGAudioCli);
+            }
+
+            ProcessStartInfo procInfo = new ProcessStartInfo
+            {
+                FileName = Main.VGAudioCli,
+                WorkingDirectory = workingDirectory,
+                Arguments = arguments + " &&pause>nul",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden
+            };
+
+            // A temporary solution - some formats hang when the console isn't shown
+            showConsole = true;
+
+            if (showConsole)
+            {
+                procInfo.FileName = "cmd.exe";
+                procInfo.Arguments = String.Format("{0}&&{1} {2}&&{3}", "/c chcp 65001>nul", Main.VGAudioCli, arguments, "pause>nul");
+                procInfo.RedirectStandardOutput = false;
+                procInfo.UseShellExecute = true;
+                procInfo.CreateNoWindow = false;
+                procInfo.WindowStyle = ProcessWindowStyle.Normal;
+            }
+
+            var tcs = new TaskCompletionSource<int>();
+            var process = new Process
+            {
+                StartInfo = procInfo,
+                EnableRaisingEvents = true
+            };
+
+            ExportResult["ConsoleOutput"] = "";
+            process.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
+            {
+                if (!String.IsNullOrEmpty(e.Data))
+                {
+                    MessageBox.Show(e.Data);
+                    ExportResult["ConsoleOutput"] += e.Data + "\r\n";
+                }
+            });
+
+            process.Exited += (sender, args) =>
+            {
+                tcs.SetResult(process.ExitCode);
+                process.Dispose();
+            };
+
+            process.Start();
+            return tcs.Task;
         }
 
         public string GenerateConversionParams(string exportLocation = null, bool batchFormat = false, bool silent = false)
@@ -565,7 +638,7 @@ namespace VGAudio.Win32
             return Info["Name"];
         }
 
-        public bool Convert()
+        public async Task<bool> Convert()
         {
             if (!File.Exists(Info["Path"])) throw new FileNotFoundException("The opened file no longer exists!");
 
@@ -580,33 +653,20 @@ namespace VGAudio.Win32
             string arguments = GenerateConversionParams(ExportInfo["PathEscaped"]);
             if (string.IsNullOrEmpty(arguments)) throw new Exception("Internal Error: No parameters!");
             if (!FormMethods.VerifyIntegrity()) return false;
+
             Lock(false); // Unlock the file
-
-            ProcessStartInfo procInfo = new ProcessStartInfo
-            {
-                FileName = Main.VGAudioCli,
-                WorkingDirectory = Path.GetDirectoryName(Info["Path"]),
-                Arguments = arguments,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden
-            };
-            var proc = Process.Start(procInfo);
-
-            string line = "";
-            while (!proc.StandardOutput.EndOfStream)
-            {
-                line += proc.StandardOutput.ReadLine() + "\r\n";
-            }
-            string[] standardConsoleOutput = line.Split(
+            int exitCode = await RunProcessAsync(arguments, null, Main.FeatureConfig["ShowConsole"]);
+            string[] standardConsoleOutput = ExportResult["ConsoleOutput"].Split(
                 new[] { "\r\n", "\r", "\n" },
                 StringSplitOptions.None
             );
             Lock(true); // Relock the file
 
+            // Silently exit since everything is handled by the console
+            if (Main.FeatureConfig["ShowConsole"]) return false;
+
             // Invalid parameter passed to the CLI
-            if (proc.ExitCode != 0) throw new ArgumentException(standardConsoleOutput[0]);
+            if (exitCode != 0) throw new ArgumentException(standardConsoleOutput[0]);
 
             // Progress bar [####   ] starts with '[' and success starts with, well, 'Success!'
             if (!standardConsoleOutput[0].StartsWith("[") && !standardConsoleOutput[0].StartsWith("Success!"))
