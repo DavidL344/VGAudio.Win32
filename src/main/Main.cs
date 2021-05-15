@@ -514,11 +514,6 @@ namespace VGAudio.Win32
         }
         private void OnStart()
         {
-            // Form size
-            MinimumSize = Size;
-            MaximumSize = Size;
-            MaximizeBox = false;
-
             // Create the supported extensions to a filter
             extsFilter = FormMethods.CreateExtensionFilter(extsArray);
 
@@ -552,6 +547,16 @@ namespace VGAudio.Win32
 
             // Enable adaptive dark mode
             FeatureConfig.Add("AdaptiveDarkMode", true);
+
+            FeatureConfig.Add("AllowWindowResize", true);
+
+            // Form size
+            MinimumSize = Size;
+            if (!FeatureConfig["AllowWindowResize"])
+            {
+                MaximumSize = Size;
+                MaximizeBox = false;
+            }
 
             // Set the app's theme
             AppTheme = new Theme();

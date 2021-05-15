@@ -62,13 +62,14 @@
             // slb_status
             // 
             this.slb_status.Name = "slb_status";
-            this.slb_status.Size = new System.Drawing.Size(707, 41);
+            this.slb_status.Size = new System.Drawing.Size(785, 41);
             this.slb_status.Spring = true;
             this.slb_status.Text = "Loading...";
             this.slb_status.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // btn_open
             // 
+            this.btn_open.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btn_open.Location = new System.Drawing.Point(299, 12);
             this.btn_open.Name = "btn_open";
             this.btn_open.Size = new System.Drawing.Size(172, 54);
@@ -79,6 +80,7 @@
             // 
             // chk_loop
             // 
+            this.chk_loop.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.chk_loop.AutoSize = true;
             this.chk_loop.Location = new System.Drawing.Point(276, 157);
             this.chk_loop.Name = "chk_loop";
@@ -91,6 +93,7 @@
             // 
             // num_loopStart
             // 
+            this.num_loopStart.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.num_loopStart.Location = new System.Drawing.Point(324, 211);
             this.num_loopStart.Maximum = new decimal(new int[] {
             -1486618625,
@@ -105,6 +108,7 @@
             // 
             // num_loopEnd
             // 
+            this.num_loopEnd.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.num_loopEnd.Location = new System.Drawing.Point(324, 263);
             this.num_loopEnd.Maximum = new decimal(new int[] {
             -1486618625,
@@ -129,6 +133,7 @@
             // 
             // lbl_loopStart
             // 
+            this.lbl_loopStart.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbl_loopStart.AutoSize = true;
             this.lbl_loopStart.Location = new System.Drawing.Point(164, 211);
             this.lbl_loopStart.Name = "lbl_loopStart";
@@ -139,6 +144,7 @@
             // 
             // lbl_loopEnd
             // 
+            this.lbl_loopEnd.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbl_loopEnd.AutoSize = true;
             this.lbl_loopEnd.Location = new System.Drawing.Point(173, 263);
             this.lbl_loopEnd.Name = "lbl_loopEnd";
@@ -149,6 +155,7 @@
             // 
             // lbl_exportAs
             // 
+            this.lbl_exportAs.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbl_exportAs.AutoSize = true;
             this.lbl_exportAs.Location = new System.Drawing.Point(227, 92);
             this.lbl_exportAs.Name = "lbl_exportAs";
@@ -159,6 +166,7 @@
             // 
             // lst_exportExtensions
             // 
+            this.lst_exportExtensions.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lst_exportExtensions.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.lst_exportExtensions.FormattingEnabled = true;
             this.lst_exportExtensions.Items.AddRange(new object[] {
@@ -180,6 +188,7 @@
             // 
             // btn_export
             // 
+            this.btn_export.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btn_export.Location = new System.Drawing.Point(200, 322);
             this.btn_export.Name = "btn_export";
             this.btn_export.Size = new System.Drawing.Size(172, 54);
@@ -191,6 +200,7 @@
             // 
             // txt_metadata
             // 
+            this.txt_metadata.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.txt_metadata.Location = new System.Drawing.Point(170, 199);
             this.txt_metadata.Multiline = true;
             this.txt_metadata.Name = "txt_metadata";
@@ -201,6 +211,7 @@
             // 
             // btn_dump
             // 
+            this.btn_dump.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btn_dump.Location = new System.Drawing.Point(389, 322);
             this.btn_dump.Name = "btn_dump";
             this.btn_dump.Size = new System.Drawing.Size(172, 54);
@@ -212,6 +223,7 @@
             // 
             // btn_advancedOptions
             // 
+            this.btn_advancedOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btn_advancedOptions.Location = new System.Drawing.Point(628, 396);
             this.btn_advancedOptions.Name = "btn_advancedOptions";
             this.btn_advancedOptions.Size = new System.Drawing.Size(172, 54);
@@ -223,6 +235,7 @@
             // 
             // lbl_dnd
             // 
+            this.lbl_dnd.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.lbl_dnd.AutoSize = true;
             this.lbl_dnd.Location = new System.Drawing.Point(164, 199);
             this.lbl_dnd.Name = "lbl_dnd";
@@ -237,13 +250,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.btn_advancedOptions);
+            this.Controls.Add(this.statusStrip);
+            this.Controls.Add(this.btn_open);
             this.Controls.Add(this.btn_dump);
             this.Controls.Add(this.btn_export);
             this.Controls.Add(this.lst_exportExtensions);
             this.Controls.Add(this.lbl_exportAs);
-            this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.chk_loop);
-            this.Controls.Add(this.btn_open);
             this.Controls.Add(this.lbl_loopEnd);
             this.Controls.Add(this.lbl_loopStart);
             this.Controls.Add(this.num_loopEnd);
