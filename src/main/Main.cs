@@ -459,7 +459,7 @@ namespace VGAudio.Win32
                     {
                         if (File.Exists(OpenedFile.Info["Path"]))
                         {
-                            slb_status.Text = "Opened the file: " + OpenedFile.Info["NameShort"];
+                            slb_status.Text = OpenedFile.Metadata["Status"];
                         }
                         else
                         {

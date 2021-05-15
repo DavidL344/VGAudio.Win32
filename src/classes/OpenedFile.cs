@@ -76,6 +76,7 @@ namespace VGAudio.Win32
             // File Metadata
             Metadata["Full"] = null;
             Metadata["Short"] = null;
+            Metadata["Status"] = null;
             Metadata["EncodingFormat"] = null;
             Metadata["SampleCount"] = null;
             Metadata["SampleRate"] = null;
@@ -152,6 +153,25 @@ namespace VGAudio.Win32
             Metadata["SampleRate"] = FormMethods.GetBetween(metadata, "Sample rate: ", "\r\n");
             Metadata["ChannelCount"] = FormMethods.GetBetween(metadata, "Channel count: ", "\r\n");
             Metadata["Short"] = Metadata["EncodingFormat"] + "\r\nSample Rate: " + Metadata["SampleRate"] + "\r\nChannel Count: " + Metadata["ChannelCount"];
+
+            string channelSetup;
+            switch (int.Parse(Metadata["ChannelCount"]))
+            {
+                case 0:
+                    channelSetup = "no channels";
+                    break;
+                case 1:
+                    channelSetup = "mono";
+                    break;
+                case 2:
+                    channelSetup = "stereo";
+                    break;
+                default:
+                    channelSetup = Metadata["ChannelCount"];
+                    break;
+            }
+
+            Metadata["Status"] = String.Format("{0} | {1} | {2}", Metadata["EncodingFormat"], Metadata["SampleRate"], channelSetup);
 
             // Check if the file has a valid sample count
             if (!int.TryParse(Metadata["SampleCount"], out int mSampleCount))
