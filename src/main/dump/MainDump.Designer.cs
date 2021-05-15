@@ -44,6 +44,7 @@
             // 
             // btn_confirm
             // 
+            this.btn_confirm.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.btn_confirm.Location = new System.Drawing.Point(295, 384);
             this.btn_confirm.Name = "btn_confirm";
             this.btn_confirm.Size = new System.Drawing.Size(172, 54);
@@ -54,6 +55,7 @@
             // 
             // chk_options_dumpFileInfo_exportInfomation
             // 
+            this.chk_options_dumpFileInfo_exportInfomation.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.chk_options_dumpFileInfo_exportInfomation.AutoSize = true;
             this.chk_options_dumpFileInfo_exportInfomation.Location = new System.Drawing.Point(52, 209);
             this.chk_options_dumpFileInfo_exportInfomation.Name = "chk_options_dumpFileInfo_exportInfomation";
@@ -65,6 +67,7 @@
             // 
             // lbl_options_saveExportInfo
             // 
+            this.lbl_options_saveExportInfo.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbl_options_saveExportInfo.AutoSize = true;
             this.lbl_options_saveExportInfo.Location = new System.Drawing.Point(30, 272);
             this.lbl_options_saveExportInfo.Name = "lbl_options_saveExportInfo";
@@ -74,6 +77,7 @@
             // 
             // lbl_options_dumpFileInfo
             // 
+            this.lbl_options_dumpFileInfo.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbl_options_dumpFileInfo.AutoSize = true;
             this.lbl_options_dumpFileInfo.Location = new System.Drawing.Point(30, 118);
             this.lbl_options_dumpFileInfo.Name = "lbl_options_dumpFileInfo";
@@ -83,6 +87,7 @@
             // 
             // lbl_options_saveExportInfo_fileLocation
             // 
+            this.lbl_options_saveExportInfo_fileLocation.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbl_options_saveExportInfo_fileLocation.AutoSize = true;
             this.lbl_options_saveExportInfo_fileLocation.Location = new System.Drawing.Point(46, 316);
             this.lbl_options_saveExportInfo_fileLocation.Name = "lbl_options_saveExportInfo_fileLocation";
@@ -92,6 +97,7 @@
             // 
             // txt_options_saveExportInfo_fileLocation
             // 
+            this.txt_options_saveExportInfo_fileLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_options_saveExportInfo_fileLocation.Location = new System.Drawing.Point(236, 316);
             this.txt_options_saveExportInfo_fileLocation.Name = "txt_options_saveExportInfo_fileLocation";
             this.txt_options_saveExportInfo_fileLocation.Size = new System.Drawing.Size(365, 38);
@@ -100,6 +106,7 @@
             // 
             // btn_options_saveExportInfo_fileLocation
             // 
+            this.btn_options_saveExportInfo_fileLocation.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.btn_options_saveExportInfo_fileLocation.Location = new System.Drawing.Point(613, 307);
             this.btn_options_saveExportInfo_fileLocation.Name = "btn_options_saveExportInfo_fileLocation";
             this.btn_options_saveExportInfo_fileLocation.Size = new System.Drawing.Size(172, 54);
@@ -110,6 +117,7 @@
             // 
             // chk_file_dumpFileInfo
             // 
+            this.chk_file_dumpFileInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chk_file_dumpFileInfo.AutoSize = true;
             this.chk_file_dumpFileInfo.Location = new System.Drawing.Point(12, 13);
             this.chk_file_dumpFileInfo.Name = "chk_file_dumpFileInfo";
@@ -121,6 +129,7 @@
             // 
             // chk_file_saveExportInfo
             // 
+            this.chk_file_saveExportInfo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chk_file_saveExportInfo.AutoSize = true;
             this.chk_file_saveExportInfo.Location = new System.Drawing.Point(12, 55);
             this.chk_file_saveExportInfo.Name = "chk_file_saveExportInfo";
@@ -132,6 +141,7 @@
             // 
             // btn_options_dumpFileInfo_fileLocation
             // 
+            this.btn_options_dumpFileInfo_fileLocation.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.btn_options_dumpFileInfo_fileLocation.Location = new System.Drawing.Point(613, 152);
             this.btn_options_dumpFileInfo_fileLocation.Name = "btn_options_dumpFileInfo_fileLocation";
             this.btn_options_dumpFileInfo_fileLocation.Size = new System.Drawing.Size(172, 54);
@@ -142,6 +152,7 @@
             // 
             // txt_options_dumpFileInfo_fileLocation
             // 
+            this.txt_options_dumpFileInfo_fileLocation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txt_options_dumpFileInfo_fileLocation.Location = new System.Drawing.Point(236, 161);
             this.txt_options_dumpFileInfo_fileLocation.Name = "txt_options_dumpFileInfo_fileLocation";
             this.txt_options_dumpFileInfo_fileLocation.Size = new System.Drawing.Size(365, 38);
@@ -149,6 +160,7 @@
             // 
             // lbl_options_dumpFileInfo_fileLocation
             // 
+            this.lbl_options_dumpFileInfo_fileLocation.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbl_options_dumpFileInfo_fileLocation.AutoSize = true;
             this.lbl_options_dumpFileInfo_fileLocation.Location = new System.Drawing.Point(46, 161);
             this.lbl_options_dumpFileInfo_fileLocation.Name = "lbl_options_dumpFileInfo_fileLocation";
@@ -175,6 +187,7 @@
             this.Controls.Add(this.btn_confirm);
             this.Name = "MainDump";
             this.Text = "MainDump";
+            this.Load += new System.EventHandler(this.OnLoad);
             this.ResumeLayout(false);
             this.PerformLayout();
 

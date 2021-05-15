@@ -19,17 +19,20 @@ namespace VGAudio.Win32
         {
             InitializeComponent();
 
-            MinimumSize = Size;
-            MaximumSize = Size;
-            MaximizeBox = false;
-            Main.AppTheme.Apply(this);
-
             string fileLocationNewExtension = Path.ChangeExtension(filePath, newFileExtension);
             chk_file_dumpFileInfo.Checked = true;
             chk_file_saveExportInfo.Checked = false;
             chk_options_dumpFileInfo_exportInfomation.Checked = false;
             txt_options_dumpFileInfo_fileLocation.Text = filePath + ".dump";
             txt_options_saveExportInfo_fileLocation.Text = fileLocationNewExtension + ".bat";
+        }
+
+        private void OnLoad(object sender, EventArgs e)
+        {
+            MinimumSize = Size;
+            MaximumSize = Size;
+            MaximizeBox = false;
+            Main.AppTheme.Apply(this);
         }
 
         private void OnUpdate(object sender, EventArgs e)

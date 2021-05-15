@@ -261,9 +261,7 @@ namespace VGAudio.Win32
         {
             MainAdvanced mainAdvanced = new MainAdvanced(OpenedFile)
             {
-                StartPosition = FormStartPosition.Manual,
-                Left = this.Left,
-                Top = this.Top,
+                StartPosition = FormStartPosition.CenterParent,
                 Text = String.Format("Advanced options | {0}", Text)
             };
             mainAdvanced.ShowDialog();
@@ -411,11 +409,10 @@ namespace VGAudio.Win32
         {
             MainDump mainDump = new MainDump(OpenedFile.Info["Path"], lst_exportExtensions.SelectedItem.ToString().ToLower())
             {
-                StartPosition = FormStartPosition.Manual,
-                Left = this.Left,
-                Top = this.Top,
+                StartPosition = FormStartPosition.CenterParent,
                 Text = String.Format("Dump Info | {0}", Text)
             };
+            mainDump.Size = (this.Width / 2 > 832 && this.Height / 2 > 538) ? new Size(this.Width / 2, 538) : new Size(this.Width, 538);
             mainDump.ShowDialog();
 
             if (mainDump.Confirmed)
@@ -548,6 +545,7 @@ namespace VGAudio.Win32
             // Enable adaptive dark mode
             FeatureConfig.Add("AdaptiveDarkMode", true);
 
+            // Enable window resizing
             FeatureConfig.Add("AllowWindowResize", true);
 
             // Form size
