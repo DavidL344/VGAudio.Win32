@@ -561,8 +561,22 @@ namespace VGAudio.Win32
             AppTheme.Apply(this);
 
             // Properly render the status strip in dark mode
-            if (FeatureConfig["AdaptiveDarkMode"] && FormMethods.IsWindowsInDarkMode())
-                statusStrip.Renderer = new ToolStripProfessionalRenderer();
+            statusStrip.Renderer = new FormMethods.ToolStripLightRenderer();
+            if (FormMethods.IsAppInDarkMode()) statusStrip.Renderer = new FormMethods.ToolStripDarkRenderer();
+
+            // Move the advanced options button
+            if (FeatureConfig["AllowWindowResize"])
+            {
+                // The status strip takes up all the space
+                btn_advancedOptions.Location = new Point(564, 81);
+                btn_advancedOptions.Anchor = AnchorStyles.None;
+            }
+            else
+            {
+                // The status strip is truncated in order to fit an extra button
+                btn_advancedOptions.Location = new Point(628, 396);
+                btn_advancedOptions.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            }
         }
 
         private void TestFeature()

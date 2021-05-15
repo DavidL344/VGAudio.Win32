@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -176,6 +177,38 @@ namespace VGAudio.Win32
             }
             finally{}
             return false;
+        }
+
+        public static bool IsAppInDarkMode()
+        {
+            return Main.FeatureConfig["AdaptiveDarkMode"] && IsWindowsInDarkMode();
+        }
+
+        // https://stackoverflow.com/a/38155401
+        public class ToolStripLightRenderer : ToolStripSystemRenderer
+        {
+            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            {
+                if (e.Item is ToolStripStatusLabel)
+                    TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont,
+                        e.TextRectangle, e.TextColor, Color.Transparent,
+                        e.TextFormat | TextFormatFlags.EndEllipsis);
+                else
+                    base.OnRenderItemText(e);
+            }
+        }
+
+        public class ToolStripDarkRenderer : ToolStripProfessionalRenderer
+        {
+            protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
+            {
+                if (e.Item is ToolStripStatusLabel)
+                    TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont,
+                        e.TextRectangle, e.TextColor, Color.Transparent,
+                        e.TextFormat | TextFormatFlags.EndEllipsis);
+                else
+                    base.OnRenderItemText(e);
+            }
         }
     }
 }
