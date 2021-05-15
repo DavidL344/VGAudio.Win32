@@ -433,7 +433,7 @@ namespace VGAudio.Win32
                     if ((bool)Options["SaveExportInfo"]["Use"])
                     {
                         string path = (string)Options["SaveExportInfo"]["FileLocation"];
-                        string line = OpenedFile.GenerateConversionParams(null, true);
+                        string line = OpenedFile.GenerateConversionParams(null, false, true);
                         File.WriteAllText(path, String.Format("{0}\r\n", line));
                     }
                 }
@@ -443,7 +443,7 @@ namespace VGAudio.Win32
                     MessageBox.Show(ex.Message, "Error dumping file information | " + Text, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-               
+
                 UpdateStatus();
                 MessageBox.Show("Info dumped successfully!", Text, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -581,7 +581,7 @@ namespace VGAudio.Win32
 
         private void TestFeature()
         {
-            
+
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)

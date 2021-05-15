@@ -18,6 +18,7 @@ namespace VGAudio.Win32
         public Dictionary<string, int?> ExportLoop = new Dictionary<string, int?>();
         public Dictionary<string, string> ExportResult = new Dictionary<string, string>();
         public Dictionary<string, object> AdvancedExportInfo = new Dictionary<string, object>();
+        public List<string> Warnings = new List<string>();
         private FileStream FileLock = null;
         public bool Initialized = false;
 
@@ -284,7 +285,7 @@ namespace VGAudio.Win32
                     }
                 }
 
-                string conversionCommand = GenerateConversionParams();
+                string conversionCommand = GenerateConversionParams(null, false);
                 if (conversionCommand == null)
                 {
                     conversionCommand = "(unable to generate)";
@@ -348,19 +349,24 @@ namespace VGAudio.Win32
             }
         }
 
-        public string GenerateConversionParams(string exportLocation = null, bool batchFormat = false, bool silent = false)
+        public string GenerateConversionParams(string exportLocation = null, bool silent = true, bool batchFormat = false)
         {
             if (exportLocation == null) exportLocation = String.Format("\"{0}\"", Path.ChangeExtension(Info["Path"], ExportInfo["Extension"]));
             string arguments = String.Format("-i {0} -o {1}", Info["PathEscaped"], exportLocation);
-            List<string> warnings_list = new List<string>();
-            
+            Warnings.Clear();
+
+            if (ExportInfo["ExtensionNoDot"] == "bcstm")
+            {
+                Warnings.Add("The created BCSTM will most likely not work on a 3DS (ex. HOME Menu).");
+            }
+
             if (ExportLoop["Enabled"] == 1)
             {
                 if (ExportLoop["Start"] > ExportLoop["End"])
                 {
                     // The loop information is invalid - the file would contain a negative number of samples
                     int? sampleLength = (int)ExportLoop["End"] - (int)ExportLoop["Start"];
-                    warnings_list.Add(String.Format("The resulting file length is {0} samples due to an invalid loop points.", sampleLength));
+                    Warnings.Add(String.Format("The resulting file length is {0} samples due to an invalid loop points.", sampleLength));
                     arguments += " --no-loop";
                 }
                 else
@@ -370,7 +376,7 @@ namespace VGAudio.Win32
 
                 if (ExportInfo["ExtensionNoDot"] == "wav")
                 {
-                    warnings_list.Add("While the wave file can hold loop information, it won't be read by most media players.");
+                    Warnings.Add("While the wave file can hold loop information, it won't be read by most media players.");
                 }
             }
             else
@@ -478,9 +484,9 @@ namespace VGAudio.Win32
                 string commentCharacter = "";
                 if (batchFormat) commentCharacter = ":: ";
                 string warnings = "";
-                if (warnings_list.Count > 0)
+                if (Warnings.Count > 0)
                 {
-                    foreach (var warning in warnings_list)
+                    foreach (var warning in Warnings)
                     {
                         warnings += String.Format("\r\n{0}[WARNING] {1}", commentCharacter, warning.ToString());
                     }
