@@ -223,8 +223,8 @@
             // 
             // btn_advancedOptions
             // 
-            this.btn_advancedOptions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btn_advancedOptions.Location = new System.Drawing.Point(628, 396);
+            this.btn_advancedOptions.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btn_advancedOptions.Location = new System.Drawing.Point(564, 81);
             this.btn_advancedOptions.Name = "btn_advancedOptions";
             this.btn_advancedOptions.Size = new System.Drawing.Size(172, 54);
             this.btn_advancedOptions.TabIndex = 11;

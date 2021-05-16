@@ -590,7 +590,6 @@ namespace VGAudio.Win32
 
         public string TruncateName(int maxLength = 20)
         {
-            if (Main.FeatureConfig["AllowWindowResize"]) return Info["Name"];
             string fileExtInfo = "... (" + Info["Extension"] + ")";
 
             // The trim length shouldn't be bigger than the length of the file name itself
