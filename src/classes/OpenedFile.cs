@@ -18,7 +18,7 @@ namespace VGAudio.Win32
         public Dictionary<string, int?> ExportLoop = new Dictionary<string, int?>();
         public Dictionary<string, string> ExportResult = new Dictionary<string, string>();
         public Dictionary<string, object> AdvancedExportInfo = new Dictionary<string, object>();
-        public List<string> Warnings = new List<string>();
+        private List<string> Warnings = new List<string>();
         private FileStream FileLock = null;
         public bool Initialized = false;
 
@@ -353,30 +353,18 @@ namespace VGAudio.Win32
         {
             if (exportLocation == null) exportLocation = String.Format("\"{0}\"", Path.ChangeExtension(Info["Path"], ExportInfo["Extension"]));
             string arguments = String.Format("-i {0} -o {1}", Info["PathEscaped"], exportLocation);
-            Warnings.Clear();
-
-            if (ExportInfo["ExtensionNoDot"] == "bcstm")
-            {
-                Warnings.Add("The created BCSTM will most likely not work on a 3DS (ex. HOME Menu).");
-            }
+            GetWarnings(); // This won't be necessary once the controls use GetWarnings() on value change
 
             if (ExportLoop["Enabled"] == 1)
             {
                 if (ExportLoop["Start"] > ExportLoop["End"])
                 {
                     // The loop information is invalid - the file would contain a negative number of samples
-                    int? sampleLength = (int)ExportLoop["End"] - (int)ExportLoop["Start"];
-                    Warnings.Add(String.Format("The resulting file length is {0} samples due to an invalid loop points.", sampleLength));
                     arguments += " --no-loop";
                 }
                 else
                 {
                     arguments += String.Format(" -l {0}-{1}", ExportLoop["Start"], ExportLoop["End"]);
-                }
-
-                if (ExportInfo["ExtensionNoDot"] == "wav")
-                {
-                    Warnings.Add("While the wave file can hold loop information, it won't be read by most media players.");
                 }
             }
             else
@@ -517,9 +505,41 @@ namespace VGAudio.Win32
             return arguments;
         }
 
+        public List<string> GetWarnings()
+        {
+            Warnings.Clear();
+            if (ExportInfo["ExtensionNoDot"] == Info["ExtensionNoDot"])
+                Warnings.Add("You're exporting to the original file extension. Some of the changes might not be applied.");
+            
+            switch (ExportInfo["ExtensionNoDot"])
+            {
+                case "bcstm":
+                    Warnings.Add("The created BCSTM will most likely not work on a 3DS (ex. HOME Menu).");
+                    break;
+                case "wav":
+                    if (ExportLoop["Enabled"] == 1)
+                        Warnings.Add("While the wave file can hold loop information, it won't be read by most media players.");
+                    break;
+                default:
+                    break;
+            }
+
+            if (ExportLoop["Enabled"] == 1)
+            {
+                if (ExportLoop["Start"] > ExportLoop["End"])
+                {
+                    int? sampleLength = (int)ExportLoop["End"] - (int)ExportLoop["Start"];
+                    Warnings.Add(String.Format("The resulting file length is {0} samples due to an invalid loop points.", sampleLength));
+                }
+            }
+
+            // Always up-to-date
+            return Warnings;
+        }
+
         public bool IsLocked(string filePath = null)
         {
-            if (filePath == null) filePath = Info["Path"]; // Only used for early verification at line 42
+            if (filePath == null) filePath = Info["Path"]; // Only used for early verification in Open()
             try
             {
                 using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
