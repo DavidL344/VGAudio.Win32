@@ -238,7 +238,7 @@ namespace VGAudio.Win32
             {
                 lineList.Add("----------\r\n");
                 lineList.Add("Custom Export Info:");
-                lineList.Add("Target file: " + ExportInfo["Extension"]);
+                lineList.Add("Target file: " + ExportInfo["ExtensionNoDot"]);
 
                 if (exportLoop == 1)
                 {
