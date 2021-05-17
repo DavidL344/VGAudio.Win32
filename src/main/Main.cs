@@ -18,7 +18,7 @@ namespace VGAudio.Win32
     {
         public static string VGAudioCli = Path.GetFullPath("VGAudioCli.exe");
         private OpenedFile OpenedFile = new OpenedFile();
-        public static Dictionary<string, bool> FeatureConfig = new Dictionary<string, bool>();
+        public static Dictionary<string, bool> FeatureConfig = Config.FeatureConfig.GetValues();
         public static Theme AppTheme;
         public static readonly string[] extsArray = { "wav", "dsp", "idsp", "brstm", "bcstm", "bfstm", "hps", "adx", "hca", "genh", "at9" };
         public static string extsFilter;
@@ -511,43 +511,6 @@ namespace VGAudio.Win32
         }
         private void OnStart()
         {
-            // Create the supported extensions to a filter
-            extsFilter = FormMethods.CreateExtensionFilter(extsArray);
-
-            // Listen to pressed keys
-            this.KeyPreview = true;
-            this.KeyDown += new KeyEventHandler(FormMethods.ActionListener);
-
-            // Feature Config
-            FeatureConfig.Clear();
-
-            // A button that requires an extra click to close the file first before opening a new one
-            FeatureConfig.Add("OpenCloseWinformsButton", true);
-
-            // Close button closes the file on the first click instead of closing the app
-            FeatureConfig.Add("CloseButtonClosesFile", true);
-
-            // Prefill export file name and extension
-            FeatureConfig.Add("PrefillExportFileName", true);
-
-            // Lock the opened file so that it can't be moved or deleted
-            FeatureConfig.Add("LockOpenedFile", true);
-
-            // Reset the loop information and the advanced options after the file is closed
-            FeatureConfig.Add("ResetExportOptionsOnNewFile", true);
-
-            // Show the time elapsed after finishing the conversion
-            FeatureConfig.Add("ShowTimeElapsed", true);
-
-            // Sync the audio bitrate between tabs in advanced settings
-            FeatureConfig.Add("SyncBitrateTabs", true);
-
-            // Enable adaptive dark mode
-            FeatureConfig.Add("AdaptiveDarkMode", true);
-
-            // Enable window resizing
-            FeatureConfig.Add("AllowWindowResize", true);
-
             // Form size
             MinimumSize = Size;
             if (!FeatureConfig["AllowWindowResize"])
@@ -555,6 +518,13 @@ namespace VGAudio.Win32
                 MaximumSize = Size;
                 MaximizeBox = false;
             }
+
+            // Create the supported extensions to a filter
+            extsFilter = FormMethods.CreateExtensionFilter(extsArray);
+
+            // Listen to pressed keys
+            this.KeyPreview = true;
+            this.KeyDown += new KeyEventHandler(FormMethods.ActionListener);
 
             // Set the app's theme
             AppTheme = new Theme();
