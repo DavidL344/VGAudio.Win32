@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\classes\Theme.cs" />
+    <Compile Include="src\common\CliMethods.cs" />
     <Compile Include="src\common\FeatureConfig.cs" />
     <Compile Include="src\main\about\AboutBox.cs">
       <SubType>Form</SubType>

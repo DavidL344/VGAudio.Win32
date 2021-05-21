@@ -14,25 +14,12 @@ namespace VGAudio.Win32
         [STAThread]
         static void Main(string[] args)
         {
-            switch (args.Length)
+            if (!CliMethods.ExecuteCommand(args))
             {
-                case 1:
-                    switch (args[0])
-                    {
-                        case "--extract":
-                            FormMethods.ExtractCli(true);
-                            Environment.Exit(0);
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    break;
+                Application.EnableVisualStyles();
+                Application.SetCompatibleTextRenderingDefault(false);
+                Application.Run(new Main());
             }
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Main());
         }
     }
 }
